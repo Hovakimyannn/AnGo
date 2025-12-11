@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Գլխավոր | LuxSalon{% endblock %}
+
+{% block body %}
+    {# --- HERO SECTION --- #}
+    <div class="relative h-[600px] flex items-center justify-center overflow-hidden">
+        {# Background Image with Overlay #}
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1674&q=80" alt="Salon" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16">
+            <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg leading-tight">
+                Բացահայտեք Ձեր <br/><span class="text-pink-500">Կատարելությունը</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-10 font-light">
+                Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Երևանի սրտում։
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="#booking" class="bg-pink-600 text-white px-8 py-4 rounded-full font-bold hover:bg-pink-700 transition shadow-xl hover:shadow-pink-500/30 transform hover:-translate-y-1">
+                    Ամրագրել Այց
+                </a>
+                <a href="#masters" class="bg-white/10 backdrop-blur border border-white/30 text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-gray-900 transition">
+                    Տեսնել Վարպետներին
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# --- SERVICES SECTION --- #}
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Մեր Ծառայությունները</h2>
+                <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Hair -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                    <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
+                        <i class="fas fa-cut text-4xl text-white mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white">Վարսահարդարում</h3>
+                        <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
+                            Կտրվածքներ, ներկում և խնամք
+                        </p>
+                    </div>
+                </div>
+                <!-- Makeup -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
+                        <i class="fas fa-magic text-4xl text-white mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white">Դիմահարդարում</h3>
+                        <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
+                            Երեկոյան և ամենօրյա make-up
+                        </p>
+                    </div>
+                </div>
+                <!-- Nails -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                    <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
+                        <i class="fas fa-hand-sparkles text-4xl text-white mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white">Մատնահարդարում</h3>
+                        <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
+                            Մանիկյուր և Պեդիկյուր
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# --- ARTISTS SECTION (DYNAMIC) --- #}
+    <section id="masters" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Թոփ Վարպետներ</h2>
+                <p class="text-gray-500 max-w-2xl mx-auto">Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {% for artist in artists %}
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 border border-gray-100 group">
+                        <div class="relative h-64 overflow-hidden">
+                            {% if artist.photoUrl %}
+                                <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" alt="{{ artist.user.firstName }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=512" alt="Default" class="w-full h-full object-cover">
+                            {% endif %}
+
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
+                                <i class="fas fa-star text-yellow-400 mr-1"></i> 5.0
+                            </div>
+                        </div>
+                        <div class="p-6 text-center">
+                            <h3 class="text-xl font-bold text-gray-900 mb-1">{{ artist.user.firstName }} {{ artist.user.lastName }}</h3>
+                            <p class="text-pink-600 font-medium text-sm mb-4">{{ artist.specialization }}</p>
+
+                            <a href="#" class="block w-full border-2 border-gray-900 text-gray-900 font-semibold py-2 rounded-lg hover:bg-gray-900 hover:text-white transition">
+                                Ամրագրել
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="col-span-4 text-center text-gray-500 py-10">
+                        <p>Այս պահին ակտիվ վարպետներ չկան։ Խնդրում ենք ավելացնել Admin Panel-ից։</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

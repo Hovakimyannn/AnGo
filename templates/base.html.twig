@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="hy">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LuxSalon{% endblock %}</title>
+
+    {# Tailwind CSS #}
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    {# Icons #}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    {# Fonts #}
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+{# --- HEADER --- #}
+<header class="fixed w-full bg-white/95 backdrop-blur shadow-sm z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+        <!-- Logo -->
+        <a href="{{ path('app_home') }}" class="text-2xl font-bold tracking-widest text-pink-600 flex items-center gap-2">
+            <i class="fas fa-crown"></i>
+            LUX<span class="text-gray-800">SALON</span>
+        </a>
+
+        <!-- Desktop Menu -->
+        <nav class="hidden md:flex space-x-6 items-center font-medium text-sm text-gray-600">
+            <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+
+            <!-- Artists Dropdown -->
+            <div class="relative group">
+                <button class="flex items-center hover:text-pink-600 transition gap-1 h-full">
+                    Վարպետներ <i class="fas fa-chevron-down text-xs"></i>
+                </button>
+
+                <!-- Fixed Dropdown with Links -->
+                <div class="absolute left-0 top-full pt-2 w-48 hidden group-hover:block origin-top-left z-50">
+                    <div class="bg-white shadow-xl rounded-lg overflow-hidden border-t-2 border-pink-600">
+                        <a href="{{ path('app_artists', {'category': 'hair'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Hair Stylists</a>
+                        <a href="{{ path('app_artists', {'category': 'nails'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Nail Masters</a>
+                        <a href="{{ path('app_artists', {'category': 'makeup'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Makeup Artists</a>
+                    </div>
+                </div>
+            </div>
+
+            <a href="#" class="hover:text-pink-600 transition">Ծառայություններ</a>
+            <a href="#" class="hover:text-pink-600 transition">Մեր մասին</a>
+            <a href="#" class="hover:text-pink-600 transition">Կապ</a>
+
+            <!-- Booking Button -->
+            <a href="#booking" class="bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-pink-600 transition shadow-lg transform hover:scale-105 duration-200">
+                <i class="far fa-calendar-check mr-2"></i>Ամրագրել
+            </a>
+        </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-2xl text-gray-700 focus:outline-none" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- Mobile Menu Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-lg">
+        <a href="{{ path('app_home') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Գլխավոր</a>
+        <div class="block px-6 py-3 border-b bg-gray-50">
+            <span class="font-semibold text-pink-600 block mb-2">Վարպետներ</span>
+            <div class="pl-4 space-y-2 text-sm text-gray-600 border-l-2 border-pink-200">
+                <a href="{{ path('app_artists', {'category': 'hair'}) }}" class="block py-1">Hair Stylists</a>
+                <a href="{{ path('app_artists', {'category': 'nails'}) }}" class="block py-1">Nail Masters</a>
+                <a href="{{ path('app_artists', {'category': 'makeup'}) }}" class="block py-1">Makeup Artists</a>
+            </div>
+        </div>
+        <a href="#" class="block px-6 py-3 border-b hover:bg-gray-50">Ծառայություններ</a>
+        <a href="#booking" class="block px-6 py-3 border-b hover:bg-gray-50 text-pink-600 font-bold">Ամրագրել հիմա</a>
+    </div>
+</header>
+
+{# --- MAIN CONTENT --- #}
+<main class="flex-grow pt-16">
+    {% block body %}{% endblock %}
+</main>
+
+{# --- FOOTER --- #}
+<footer class="bg-gray-900 text-white py-12">
+    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="text-xl font-bold mb-4 text-pink-500">LuxSalon</h3>
+            <p class="text-gray-400 text-sm">Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։ Լավագույն մասնագետները Երևանում։</p>
+        </div>
+        <div>
+            <h4 class="font-bold mb-4">Հասցե</h4>
+            <p class="text-gray-400 text-sm"><i class="fas fa-map-marker-alt mr-2"></i> Երևան, Թումանյան 25</p>
+            <p class="text-gray-400 text-sm mt-2"><i class="fas fa-phone mr-2"></i> +374 99 123 456</p>
+        </div>
+        <div>
+            <h4 class="font-bold mb-4">Աշխատանքային ժամեր</h4>
+            <p class="text-gray-400 text-sm">Երկ - Շաբ: 10:00 - 20:00</p>
+            <p class="text-gray-400 text-sm">Կիր: 11:00 - 18:00</p>
+        </div>
+        <div>
+            <h4 class="font-bold mb-4">Սոցիալական</h4>
+            <div class="flex space-x-4">
+                <a href="#" class="hover:text-pink-500 transition"><i class="fab fa-instagram text-2xl"></i></a>
+                <a href="#" class="hover:text-pink-500 transition"><i class="fab fa-facebook text-2xl"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-12 pt-8 border-t border-gray-800 text-xs text-gray-500">
+        &copy; {{ "now"|date("Y") }} LuxSalon. All rights reserved.
+    </div>
+</footer>
+
+{# --- INCLUDE MODAL --- #}
+{% include 'parts/booking_modal.html.twig' %}
+
+{% block javascripts %}{% endblock %}
+
+{# --- SCRIPT FOR BOOKING BUTTON --- #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const buttons = document.querySelectorAll('a[href="#booking"]');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (typeof openBooking === 'function') {
+                    openBooking();
+                } else {
+                    console.error('Booking modal function not found.');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>

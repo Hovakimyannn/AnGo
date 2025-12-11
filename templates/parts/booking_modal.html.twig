@@ -1,0 +1,211 @@
+<!-- Booking Modal Overlay -->
+<div id="bookingModal" class="fixed inset-0 bg-black/70 z-[60] hidden flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl transform transition-all scale-95 opacity-0" id="bookingContent">
+
+        <!-- Header -->
+        <div class="bg-gray-900 px-6 py-4 flex justify-between items-center text-white">
+            <h3 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-calendar-alt text-pink-500"></i> Ամրագրել Այց
+            </h3>
+            <button onclick="closeBooking()" class="text-gray-400 hover:text-white transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6 max-h-[80vh] overflow-y-auto">
+            <form id="bookingForm" onsubmit="submitBooking(event)">
+
+                <!-- Step 1: Service -->
+                <div class="mb-5">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">1. Ընտրեք Ծառայությունը</label>
+                    <select id="serviceSelect" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border" onchange="loadArtists()">
+                        <option value="">-- Ընտրել --</option>
+                        {% for service in services %}
+                            <option value="{{ service.id }}">{{ service.name }} ({{ service.price }} AMD)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Step 2: Artist -->
+                <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepArtist">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">2. Ընտրեք Վարպետին</label>
+                    <select id="artistSelect" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border" onchange="enableDate()">
+                        <option value="">-- Նախ ընտրեք ծառայությունը --</option>
+                    </select>
+                </div>
+
+                <!-- Step 3: Date -->
+                <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepDate">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">3. Ընտրեք Օրը</label>
+                    <input type="date" id="dateInput" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border" onchange="loadSlots()">
+                </div>
+
+                <!-- Step 4: Time Slots -->
+                <div class="mb-5 hidden" id="stepSlots">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">4. Ազատ Ժամեր</label>
+                    <div id="slotsContainer" class="grid grid-cols-4 gap-2">
+                        <!-- Slots will be injected here via JS -->
+                    </div>
+                    <input type="hidden" id="selectedTime" required>
+                </div>
+
+                <!-- Step 5: Client Info -->
+                <div class="mb-5 hidden space-y-3" id="stepClient">
+                    <hr class="border-gray-200">
+                    <h4 class="font-bold text-pink-600">Ձեր Տվյալները</h4>
+                    <input type="text" id="clientName" placeholder="Ձեր Անունը" required class="w-full rounded-lg border-gray-300 p-2 border">
+                    <input type="tel" id="clientPhone" placeholder="Հեռախոս" required class="w-full rounded-lg border-gray-300 p-2 border">
+                    <input type="email" id="clientEmail" placeholder="Email (կամայական)" class="w-full rounded-lg border-gray-300 p-2 border">
+
+                    <button type="submit" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-lg shadow-lg transition transform hover:scale-[1.02]">
+                        Հաստատել Ամրագրումը
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- UI LOGIC ---
+    function openBooking() {
+        const modal = document.getElementById('bookingModal');
+        const content = document.getElementById('bookingContent');
+        modal.classList.remove('hidden');
+        // Small delay for animation
+        setTimeout(() => {
+            content.classList.remove('scale-95', 'opacity-0');
+            content.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function closeBooking() {
+        const modal = document.getElementById('bookingModal');
+        const content = document.getElementById('bookingContent');
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // --- API LOGIC ---
+
+    async function loadArtists() {
+        const serviceId = document.getElementById('serviceSelect').value;
+        const artistSelect = document.getElementById('artistSelect');
+        const stepArtist = document.getElementById('stepArtist');
+
+        // Reset steps
+        artistSelect.innerHTML = '<option>Loading...</option>';
+        document.getElementById('stepDate').classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('stepSlots').classList.add('hidden');
+
+        if(!serviceId) return;
+
+        try {
+            const response = await fetch(`/api/booking/artists/${serviceId}`);
+            const artists = await response.json();
+
+            artistSelect.innerHTML = '<option value="">-- Ընտրել Վարպետին --</option>';
+            artists.forEach(artist => {
+                artistSelect.innerHTML += `<option value="${artist.id}">${artist.name}</option>`;
+            });
+
+            stepArtist.classList.remove('opacity-50', 'pointer-events-none');
+        } catch (e) {
+            console.error('Error:', e);
+            alert('Error loading artists');
+        }
+    }
+
+    function enableDate() {
+        document.getElementById('stepDate').classList.remove('opacity-50', 'pointer-events-none');
+    }
+
+    async function loadSlots() {
+        const artistId = document.getElementById('artistSelect').value;
+        const serviceId = document.getElementById('serviceSelect').value;
+        const date = document.getElementById('dateInput').value;
+        const slotsContainer = document.getElementById('slotsContainer');
+        const stepSlots = document.getElementById('stepSlots');
+
+        if(!date) return;
+
+        slotsContainer.innerHTML = '<p class="col-span-4 text-center text-gray-500">Loading...</p>';
+        stepSlots.classList.remove('hidden');
+
+        try {
+            const url = `/api/booking/slots?artistId=${artistId}&serviceId=${serviceId}&date=${date}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            slotsContainer.innerHTML = '';
+
+            if (data.slots.length === 0) {
+                slotsContainer.innerHTML = '<p class="col-span-4 text-center text-red-500">Այս օրը ազատ տեղեր չկան:</p>';
+                return;
+            }
+
+            data.slots.forEach(time => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'border border-pink-200 text-pink-600 hover:bg-pink-600 hover:text-white py-2 rounded transition text-sm font-bold';
+                btn.innerText = time;
+                btn.onclick = () => selectTime(btn, time);
+                slotsContainer.appendChild(btn);
+            });
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    function selectTime(btn, time) {
+        // Remove active class from others
+        document.querySelectorAll('#slotsContainer button').forEach(b => {
+            b.classList.remove('bg-pink-600', 'text-white');
+            b.classList.add('text-pink-600');
+        });
+
+        // Add active class
+        btn.classList.remove('text-pink-600');
+        btn.classList.add('bg-pink-600', 'text-white');
+
+        document.getElementById('selectedTime').value = time;
+        document.getElementById('stepClient').classList.remove('hidden');
+    }
+
+    async function submitBooking(e) {
+        e.preventDefault();
+
+        const data = {
+            serviceId: document.getElementById('serviceSelect').value,
+            artistId: document.getElementById('artistSelect').value,
+            date: document.getElementById('dateInput').value,
+            time: document.getElementById('selectedTime').value,
+            name: document.getElementById('clientName').value,
+            phone: document.getElementById('clientPhone').value,
+            email: document.getElementById('clientEmail').value
+        };
+
+        try {
+            const response = await fetch('/api/booking/book', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if(result.success) {
+                alert('Շնորհավորում ենք! Ձեր ամրագրումը կատարված է: Շուտով կապ կհաստատենք:');
+                location.reload();
+            } else {
+                alert('Error: ' + JSON.stringify(result));
+            }
+        } catch (e) {
+            alert('System Error');
+        }
+    }
+</script>

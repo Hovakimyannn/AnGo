@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # Web Server
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8085:80"  # Փոխեցինք 8085, որպեսզի 8080-ի հետ խնդիր չլինի
+    volumes:
+      - ./public:/var/www/html/public
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+    networks:
+      - salon_network
+
+  # PHP Backend
+  php:
+    build: .       # <--- ԿԱՐԵՎՈՐ: Մենք օգտագործում ենք ձեր սարքած Dockerfile-ը
+    # image: php:8.2-fpm  <--- ԱՅՍ ՏՈՂԸ ՊԵՏՔ Է ՋՆՋՎԱԾ ԼԻՆԻ
+    volumes:
+      - ./:/var/www/html
+    environment:
+      # Database host-ը "database" է, ոչ թե localhost
+      DATABASE_URL: "mysql://root:root_password@database:3306/salon_db?serverVersion=8.0"
+      REDIS_URL: "redis://redis:6379"
+    networks:
+      - salon_network
+
+  # Database
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: salon_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - salon_network
+
+  # Cache
+  redis:
+    image: redis:alpine
+    networks:
+      - salon_network
+
+networks:
+  salon_network:
+
+volumes:
+  db_data:

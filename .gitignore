@@ -1,0 +1,53 @@
+# Composer / PHP
+/vendor/
+composer.phar
+/.phpunit.result.cache
+
+# Symfony
+/var/
+/public/bundles/
+/public/uploads/
+/uploads/
+/var/*.log
+/var/*.cache
+/var/sessions/
+/var/secrets/
+/config/jwt/private.pem
+/config/jwt/public.pem
+
+# Environment
+.env.local
+.env.*.local
+.env.local.php
+/.env.test.local
+
+# Build / assets / node
+/node_modules/
+/yarn-error.log
+npm-debug.log
+/.parcel-cache
+/dist/
+/build/
+
+# IDEs
+/.idea/
+/*.iml
+/.phpstorm.meta.php
+/.vscode/
+
+# Logs and runtime files
+*.log
+logs/
+*.pid
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Misc
+/.symfony/
+.cache/
+*.swp
+
+.env

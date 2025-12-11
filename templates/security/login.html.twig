@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-white">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salon Admin Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="h-full">
+
+<div class="min-h-screen flex">
+
+    <!-- Left Side: Image (Hidden on Mobile) -->
+    <div class="hidden lg:block relative w-0 flex-1">
+        <img class="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?q=80&w=2574&auto=format&fit=crop" alt="Beauty Salon Background">
+        <!-- Dark Overlay for better contrast if needed -->
+        <div class="absolute inset-0 bg-pink-900 bg-opacity-20 mix-blend-multiply"></div>
+        <div class="absolute bottom-0 left-0 p-12 text-white">
+            <h2 class="text-4xl font-bold mb-4">LuxSalon Management</h2>
+            <p class="text-lg opacity-90">Կառավարեք ձեր բիզնեսը, հաճախորդներին և ժամանակացույցը մեկ տեղում:</p>
+        </div>
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24 bg-white">
+        <div class="mx-auto w-full max-w-sm lg:w-96">
+
+            <!-- Logo / Header -->
+            <div>
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                    <span class="text-pink-600"><i class="fas fa-gem"></i></span>
+                    Admin Panel
+                </h2>
+                <p class="mt-2 text-sm text-gray-500">
+                    Մուտք գործեք համակարգ՝ շարունակելու համար
+                </p>
+            </div>
+
+            <div class="mt-8">
+                <div class="mt-6">
+                    <form action="{{ path('app_login') }}" method="POST" class="space-y-6">
+
+                        {# Error Alert #}
+                        {% if error %}
+                            <div class="rounded-md bg-red-50 p-4 border-l-4 border-red-500 animate-pulse">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-times-circle text-red-400"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <h3 class="text-sm font-medium text-red-800">Սխալ մուտքային տվյալներ</h3>
+                                        <div class="mt-2 text-sm text-red-700">
+                                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {# Success / Logged in Alert #}
+                        {% if app.user %}
+                            <div class="rounded-md bg-blue-50 p-4">
+                                <div class="flex">
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            Դուք արդեն մուտք եք գործել որպես <b>{{ app.user.userIdentifier }}</b>.
+                                            <a href="{{ path('app_logout') }}" class="font-medium underline hover:text-blue-600">Դուրս գալ</a>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Email Input -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Էլ. հասցե</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="far fa-envelope text-gray-400"></i>
+                                </div>
+                                <input id="email" name="_username" type="email" autocomplete="email" required value="{{ last_username }}"
+                                       class="block w-full pl-10 appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-pink-500 focus:outline-none focus:ring-pink-500 sm:text-sm transition duration-200"
+                                       placeholder="admin@example.com">
+                            </div>
+                        </div>
+
+                        <!-- Password Input -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Գաղտնաբառ</label>
+                            <div class="mt-1 relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-lock text-gray-400"></i>
+                                </div>
+                                <input id="password" name="_password" type="password" autocomplete="current-password" required
+                                       class="block w-full pl-10 appearance-none rounded-md border border-gray-300 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-pink-500 focus:outline-none focus:ring-pink-500 sm:text-sm transition duration-200"
+                                       placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <!-- CSRF Token -->
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        <!-- Remember Me & Forgot Password -->
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <input id="remember-me" name="_remember_me" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-pink-600 focus:ring-pink-500">
+                                <label for="remember-me" class="ml-2 block text-sm text-gray-900">Հիշել ինձ</label>
+                            </div>
+
+                            <div class="text-sm">
+                                <a href="#" class="font-medium text-pink-600 hover:text-pink-500">Մոռացե՞լ եք գաղտնաբառը</a>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div>
+                            <button type="submit" class="flex w-full justify-center rounded-md border border-transparent bg-gray-900 py-3 px-4 text-sm font-medium text-white shadow-sm hover:bg-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 transition duration-300 transform hover:scale-[1.02]">
+                                Մուտք գործել <i class="fas fa-arrow-right ml-2 mt-1"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="mt-10 text-center text-xs text-gray-400">
+                &copy; {{ "now"|date("Y") }} LuxSalon System. All rights reserved.
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

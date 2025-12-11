@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ category }} | LuxSalon{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-12">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold mb-4">
+                <span class="text-pink-600">{{ category }}</span>
+            </h1>
+            <div class="w-24 h-1 bg-gray-200 mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for artist in artists %}
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition duration-300 group border border-gray-100">
+                    <div class="h-80 overflow-hidden relative">
+                        {% if artist.photoUrl %}
+                            <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}"
+                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=512"
+                                 class="w-full h-full object-cover">
+                        {% endif %}
+
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center p-6">
+                            <a href="{{ path('app_artist_show', {id: artist.id}) }}" class="text-white font-bold border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition">
+                                Տեսնել Ավելին
+                            </a>
+                        </div>
+                    </div>
+                    <div class="p-6 text-center">
+                        <h3 class="text-xl font-bold text-gray-800">{{ artist.user.firstName }} {{ artist.user.lastName }}</h3>
+                        <p class="text-pink-600 font-medium text-sm mt-1 mb-4">{{ artist.specialization }}</p>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-span-3 text-center py-12">
+                    <p class="text-gray-500 text-lg">Այս կատեգորիայում դեռ վարպետներ գրանցված չեն:</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
