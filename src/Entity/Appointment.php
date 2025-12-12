@@ -142,6 +142,45 @@ class Appointment
         return $this;
     }
 
+    /**
+     * Virtual field (not persisted): duration in minutes, computed from start/end.
+     */
+    public function getDurationMinutes(): ?int
+    {
+        if (!$this->startDatetime || !$this->endDatetime) {
+            return null;
+        }
+
+        $seconds = $this->endDatetime->getTimestamp() - $this->startDatetime->getTimestamp();
+        if ($seconds < 0) {
+            return null;
+        }
+
+        return (int) round($seconds / 60);
+    }
+
+    /**
+     * Virtual field (not persisted): human readable duration, e.g. "1 ժ 30 ր".
+     */
+    public function getDurationHuman(): string
+    {
+        $minutes = $this->getDurationMinutes();
+        if ($minutes === null) {
+            return '-';
+        }
+
+        $hours = intdiv($minutes, 60);
+        $mins = $minutes % 60;
+
+        if ($hours > 0 && $mins > 0) {
+            return sprintf('%d ժ %d ր', $hours, $mins);
+        }
+        if ($hours > 0) {
+            return sprintf('%d ժ', $hours);
+        }
+        return sprintf('%d ր', $mins);
+    }
+
     public function getStatus(): ?string
     {
         return $this->status;

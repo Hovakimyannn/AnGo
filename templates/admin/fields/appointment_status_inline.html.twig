@@ -1,0 +1,134 @@
+{# Inline status editor for Appointment index page (dropdown menu) #}
+{% set _id = entity.primaryKeyValue %}
+{% set _status = field.value %}
+
+{% set badgeClass = {
+  'PENDING': 'badge badge-warning',
+  'CONFIRMED': 'badge badge-success',
+  'COMPLETED': 'badge badge-info',
+  'CANCELED': 'badge badge-danger'
+}[_status]|default('badge badge-secondary') %}
+
+{% set url = ea_url()
+  .setController('App\\Controller\\Admin\\AppointmentCrudController')
+  .setAction('ajaxSetStatus')
+  .setEntityId(_id)
+%}
+
+<span class="js-appointment-status-wrap dropdown d-inline-flex align-items-center" data-id="{{ _id }}">
+  <button type="button"
+          class="js-appointment-status-badge {{ badgeClass }} dropdown-toggle"
+          data-current="{{ _status }}"
+          data-url="{{ url }}"
+          data-token="{{ csrf_token('appointment_status') }}"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          style="cursor:pointer; border:0;">
+    {{ _status }}
+  </button>
+
+  <ul class="dropdown-menu dropdown-menu-dark shadow" style="min-width: 13rem;">
+    <li>
+      <button class="dropdown-item d-flex align-items-center gap-2 js-appointment-status-item" type="button" data-status="PENDING">
+        <span class="badge badge-warning">PENDING</span>
+        <span class="ms-auto opacity-75 js-appointment-status-check" data-status="PENDING"></span>
+      </button>
+    </li>
+    <li>
+      <button class="dropdown-item d-flex align-items-center gap-2 js-appointment-status-item" type="button" data-status="CONFIRMED">
+        <span class="badge badge-success">CONFIRMED</span>
+        <span class="ms-auto opacity-75 js-appointment-status-check" data-status="CONFIRMED"></span>
+      </button>
+    </li>
+    <li>
+      <button class="dropdown-item d-flex align-items-center gap-2 js-appointment-status-item" type="button" data-status="COMPLETED">
+        <span class="badge badge-info">COMPLETED</span>
+        <span class="ms-auto opacity-75 js-appointment-status-check" data-status="COMPLETED"></span>
+      </button>
+    </li>
+    <li>
+      <button class="dropdown-item d-flex align-items-center gap-2 js-appointment-status-item" type="button" data-status="CANCELED">
+        <span class="badge badge-danger">CANCELED</span>
+        <span class="ms-auto opacity-75 js-appointment-status-check" data-status="CANCELED"></span>
+      </button>
+    </li>
+  </ul>
+</span>
+
+<script>
+  if (!window.__appointmentStatusInlineInit) {
+    window.__appointmentStatusInlineInit = true;
+
+    function badgeClassForStatus(status) {
+      switch (status) {
+        case 'PENDING': return 'badge badge-warning';
+        case 'CONFIRMED': return 'badge badge-success';
+        case 'COMPLETED': return 'badge badge-info';
+        case 'CANCELED': return 'badge badge-danger';
+        default: return 'badge badge-secondary';
+      }
+    }
+
+    function refreshChecks(wrap) {
+      const badge = wrap?.querySelector('.js-appointment-status-badge');
+      if (!wrap || !badge) return;
+      const current = badge.dataset.current || badge.textContent?.trim() || '';
+      wrap.querySelectorAll('.js-appointment-status-check').forEach(el => {
+        el.textContent = (el.dataset.status === current) ? '✓' : '';
+      });
+    }
+
+    // When opening dropdown, refresh checkmarks to match current status
+    document.addEventListener('click', (e) => {
+      const badge = e.target.closest('.js-appointment-status-badge');
+      if (!badge) return;
+      const wrap = badge.closest('.js-appointment-status-wrap');
+      // let bootstrap toggle the menu, then refresh
+      setTimeout(() => refreshChecks(wrap), 0);
+    });
+
+    document.addEventListener('click', async (e) => {
+      const item = e.target.closest('.js-appointment-status-item');
+      if (!item) return;
+      e.preventDefault();
+
+      const wrap = item.closest('.js-appointment-status-wrap');
+      const badge = wrap?.querySelector('.js-appointment-status-badge');
+      if (!wrap || !badge) return;
+
+      const url = badge.dataset.url;
+      const token = badge.dataset.token;
+      const status = item.dataset.status;
+      const prev = badge.dataset.current || 'PENDING';
+
+      // optimistic UI
+      badge.textContent = status;
+      badge.className = 'js-appointment-status-badge dropdown-toggle ' + badgeClassForStatus(status);
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status, _token: token }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(data.error || 'Request failed');
+        }
+
+        badge.dataset.current = data.status;
+        badge.textContent = data.status;
+        badge.className = 'js-appointment-status-badge dropdown-toggle ' + badgeClassForStatus(data.status);
+        refreshChecks(wrap);
+      } catch (err) {
+        badge.dataset.current = prev;
+        badge.textContent = prev;
+        badge.className = 'js-appointment-status-badge dropdown-toggle ' + badgeClassForStatus(prev);
+        refreshChecks(wrap);
+        alert('Չհաջողվեց փոխել status-ը։');
+      }
+    });
+  }
+</script>
+
+

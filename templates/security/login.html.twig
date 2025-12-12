@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full bg-white">
+<html lang="hy" class="h-full bg-white">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salon Admin Login</title>
+    <title>Ադմին մուտք | AnGo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Armenian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: 'Inter', 'Noto Sans Armenian', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-synthesis: none;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        :lang(hy) body {
+            font-family: 'Noto Sans Armenian', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+        }
     </style>
 </head>
 <body class="h-full">
@@ -17,11 +28,11 @@
 
     <!-- Left Side: Image (Hidden on Mobile) -->
     <div class="hidden lg:block relative w-0 flex-1">
-        <img class="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?q=80&w=2574&auto=format&fit=crop" alt="Beauty Salon Background">
+        <img class="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?q=80&w=2574&auto=format&fit=crop" alt="Սրահի ֆոն">
         <!-- Dark Overlay for better contrast if needed -->
         <div class="absolute inset-0 bg-pink-900 bg-opacity-20 mix-blend-multiply"></div>
         <div class="absolute bottom-0 left-0 p-12 text-white">
-            <h2 class="text-4xl font-bold mb-4">LuxSalon Management</h2>
+            <h2 class="text-4xl font-bold mb-4">AnGo կառավարում</h2>
             <p class="text-lg opacity-90">Կառավարեք ձեր բիզնեսը, հաճախորդներին և ժամանակացույցը մեկ տեղում:</p>
         </div>
     </div>
@@ -34,7 +45,7 @@
             <div>
                 <h2 class="text-3xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
                     <span class="text-pink-600"><i class="fas fa-gem"></i></span>
-                    Admin Panel
+                    Ադմին պանել
                 </h2>
                 <p class="mt-2 text-sm text-gray-500">
                     Մուտք գործեք համակարգ՝ շարունակելու համար
@@ -129,7 +140,7 @@
 
             <!-- Footer -->
             <div class="mt-10 text-center text-xs text-gray-400">
-                &copy; {{ "now"|date("Y") }} LuxSalon System. All rights reserved.
+                &copy; {{ "now"|date("Y") }} AnGo. Բոլոր իրավունքները պաշտպանված են։
             </div>
         </div>
     </div>

@@ -26,13 +26,32 @@ class BookingService
             'isDayOff' => false
         ]);
 
-        // Ete ayd ory chi ashxatum, veradardzru datark
+        // Ete tvyal orva availability chka
+        // - ete artist-i hamar inchvor availability chka amboxjakan (schedule-@ setup che), vercnenq default schedule
+        // - hakarak depqum` veradardznenq datark (ays ory chi ashxatum)
         if (!$availability) {
-            return [];
+            $hasAnyAvailability = $this->availabilityRepository->count(['artist' => $artist]) > 0;
+            if ($hasAnyAvailability) {
+                return [];
+            }
+
+            // Default schedule (out-of-the-box): Mon צור Sat 10:00-20:00, Sun off
+            if ((int)$dayOfWeek === 7) {
+                return [];
+            }
+
+            $startWork = \DateTimeImmutable::createFromFormat('H:i', '10:00') ?: new \DateTimeImmutable('10:00');
+            $endWork = \DateTimeImmutable::createFromFormat('H:i', '20:00') ?: new \DateTimeImmutable('20:00');
+        } else {
+            $startWork = $availability->getStartTime(); // Orinak 10:00
+            $endWork = $availability->getEndTime();     // Orinak 20:00
+
+            // Ete jamery bacakayan en, hamareq` ory chi ashxatum
+            if (!$startWork || !$endWork) {
+                return [];
+            }
         }
 
-        $startWork = $availability->getStartTime(); // Orinak 10:00
-        $endWork = $availability->getEndTime();     // Orinak 20:00
         $serviceDuration = $service->getDurationMinutes(); // Orinak 60 rope
 
         // 2. Gtnel ayd orva bolor grancvac patvernery

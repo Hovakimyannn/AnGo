@@ -16,23 +16,39 @@
         <div class="p-6 max-h-[80vh] overflow-y-auto">
             <form id="bookingForm" onsubmit="submitBooking(event)">
 
-                <!-- Step 1: Service -->
-                <div class="mb-5">
+                <!-- Step 1: Service (global booking flow) -->
+                <div class="mb-5" id="stepService">
                     <label class="block text-sm font-bold text-gray-700 mb-2">1. Ընտրեք Ծառայությունը</label>
-                    <select id="serviceSelect" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border" onchange="loadArtists()">
-                        <option value="">-- Ընտրել --</option>
-                        {% for service in services %}
-                            <option value="{{ service.id }}">{{ service.name }} ({{ service.price }} AMD)</option>
-                        {% endfor %}
-                    </select>
+                    <div class="relative">
+                        <select id="serviceSelect"
+                                required
+                                class="w-full appearance-none border border-gray-300 rounded-lg bg-white px-3 py-2.5 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                onchange="onServiceChange()">
+                            <option value="">-- Ընտրել --</option>
+                            {% for service in services %}
+                                <option value="{{ service.id }}">{{ service.name }} ({{ service.price }} AMD)</option>
+                            {% endfor %}
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Step 2: Artist -->
                 <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepArtist">
                     <label class="block text-sm font-bold text-gray-700 mb-2">2. Ընտրեք Վարպետին</label>
-                    <select id="artistSelect" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border" onchange="enableDate()">
-                        <option value="">-- Նախ ընտրեք ծառայությունը --</option>
-                    </select>
+                    <div class="relative">
+                        <select id="artistSelect"
+                                required
+                                class="w-full appearance-none border border-gray-300 rounded-lg bg-white px-3 py-2.5 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                onchange="onArtistChange()">
+                            <option value="">-- Նախ ընտրեք ծառայությունը --</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Step 3: Date -->
@@ -70,7 +86,18 @@
 
 <script>
     // --- UI LOGIC ---
-    function openBooking() {
+    window.__bookingMode = 'global'; // 'global' | 'artist'
+    window.__bookingAllServicesOptions = null;
+    window.__bookingArtistsCache = null; // cached from /api/booking/artists
+
+    function initBookingCaches() {
+        const serviceSelect = document.getElementById('serviceSelect');
+        if (serviceSelect && window.__bookingAllServicesOptions === null) {
+            window.__bookingAllServicesOptions = serviceSelect.innerHTML;
+        }
+    }
+
+    function openBooking(options = {}) {
         const modal = document.getElementById('bookingModal');
         const content = document.getElementById('bookingContent');
         modal.classList.remove('hidden');
@@ -79,6 +106,19 @@
             content.classList.remove('scale-95', 'opacity-0');
             content.classList.add('scale-100', 'opacity-100');
         }, 10);
+
+        initBookingCaches();
+
+        const artistId = options && options.artistId ? String(options.artistId) : null;
+        window.__bookingMode = artistId ? 'artist' : 'global';
+
+        resetBookingFormState();
+
+        if (artistId) {
+            // Artist-specific booking: artist is locked, services are filtered by artist
+            setArtistLocked(artistId);
+            loadServicesForArtist(artistId);
+        }
     }
 
     function closeBooking() {
@@ -90,37 +130,165 @@
     }
 
     // --- API LOGIC ---
+    function resetBookingFormState() {
+        const artistSelect = document.getElementById('artistSelect');
+        const serviceSelect = document.getElementById('serviceSelect');
+        const dateInput = document.getElementById('dateInput');
 
-    async function loadArtists() {
-        const serviceId = document.getElementById('serviceSelect').value;
+        // restore service options for global mode
+        if (serviceSelect && window.__bookingAllServicesOptions !== null) {
+            serviceSelect.innerHTML = window.__bookingAllServicesOptions;
+            serviceSelect.value = '';
+        }
+
+        if (artistSelect) {
+            artistSelect.disabled = false;
+            artistSelect.value = '';
+            artistSelect.innerHTML = '<option value="">-- Նախ ընտրեք ծառայությունը --</option>';
+        }
+
+        if (dateInput) dateInput.value = '';
+
+        // steps
+        document.getElementById('stepService')?.classList.remove('opacity-50', 'pointer-events-none');
+        document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('stepDate')?.classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('stepSlots')?.classList.add('hidden');
+        document.getElementById('stepClient')?.classList.add('hidden');
+        const selectedTime = document.getElementById('selectedTime');
+        if (selectedTime) selectedTime.value = '';
+    }
+
+    async function ensureArtistsCache() {
+        if (window.__bookingArtistsCache) return window.__bookingArtistsCache;
+        const response = await fetch('/api/booking/artists');
+        const artists = await response.json();
+        window.__bookingArtistsCache = Array.isArray(artists) ? artists : [];
+        return window.__bookingArtistsCache;
+    }
+
+    async function setArtistLocked(artistId) {
         const artistSelect = document.getElementById('artistSelect');
         const stepArtist = document.getElementById('stepArtist');
+        if (!artistSelect || !stepArtist) return;
 
-        // Reset steps
-        artistSelect.innerHTML = '<option>Loading...</option>';
-        document.getElementById('stepDate').classList.add('opacity-50', 'pointer-events-none');
-        document.getElementById('stepSlots').classList.add('hidden');
+        artistSelect.disabled = true;
+        artistSelect.innerHTML = `<option value="${artistId}">Բեռնվում է...</option>`;
+        artistSelect.value = artistId;
+        stepArtist.classList.remove('opacity-50', 'pointer-events-none');
 
-        if(!serviceId) return;
+        try {
+            const artists = await ensureArtistsCache();
+            const found = artists.find(a => String(a.id) === String(artistId));
+            artistSelect.innerHTML = `<option value="${artistId}">${found ? found.name : ('Artist #' + artistId)}</option>`;
+            artistSelect.value = artistId;
+        } catch (e) {
+            artistSelect.innerHTML = `<option value="${artistId}">Artist #${artistId}</option>`;
+            artistSelect.value = artistId;
+        }
+    }
+
+    async function loadServicesForArtist(artistId) {
+        const serviceSelect = document.getElementById('serviceSelect');
+        if (!serviceSelect) return;
+
+        serviceSelect.innerHTML = '<option value="">Բեռնվում է...</option>';
+        serviceSelect.value = '';
+
+        try {
+            const response = await fetch(`/api/booking/services/${artistId}`);
+            const services = await response.json();
+            serviceSelect.innerHTML = '<option value="">-- Ընտրել --</option>';
+            (Array.isArray(services) ? services : []).forEach(service => {
+                serviceSelect.innerHTML += `<option value="${service.id}">${service.name} (${service.price} AMD)</option>`;
+            });
+
+            // If only one service, auto-select it
+            const opts = Array.from(serviceSelect.options).filter(o => o.value);
+            if (opts.length === 1) {
+                serviceSelect.value = opts[0].value;
+                enableDate();
+            }
+        } catch (e) {
+            console.error('Error:', e);
+            serviceSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել ծառայությունները</option>';
+        }
+    }
+
+    async function loadArtistsByService(serviceId) {
+        const artistSelect = document.getElementById('artistSelect');
+        const stepArtist = document.getElementById('stepArtist');
+        if (!artistSelect || !stepArtist) return;
+
+        artistSelect.disabled = false;
+        artistSelect.innerHTML = '<option value="">Բեռնվում է...</option>';
+        artistSelect.value = '';
 
         try {
             const response = await fetch(`/api/booking/artists/${serviceId}`);
             const artists = await response.json();
-
-            artistSelect.innerHTML = '<option value="">-- Ընտրել Վարպետին --</option>';
-            artists.forEach(artist => {
+            artistSelect.innerHTML = '<option value="">-- Ընտրել --</option>';
+            (Array.isArray(artists) ? artists : []).forEach(artist => {
                 artistSelect.innerHTML += `<option value="${artist.id}">${artist.name}</option>`;
             });
-
             stepArtist.classList.remove('opacity-50', 'pointer-events-none');
         } catch (e) {
             console.error('Error:', e);
-            alert('Error loading artists');
+            artistSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել վարպետներին</option>';
         }
     }
 
+    function onServiceChange() {
+        const serviceId = document.getElementById('serviceSelect')?.value;
+
+        // reset downstream
+        document.getElementById('stepDate')?.classList.add('opacity-50', 'pointer-events-none');
+        document.getElementById('stepSlots')?.classList.add('hidden');
+        document.getElementById('stepClient')?.classList.add('hidden');
+        const selectedTime = document.getElementById('selectedTime');
+        if (selectedTime) selectedTime.value = '';
+
+        if (!serviceId) {
+            document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
+            const artistSelect = document.getElementById('artistSelect');
+            if (artistSelect) {
+                artistSelect.disabled = (window.__bookingMode === 'artist');
+                artistSelect.value = '';
+                if (window.__bookingMode === 'global') {
+                    artistSelect.innerHTML = '<option value="">-- Նախ ընտրեք ծառայությունը --</option>';
+                }
+            }
+            return;
+        }
+
+        if (window.__bookingMode === 'global') {
+            loadArtistsByService(serviceId);
+        } else {
+            // artist mode: artist already selected, just enable date when both chosen
+            enableDate();
+        }
+    }
+
+    function onArtistChange() {
+        // reset downstream
+        document.getElementById('stepSlots')?.classList.add('hidden');
+        document.getElementById('stepClient')?.classList.add('hidden');
+        const selectedTime = document.getElementById('selectedTime');
+        if (selectedTime) selectedTime.value = '';
+
+        enableDate();
+    }
+
     function enableDate() {
-        document.getElementById('stepDate').classList.remove('opacity-50', 'pointer-events-none');
+        const serviceId = document.getElementById('serviceSelect')?.value;
+        const artistId = document.getElementById('artistSelect')?.value;
+        const stepDate = document.getElementById('stepDate');
+
+        if (serviceId && artistId) {
+            stepDate?.classList.remove('opacity-50', 'pointer-events-none');
+        } else {
+            stepDate?.classList.add('opacity-50', 'pointer-events-none');
+        }
     }
 
     async function loadSlots() {
@@ -130,9 +298,9 @@
         const slotsContainer = document.getElementById('slotsContainer');
         const stepSlots = document.getElementById('stepSlots');
 
-        if(!date) return;
+        if(!artistId || !serviceId || !date) return;
 
-        slotsContainer.innerHTML = '<p class="col-span-4 text-center text-gray-500">Loading...</p>';
+        slotsContainer.innerHTML = '<p class="col-span-4 text-center text-gray-500">Բեռնվում է...</p>';
         stepSlots.classList.remove('hidden');
 
         try {
@@ -202,10 +370,10 @@
                 alert('Շնորհավորում ենք! Ձեր ամրագրումը կատարված է: Շուտով կապ կհաստատենք:');
                 location.reload();
             } else {
-                alert('Error: ' + JSON.stringify(result));
+                alert('Սխալ: ' + JSON.stringify(result));
             }
         } catch (e) {
-            alert('System Error');
+            alert('Համակարգային սխալ');
         }
     }
 </script>

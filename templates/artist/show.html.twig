@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ artist.user.firstName }} | LuxSalon{% endblock %}
+{% block title %}{{ artist.user.firstName }} | AnGo{% endblock %}
 
 {% block body %}
     <div class="bg-white">
@@ -26,7 +26,7 @@
 
                         <div class="p-6 text-center">
                             <p class="text-pink-600 font-bold mb-4">{{ artist.specialization }}</p>
-                            <a href="#booking" class="block w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition">
+                            <a href="#booking" data-artist-id="{{ artist.id }}" class="block w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition">
                                 Ամրագրել Այց
                             </a>
                         </div>

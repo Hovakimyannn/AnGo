@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Service;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -16,6 +17,11 @@ class ServiceCrudController extends AbstractCrudController
         return Service::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud->setEntityPermission('ROLE_ADMIN');
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield TextField::new('name', 'Անվանում');
@@ -23,9 +29,9 @@ class ServiceCrudController extends AbstractCrudController
         // Aystex avelacnum enq Category-n vorpes Dropdown
         yield ChoiceField::new('category', 'Կատեգորիա')
             ->setChoices([
-                'Վարսահարդարում (Hair)' => 'hair',
-                'Մատնահարդարում (Nails)' => 'nails',
-                'Դիմահարդարում (Makeup)' => 'makeup',
+                'Վարսահարդարում' => 'hair',
+                'Մատնահարդարում' => 'nails',
+                'Դիմահարդարում' => 'makeup',
             ]);
 
         yield IntegerField::new('durationMinutes', 'Տևողություն (րոպե)');

@@ -3,9 +3,15 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Appointment;
+use App\Entity\User as AppUser;
+use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -18,19 +24,144 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class AppointmentCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private EntityManagerInterface $em,
+        private AdminUrlGenerator $adminUrlGenerator,
+        private CsrfTokenManagerInterface $csrfTokenManager,
+    ) {}
+
     public static function getEntityFqcn(): string
     {
         return Appointment::class;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        $confirm = Action::new('markConfirmed', 'Հաստատել')
+            ->setIcon('fa fa-check')
+            ->linkToCrudAction('markConfirmed')
+            ->displayIf(fn(Appointment $a) => $a->getStatus() !== Appointment::STATUS_CONFIRMED && $a->getStatus() !== Appointment::STATUS_COMPLETED && $a->getStatus() !== Appointment::STATUS_CANCELED);
+
+        $complete = Action::new('markCompleted', 'Ավարտել')
+            ->setIcon('fa fa-flag-checkered')
+            ->linkToCrudAction('markCompleted')
+            ->displayIf(fn(Appointment $a) => $a->getStatus() === Appointment::STATUS_CONFIRMED);
+
+        $cancel = Action::new('markCanceled', 'Չեղարկել')
+            ->setIcon('fa fa-ban')
+            ->linkToCrudAction('markCanceled')
+            ->displayIf(fn(Appointment $a) => $a->getStatus() !== Appointment::STATUS_CANCELED && $a->getStatus() !== Appointment::STATUS_COMPLETED);
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $confirm)
+            ->add(Crud::PAGE_INDEX, $complete)
+            ->add(Crud::PAGE_INDEX, $cancel);
+    }
+
+    public function markConfirmed(AdminContext $context): Response
+    {
+        return $this->updateStatus($context, Appointment::STATUS_CONFIRMED, 'Ամրագրումը հաստատվեց։');
+    }
+
+    public function markCompleted(AdminContext $context): Response
+    {
+        return $this->updateStatus($context, Appointment::STATUS_COMPLETED, 'Ամրագրումը նշվեց որպես ավարտված։');
+    }
+
+    public function markCanceled(AdminContext $context): Response
+    {
+        return $this->updateStatus($context, Appointment::STATUS_CANCELED, 'Ամրագրումը չեղարկվեց։');
+    }
+
+    public function ajaxSetStatus(AdminContext $context, Request $request): JsonResponse
+    {
+        $payload = json_decode($request->getContent() ?: '[]', true) ?: [];
+        $token = (string)($payload['_token'] ?? '');
+        $status = (string)($payload['status'] ?? '');
+
+        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('appointment_status', $token))) {
+            return $this->json(['success' => false, 'error' => 'Invalid CSRF token.'], 400);
+        }
+
+        $allowed = [
+            Appointment::STATUS_PENDING,
+            Appointment::STATUS_CONFIRMED,
+            Appointment::STATUS_COMPLETED,
+            Appointment::STATUS_CANCELED,
+        ];
+        if (!in_array($status, $allowed, true)) {
+            return $this->json(['success' => false, 'error' => 'Invalid status.'], 400);
+        }
+
+        $instance = $context->getEntity()?->getInstance();
+        if (!$instance instanceof Appointment) {
+            return $this->json(['success' => false, 'error' => 'Invalid appointment.'], 400);
+        }
+
+        // Same safety as actions: artists can only modify their own appointments
+        $user = $this->getUser();
+        if ($user && !in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            $artistUser = $instance->getArtist()?->getUser();
+            if (!$artistUser || !($user instanceof AppUser) || $artistUser->getId() !== $user->getId()) {
+                return $this->json(['success' => false, 'error' => 'Not allowed.'], 403);
+            }
+        }
+
+        $instance->setStatus($status);
+        $this->em->flush();
+
+        return $this->json(['success' => true, 'status' => $instance->getStatus()]);
+    }
+
+    private function updateStatus(AdminContext $context, string $status, string $message): Response
+    {
+        $instance = $context->getEntity()?->getInstance();
+        if (!$instance instanceof Appointment) {
+            $this->addFlash('danger', 'Invalid appointment row.');
+            return $this->redirectToIndex();
+        }
+
+        // Basic safety: artists can only modify their own appointments (index is already filtered, but enforce anyway)
+        $user = $this->getUser();
+        if ($user && !in_array('ROLE_ADMIN', $user->getRoles(), true)) {
+            $artistUser = $instance->getArtist()?->getUser();
+            if (!$artistUser || !($user instanceof AppUser) || $artistUser->getId() !== $user->getId()) {
+                $this->addFlash('danger', 'You are not allowed to update this appointment.');
+                return $this->redirectToIndex();
+            }
+        }
+
+        $instance->setStatus($status);
+        $this->em->flush();
+        $this->addFlash('success', $message);
+
+        return $this->redirectToIndex();
+    }
+
+    private function redirectToIndex(): Response
+    {
+        $url = $this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl();
+
+        return $this->redirect($url);
+    }
+
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Appointment')
-            ->setEntityLabelInPlural('Appointments')
+            ->setEntityLabelInSingular('Ամրագրում')
+            ->setEntityLabelInPlural('Ամրագրումներ')
             ->setDefaultSort(['startDatetime' => 'DESC'])
             ->setSearchFields(['clientName', 'clientPhone', 'clientEmail', 'id']);
     }
@@ -55,29 +186,42 @@ class AppointmentCrudController extends AbstractCrudController
     {
         yield IdField::new('id')->hideOnForm();
 
-        yield DateTimeField::new('startDatetime', 'Start')->setFormat('yyyy-MM-dd HH:mm');
-        yield DateTimeField::new('endDatetime', 'End')->hideOnIndex();
+        yield DateTimeField::new('startDatetime', 'Սկիզբ')->setFormat('yyyy-MM-dd HH:mm');
+        yield TextField::new('durationHuman', 'Տևողություն')->onlyOnIndex();
+        yield DateTimeField::new('endDatetime', 'Ավարտ')->hideOnIndex();
 
-        // Status-y sarqum enq Dropdown (Select)
+        // Index: inline clickable status badge (AJAX)
         yield ChoiceField::new('status')
             ->setChoices([
-                'Pending' => Appointment::STATUS_PENDING,
-                'Confirmed' => Appointment::STATUS_CONFIRMED,
-                'Completed' => Appointment::STATUS_COMPLETED,
-                'Canceled' => Appointment::STATUS_CANCELED,
+                'Սպասման մեջ' => Appointment::STATUS_PENDING,
+                'Հաստատված' => Appointment::STATUS_CONFIRMED,
+                'Ավարտված' => Appointment::STATUS_COMPLETED,
+                'Չեղարկված' => Appointment::STATUS_CANCELED,
+            ])
+            ->setTemplatePath('admin/fields/appointment_status_inline.html.twig')
+            ->onlyOnIndex();
+
+        // Forms: normal select + badges on detail
+        yield ChoiceField::new('status')
+            ->setChoices([
+                'Սպասման մեջ' => Appointment::STATUS_PENDING,
+                'Հաստատված' => Appointment::STATUS_CONFIRMED,
+                'Ավարտված' => Appointment::STATUS_COMPLETED,
+                'Չեղարկված' => Appointment::STATUS_CANCELED,
             ])
             ->renderAsBadges([
                 Appointment::STATUS_PENDING => 'warning',
                 Appointment::STATUS_CONFIRMED => 'success',
                 Appointment::STATUS_COMPLETED => 'info',
                 Appointment::STATUS_CANCELED => 'danger',
-            ]);
+            ])
+            ->hideOnIndex();
 
-        yield AssociationField::new('service', 'Service');
+        yield AssociationField::new('service', 'Ծառայություն');
         yield AssociationField::new('artist', 'Master')->setPermission('ROLE_ADMIN'); // Artisty chi karox poxeel artistin, menak Adminy
 
-        yield TextField::new('clientName', 'Client');
-        yield TextField::new('clientPhone', 'Phone');
-        yield EmailField::new('clientEmail', 'Email')->hideOnIndex();
+        yield TextField::new('clientName', 'Հաճախորդ');
+        yield TextField::new('clientPhone', 'Հեռախոս');
+        yield EmailField::new('clientEmail', 'Էլ․ հասցե')->hideOnIndex();
     }
 }

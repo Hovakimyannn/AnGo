@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Appointment;
 use App\Entity\ArtistProfile;
+use App\Entity\Availability;
 use App\Entity\Service;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -29,16 +30,26 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
-        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToDashboard('Գլխավոր', 'fa fa-home');
 
-        // Bazhanum enq menyun bajinneri
-        yield MenuItem::section('Management');
-        yield MenuItem::linkToCrud('Users', 'fas fa-users', User::class);
-        yield MenuItem::linkToCrud('Artists', 'fas fa-paint-brush', ArtistProfile::class);
-        yield MenuItem::linkToCrud('Services', 'fas fa-cut', Service::class);
-        yield MenuItem::linkToCrud('Work Schedule', 'fas fa-clock', \App\Entity\Availability::class);
+        if ($this->isGranted('ROLE_ADMIN')) {
+            yield MenuItem::section('Կառավարում');
+            yield MenuItem::linkToCrud('Օգտատերեր', 'fas fa-users', User::class);
+            yield MenuItem::linkToCrud('Վարպետներ', 'fas fa-paint-brush', ArtistProfile::class);
+            yield MenuItem::linkToCrud('Ծառայություններ', 'fas fa-cut', Service::class);
+            yield MenuItem::linkToCrud('Աշխատանքային գրաֆիկ', 'fas fa-clock', Availability::class);
 
-        yield MenuItem::section('Business');
-        yield MenuItem::linkToCrud('Appointments', 'fas fa-calendar-check', Appointment::class);
+            yield MenuItem::section('Գործընթաց');
+            yield MenuItem::linkToCrud('Ամրագրումներ', 'fas fa-calendar-check', Appointment::class);
+            return;
+        }
+
+        // Artist panel (restricted to own data in CRUD controllers)
+        if ($this->isGranted('ROLE_ARTIST')) {
+            yield MenuItem::section('Իմ բաժին');
+            yield MenuItem::linkToCrud('Իմ պրոֆիլը', 'fas fa-user', ArtistProfile::class);
+            yield MenuItem::linkToCrud('Իմ գրաֆիկը', 'fas fa-clock', Availability::class);
+            yield MenuItem::linkToCrud('Իմ ամրագրումները', 'fas fa-calendar-check', Appointment::class);
+        }
     }
 }

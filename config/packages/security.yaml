@@ -41,8 +41,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # Require ROLE_ADMIN for /admin*
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        # Admin panel: allow admins and artists (artists are restricted inside EasyAdmin CRUDs)
+        - { path: ^/admin, roles: [ROLE_ADMIN, ROLE_ARTIST] }
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

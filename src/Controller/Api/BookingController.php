@@ -22,6 +22,49 @@ class BookingController extends AbstractController
         private EntityManagerInterface $em
     ) {}
 
+    // 0. Get All Artists
+    #[Route('/artists', methods: ['GET'])]
+    public function getAllArtists(): JsonResponse
+    {
+        $artists = $this->artistRepository->findAll();
+
+        $data = [];
+        foreach ($artists as $artist) {
+            $data[] = [
+                'id' => $artist->getId(),
+                'name' => (string)$artist->getUser(),
+                'photo' => $artist->getPhotoUrl(),
+            ];
+        }
+
+        return $this->json($data);
+    }
+
+    // 0.1 Get Services by Artist
+    #[Route('/services/{artistId}', methods: ['GET'])]
+    public function getServicesByArtist(int $artistId): JsonResponse
+    {
+        $artist = $this->artistRepository->find($artistId);
+        if (!$artist) {
+            return $this->json(['error' => 'Not found'], 404);
+        }
+
+        $services = $artist->getServices()->toArray();
+        usort($services, static fn($a, $b) => strcmp((string)$a->getName(), (string)$b->getName()));
+
+        $data = [];
+        foreach ($services as $service) {
+            $data[] = [
+                'id' => $service->getId(),
+                'name' => $service->getName(),
+                'price' => $service->getPrice(),
+                'durationMinutes' => $service->getDurationMinutes(),
+            ];
+        }
+
+        return $this->json($data);
+    }
+
     // 1. Get Artists by Service
     #[Route('/artists/{serviceId}', methods: ['GET'])]
     public function getArtists(int $serviceId): JsonResponse

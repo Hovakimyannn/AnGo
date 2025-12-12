@@ -21,6 +21,11 @@ class ArtistController extends AbstractController
     public function index(Request $request, ArtistProfileRepository $artistRepository): Response
     {
         $category = $request->query->get('category');
+        $categoryLabels = [
+            'hair' => 'Վարսահարդարներ',
+            'nails' => 'Մատնահարդարներ',
+            'makeup' => 'Դիմահարդարներ',
+        ];
 
         if ($category) {
             $artists = $artistRepository->createQueryBuilder('a')
@@ -35,7 +40,7 @@ class ArtistController extends AbstractController
 
         return $this->render('artist/index.html.twig', [
             'artists' => $artists,
-            'category' => $category ? ucfirst($category) : 'Mer Varpetnery',
+            'category' => $categoryLabels[$category] ?? 'Մեր վարպետները',
             'services' => $this->serviceRepository->findAll(), // <--- FIX: Uxarkum enq carayutyunnery
         ]);
     }
