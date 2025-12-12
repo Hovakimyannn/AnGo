@@ -1,13 +1,34 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Գլխավոր | AnGo{% endblock %}
+{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ վարպետներ, բարձրակարգ ծառայություններ և հարմարավետ միջավայր Աբովյանում։ Ամրագրեք այցը առցանց։{% endblock %}
+{% block head_extra %}
+    {# Help mobile LCP by preloading the first visible artist photo (if present) #}
+    {% if artists is defined and artists|length > 0 and artists[0].photoUrl %}
+        <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: artists[0].photoUrl }) ~ '?w=384&fmt=webp' }}" type="image/webp">
+        <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: artists[0].photoUrl }) ~ '?w=384&fmt=jpg' }}" type="image/jpeg">
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     {# --- HERO SECTION --- #}
     <div class="relative h-[600px] flex items-center justify-center overflow-hidden">
         {# Background Image with Overlay #}
         <div class="absolute inset-0 z-0">
-            <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1674&q=80" alt="Սրահ" class="w-full h-full object-cover">
+            <img
+                src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80"
+                srcset="
+                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=80 640w,
+                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80 960w,
+                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1280&q=80 1280w,
+                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1674&q=80 1674w
+                "
+                sizes="100vw"
+                alt="Սրահ"
+                class="w-full h-full object-cover"
+                loading="eager"
+                fetchpriority="high"
+            >
             <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
         </div>
 
@@ -16,7 +37,7 @@
                 Բացահայտեք Ձեր <br/><span class="text-pink-500">Կատարելությունը</span>
             </h1>
             <p class="text-lg md:text-xl text-gray-200 mb-10 font-light">
-                Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Երևանի սրտում։
+                Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։
             </p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
                 <a href="#booking" class="bg-pink-600 text-white px-8 py-4 rounded-full font-bold hover:bg-pink-700 transition shadow-xl hover:shadow-pink-500/30 transform hover:-translate-y-1">
@@ -40,7 +61,20 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Վարսահարդարում -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
-                    <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <img
+                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60"
+                        srcset="
+                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=240&q=60 240w,
+                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=320&q=60 320w,
+                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60 360w,
+                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=480&q=60 480w,
+                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=640&q=60 640w
+                        "
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        alt="Վարսահարդարում"
+                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                        loading="lazy"
+                    >
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-cut text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Վարսահարդարում</h3>
@@ -51,7 +85,20 @@
                 </div>
                 <!-- Դիմահարդարում -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
-                    <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <img
+                        src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60"
+                        srcset="
+                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=240&q=60 240w,
+                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=320&q=60 320w,
+                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60 360w,
+                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=480&q=60 480w,
+                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=640&q=60 640w
+                        "
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        alt="Դիմահարդարում"
+                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                        loading="lazy"
+                    >
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-magic text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Դիմահարդարում</h3>
@@ -62,7 +109,20 @@
                 </div>
                 <!-- Մատնահարդարում -->
                 <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
-                    <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                    <img
+                        src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60"
+                        srcset="
+                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=240&q=60 240w,
+                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=320&q=60 320w,
+                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60 360w,
+                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=480&q=60 480w,
+                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=640&q=60 640w
+                        "
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        alt="Մատնահարդարում"
+                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                        loading="lazy"
+                    >
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-hand-sparkles text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Մատնահարդարում</h3>
@@ -88,9 +148,32 @@
                     <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 border border-gray-100 group">
                         <div class="relative h-64 overflow-hidden">
                             {% if artist.photoUrl %}
-                                <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" alt="{{ artist.user.firstName }}" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
+                                <picture>
+                                    <source
+                                        type="image/webp"
+                                        srcset="
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=256&fmt=webp' }} 256w,
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=384&fmt=webp' }} 384w,
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=512&fmt=webp' }} 512w
+                                        "
+                                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                                    >
+                                    <img
+                                        src="{{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=384&fmt=jpg' }}"
+                                        srcset="
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=256&fmt=jpg' }} 256w,
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=384&fmt=jpg' }} 384w,
+                                            {{ path('app_image_photo', { filename: artist.photoUrl }) ~ '?w=512&fmt=jpg' }} 512w
+                                        "
+                                        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                                        alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
+                                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                                        loading="{{ loop.first ? 'eager' : 'lazy' }}"
+                                        fetchpriority="{{ loop.first ? 'high' : 'auto' }}"
+                                    >
+                                </picture>
                             {% else %}
-                                <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=512" alt="Default" class="w-full h-full object-cover">
+                                <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=256" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-full object-cover" loading="lazy">
                             {% endif %}
 
                             <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">

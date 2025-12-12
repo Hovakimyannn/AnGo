@@ -17,9 +17,11 @@
                     <div class="h-80 overflow-hidden relative">
                         {% if artist.photoUrl %}
                             <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}"
+                                 alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
                                  class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
                         {% else %}
                             <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=512"
+                                 alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
                                  class="w-full h-full object-cover">
                         {% endif %}
 
