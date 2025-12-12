@@ -22,21 +22,22 @@ services:
       - ./:/var/www/html
     environment:
       # Database host-ը "database" է, ոչ թե localhost
-      DATABASE_URL: "mysql://root:root_password@database:3306/salon_db?serverVersion=8.0"
+      DATABASE_URL: "postgresql://postgres:postgres_password@database:5432/salon_db?serverVersion=16&charset=utf8"
       REDIS_URL: "redis://redis:6379"
     networks:
       - salon_network
 
   # Database
   database:
-    image: mysql:8.0
+    image: postgres:16
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: salon_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: salon_db
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
     networks:
       - salon_network
 
