@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -25,6 +27,17 @@ class Service
 
     #[ORM\Column]
     private ?float $price = null;
+
+    /**
+     * @var Collection<int, ArtistProfile>
+     */
+    #[ORM\ManyToMany(targetEntity: ArtistProfile::class, mappedBy: 'services')]
+    private Collection $artistProfiles;
+
+    public function __construct()
+    {
+        $this->artistProfiles = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -82,5 +95,13 @@ class Service
     public function __toString(): string
     {
         return $this->name . ' (' . $this->price . ' AMD)';
+    }
+
+    /**
+     * @return Collection<int, ArtistProfile>
+     */
+    public function getArtistProfiles(): Collection
+    {
+        return $this->artistProfiles;
     }
 }

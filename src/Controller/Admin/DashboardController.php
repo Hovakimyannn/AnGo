@@ -3,8 +3,11 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Appointment;
+use App\Entity\ArtistPost;
 use App\Entity\ArtistProfile;
 use App\Entity\Availability;
+use App\Entity\PostComment;
+use App\Entity\PostRating;
 use App\Entity\Service;
 use App\Entity\User;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -41,6 +44,11 @@ class DashboardController extends AbstractDashboardController
 
             yield MenuItem::section('Գործընթաց');
             yield MenuItem::linkToCrud('Ամրագրումներ', 'fas fa-calendar-check', Appointment::class);
+
+            yield MenuItem::section('Բլոգ');
+            yield MenuItem::linkToCrud('Posts', 'fas fa-pen', ArtistPost::class);
+            yield MenuItem::linkToCrud('Comments', 'fas fa-comments', PostComment::class);
+            yield MenuItem::linkToCrud('Ratings', 'fas fa-star', PostRating::class);
             return;
         }
 
@@ -50,6 +58,11 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Իմ պրոֆիլը', 'fas fa-user', ArtistProfile::class);
             yield MenuItem::linkToCrud('Իմ գրաֆիկը', 'fas fa-clock', Availability::class);
             yield MenuItem::linkToCrud('Իմ ամրագրումները', 'fas fa-calendar-check', Appointment::class);
+
+            yield MenuItem::section('Իմ բլոգ');
+            yield MenuItem::linkToCrud('Իմ Posts', 'fas fa-pen', ArtistPost::class);
+            yield MenuItem::linkToCrud('Comments', 'fas fa-comments', PostComment::class);
+            yield MenuItem::linkToCrud('Ratings', 'fas fa-star', PostRating::class);
         }
     }
 }

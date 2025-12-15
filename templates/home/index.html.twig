@@ -60,7 +60,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Վարսահարդարում -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                <a href="{{ path('app_blog_category', {category: 'hair'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     <img
                         src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60"
                         srcset="
@@ -82,9 +82,9 @@
                             Կտրվածքներ, ներկում և խնամք
                         </p>
                     </div>
-                </div>
+                </a>
                 <!-- Դիմահարդարում -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                <a href="{{ path('app_blog_category', {category: 'makeup'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     <img
                         src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60"
                         srcset="
@@ -106,9 +106,9 @@
                             Երեկոյան և ամենօրյա make-up
                         </p>
                     </div>
-                </div>
+                </a>
                 <!-- Մատնահարդարում -->
-                <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80">
+                <a href="{{ path('app_blog_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     <img
                         src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60"
                         srcset="
@@ -130,7 +130,7 @@
                             Մանիկյուր և Պեդիկյուր
                         </p>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
     </section>
@@ -145,7 +145,7 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {% for artist in artists %}
-                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 border border-gray-100 group">
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition duration-300 border border-gray-100 group relative">
                         <div class="relative h-64 overflow-hidden">
                             {% if artist.photoUrl %}
                                 <picture>
@@ -176,9 +176,12 @@
                                 <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}+{{ artist.user.lastName }}&background=pink&color=fff&size=256" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-full object-cover" loading="lazy">
                             {% endif %}
 
-                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
-                                <i class="fas fa-star text-yellow-400 mr-1"></i> 5.0
-                            </div>
+                            {% if artist.user.artistRatingCount > 0 %}
+                                <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm">
+                                    <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                    {{ artist.user.artistRatingAvg|number_format(1, '.', '') }}
+                                </div>
+                            {% endif %}
                         </div>
                         <div class="p-6 text-center">
                             <h3 class="text-xl font-bold text-gray-900 mb-1">{{ artist.user.firstName }} {{ artist.user.lastName }}</h3>
@@ -186,10 +189,15 @@
 
                             <a href="#booking"
                                data-artist-id="{{ artist.id }}"
-                               class="block w-full border-2 border-gray-900 text-gray-900 font-semibold py-2 rounded-lg hover:bg-gray-900 hover:text-white transition">
+                               class="relative z-20 block w-full border-2 border-gray-900 text-gray-900 font-semibold py-2 rounded-lg hover:bg-gray-900 hover:text-white transition">
                                 Ամրագրել
                             </a>
                         </div>
+
+                        {# Make whole card clickable (except booking button which stays above via z-20) #}
+                        <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                           class="absolute inset-0 z-10"
+                           aria-label="{{ artist.user.firstName }} {{ artist.user.lastName }} էջ"></a>
                     </div>
                 {% else %}
                     <div class="col-span-4 text-center text-gray-500 py-10">

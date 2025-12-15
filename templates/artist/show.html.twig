@@ -24,6 +24,16 @@
                             <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}" class="w-full h-auto">
                         {% endif %}
 
+                        {% set artistAvg = artist.user.artistRatingAvg|default(0) %}
+                        {% set artistCount = artist.user.artistRatingCount|default(0) %}
+                        {% if artistCount > 0 %}
+                            <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow-sm border border-white/40">
+                                <i class="fas fa-star text-yellow-400 mr-1"></i>
+                                {{ artistAvg|number_format(1, '.', '') }}
+                                <span class="text-gray-500 font-semibold ml-1">({{ artistCount }})</span>
+                            </div>
+                        {% endif %}
+
                         <div class="p-6 text-center">
                             <p class="text-pink-600 font-bold mb-4">{{ artist.specialization }}</p>
                             <a href="#booking" data-artist-id="{{ artist.id }}" class="block w-full bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-pink-600 transition">
@@ -54,12 +64,59 @@
                         </div>
                     </section>
 
-                    <!-- Mock Reviews (Hetagayum ksarqenq dinamik) -->
-                    <section>
-                        <h2 class="text-2xl font-bold mb-4 border-l-4 border-pink-500 pl-4">Կարծիքներ</h2>
-                        <div class="bg-gray-50 p-6 rounded-xl">
-                            <h4 class="font-bold">Սիմոն Պետրոսյան</h4>
-                            <p class="text-gray-600 text-sm">Շատ գոհ եմ արդյունքից։ Պրոֆեսիոնալ մոտեցում։</p>
+                    <section id="artistPostsContent">
+                        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+
+                            <div class="w-full md:w-auto">
+                                {# Service tabs (click = filter; sets category to service.category) #}
+                                <div class="border-b border-gray-200">
+                                    <div class="-mb-px flex items-center space-x-10 overflow-x-auto whitespace-nowrap pb-1" style="gap: 2.5rem;">
+                                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                                       data-ajax-swap="#artistPostsContent"
+                                       class="px-2 py-2 text-sm font-semibold border-b-2 {{ (not selectedCategory and not selectedServiceId) ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
+                                       style="border-bottom: 2px solid {{ (not selectedCategory and not selectedServiceId) ? '#111827' : 'transparent' }};">
+                                        Բոլոր ծառայությունները
+                                    </a>
+
+                                    {% for s in artist.services %}
+                                        <a href="{{ path('app_artist_show', {id: artist.id}) ~ '?category=' ~ s.category ~ '&service=' ~ s.id }}"
+                                           data-ajax-swap="#artistPostsContent"
+                                           class="px-2 py-2 text-sm font-semibold border-b-2 {{ selectedServiceId == s.id ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
+                                           style="border-bottom: 2px solid {{ selectedServiceId == s.id ? '#111827' : 'transparent' }};">
+                                            {{ s.name }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for post in posts %}
+                                <a href="{{ path('app_blog_show', {id: post.id, slug: post.slug}) }}" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
+                                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                                        {% if post.imageUrl %}
+                                            <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                                 alt="{{ post.title }}"
+                                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <i class="fas fa-image text-3xl"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="p-5 space-y-2">
+                                        <h3 class="font-bold text-gray-900 group-hover:text-pink-600 transition">
+                                            {{ post.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600">
+                                            {{ post.excerpt(140) }}
+                                        </p>
+                                    </div>
+                                </a>
+                            {% else %}
+                                <div class="text-gray-500">Այս վարպետի համար դեռ post չկա։</div>
+                            {% endfor %}
                         </div>
                     </section>
                 </div>

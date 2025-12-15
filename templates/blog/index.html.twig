@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ categoryLabel }} | AnGo{% endblock %}
+
+{% block body %}
+    <div class="bg-white">
+        <div id="blogContent" class="container mx-auto px-4 py-12">
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
+                        {{ categoryLabel }}
+                    </h1>
+                    <p class="text-gray-500 mt-2">
+                        Տեսեք այս բաժնի բոլոր հոդվածները
+                    </p>
+                </div>
+
+                <div class="w-full lg:w-auto">
+                    {# Category tabs (click = filter) #}
+                    <div class="border-b border-gray-200 mb-4">
+                        <nav class="-mb-px flex items-center space-x-12 overflow-x-auto whitespace-nowrap">
+                            {% set tabs = [
+                                { key: null, label: 'Բոլորը', route: 'app_blog_index' },
+                                { key: 'hair', label: 'Վարսահարդարում', route: 'app_blog_category' },
+                                { key: 'makeup', label: 'Դիմահարդարում', route: 'app_blog_category' },
+                                { key: 'nails', label: 'Մատնահարդարում', route: 'app_blog_category' }
+                            ] %}
+
+                            {% for t in tabs %}
+                                {% set isActive = (category is same as(t.key)) %}
+                                {% set href = t.key ? path(t.route, {category: t.key}) : path(t.route) %}
+                                <a href="{{ href }}"
+                                   data-ajax-swap="#blogContent"
+                                   class="px-2 py-2 text-sm font-semibold border-b-2 {{ isActive ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
+                                   style="border-bottom: 2px solid {{ isActive ? '#111827' : 'transparent' }};">
+                                    {{ t.label }}
+                                </a>
+                            {% endfor %}
+                        </nav>
+                    </div>
+
+                    {# Service tabs (click = filter) #}
+                    {% set baseHref = category ? path('app_blog_category', {category: category}) : path('app_blog_index') %}
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex items-center space-x-10 overflow-x-auto whitespace-nowrap">
+                            <a href="{{ baseHref }}"
+                               data-ajax-swap="#blogContent"
+                               class="px-2 py-2 text-sm font-semibold border-b-2 {{ (not selectedServiceId) ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
+                               style="border-bottom: 2px solid {{ (not selectedServiceId) ? '#111827' : 'transparent' }};">
+                                Բոլոր ծառայությունները
+                            </a>
+
+                            {% for s in services %}
+                                <a href="{{ baseHref ~ '?service=' ~ s.id }}"
+                                   data-ajax-swap="#blogContent"
+                                   class="px-2 py-2 text-sm font-semibold border-b-2 {{ selectedServiceId == s.id ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
+                                   style="border-bottom: 2px solid {{ selectedServiceId == s.id ? '#111827' : 'transparent' }};">
+                                    {{ s.name }}
+                                </a>
+                            {% endfor %}
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {% for post in posts %}
+                    <a href="{{ path('app_blog_show', {id: post.id, slug: post.slug}) }}"
+                       class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
+                        <div class="relative h-56 bg-gray-100 overflow-hidden">
+                            {% if post.imageUrl %}
+                                <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                     alt="{{ post.title }}"
+                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                    <i class="fas fa-image text-4xl"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-800 shadow">
+                                {{ post.artist.user.firstName }} {{ post.artist.user.lastName }}
+                            </div>
+                        </div>
+
+                        <div class="p-6 space-y-3">
+                            <div class="flex flex-wrap gap-2">
+                                {% for s in post.services %}
+                                    <span class="text-xs font-semibold bg-pink-50 text-pink-700 px-2 py-1 rounded-full border border-pink-100">
+                                        {{ s.name }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+
+                            <h3 class="text-lg font-bold text-gray-900 group-hover:text-pink-600 transition">
+                                {{ post.title }}
+                            </h3>
+                            <p class="text-sm text-gray-600">
+                                {{ post.excerpt(180) }}
+                            </p>
+                            <div class="text-xs text-gray-400 pt-2">
+                                {{ post.publishedAt ? post.publishedAt|date('Y-m-d') : post.createdAt|date('Y-m-d') }}
+                            </div>
+                        </div>
+                    </a>
+                {% else %}
+                    <div class="md:col-span-3 text-center py-16 text-gray-500">
+                        Այս բաժնում դեռևս post չկա։
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

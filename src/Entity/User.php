@@ -39,6 +39,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $phone = null;
 
+    // Aggregate rating for artists (computed from all their blog post ratings via DB trigger)
+    #[ORM\Column(options: ['default' => 0])]
+    private float $artistRatingAvg = 0.0;
+
+    #[ORM\Column(options: ['default' => 0])]
+    private int $artistRatingCount = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -136,6 +143,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPhone(?string $phone): static
     {
         $this->phone = $phone;
+        return $this;
+    }
+
+    public function getArtistRatingAvg(): float
+    {
+        return $this->artistRatingAvg;
+    }
+
+    public function setArtistRatingAvg(float $artistRatingAvg): static
+    {
+        $this->artistRatingAvg = $artistRatingAvg;
+        return $this;
+    }
+
+    public function getArtistRatingCount(): int
+    {
+        return $this->artistRatingCount;
+    }
+
+    public function setArtistRatingCount(int $artistRatingCount): static
+    {
+        $this->artistRatingCount = $artistRatingCount;
         return $this;
     }
 

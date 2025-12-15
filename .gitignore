@@ -8,6 +8,7 @@ composer.phar
 /public/bundles/
 /public/uploads/
 /uploads/
+/public/uploads/posts/.gitkeep
 /var/*.log
 /var/*.cache
 /var/sessions/

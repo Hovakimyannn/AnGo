@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Իմ պրոֆիլը | AnGo{% endblock %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-12">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+                <div class="bg-gray-900 text-white px-6 py-5 flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold">Իմ պրոֆիլը</h1>
+                        <div class="text-sm text-white/80 mt-1">{{ user.email }}</div>
+                    </div>
+                    <a href="{{ path('app_logout') }}" class="text-sm font-semibold bg-white/10 border border-white/20 px-4 py-2 rounded-xl hover:bg-white/20 transition">
+                        Ելք
+                    </a>
+                </div>
+
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-2xl border p-5">
+                            <div class="text-xs font-bold text-gray-500">ԱՆՈՒՆ</div>
+                            <div class="text-lg font-bold text-gray-900 mt-1">{{ user.firstName }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-2xl border p-5">
+                            <div class="text-xs font-bold text-gray-500">ԱԶԳԱՆՈՒՆ</div>
+                            <div class="text-lg font-bold text-gray-900 mt-1">{{ user.lastName }}</div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-2xl border p-5 md:col-span-2">
+                            <div class="text-xs font-bold text-gray-500">ՀԵՌԱԽՈՍ</div>
+                            <div class="text-lg font-bold text-gray-900 mt-1">{{ user.phone ?: '—' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTIST') %}
+                            <a href="{{ path('admin') }}" class="px-5 py-2.5 rounded-xl bg-gray-900 text-white font-semibold hover:bg-pink-600 transition">
+                                Ադմին պանել
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('app_blog_index') }}" class="px-5 py-2.5 rounded-xl bg-white border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition">
+                            Տեսնել բլոգը
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+

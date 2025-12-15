@@ -24,8 +24,7 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
-                # Redirect to admin dashboard after successful login
-                default_target_path: admin
+                success_handler: App\Security\LoginSuccessHandler
 
             logout:
                 path: app_logout

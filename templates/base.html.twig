@@ -64,9 +64,9 @@
                 <!-- Fixed Dropdown with Links -->
                 <div class="absolute left-0 top-full pt-2 w-48 hidden group-hover:block origin-top-left z-50">
                     <div class="bg-white shadow-xl rounded-lg overflow-hidden border-t-2 border-pink-600">
-                        <a href="{{ path('app_artists', {'category': 'hair'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Վարսահարդարներ</a>
-                        <a href="{{ path('app_artists', {'category': 'nails'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Մատնահարդարներ</a>
-                        <a href="{{ path('app_artists', {'category': 'makeup'}) }}" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Դիմահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Վարսահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Մատնահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Դիմահարդարներ</a>
                     </div>
                 </div>
             </div>
@@ -74,6 +74,25 @@
             <a href="{{ path('app_home') }}#our-services" class="hover:text-pink-600 transition">Ծառայություններ</a>
             <a href="{{ path('app_home') }}#about" class="hover:text-pink-600 transition">Մեր մասին</a>
             <a href="{{ path('app_home') }}#contact" class="hover:text-pink-600 transition">Կապ</a>
+            <a href="{{ path('app_blog_index') }}" class="hover:text-pink-600 transition">Բլոգ</a>
+
+            {% if app.user %}
+                <a href="{{ path('app_profile') }}" class="hover:text-pink-600 transition">
+                    <i class="fas fa-user mr-1"></i> Իմ պրոֆիլը
+                </a>
+                {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTIST') %}
+                    <a href="{{ path('admin') }}" class="hover:text-pink-600 transition">
+                        <i class="fas fa-cog mr-1"></i> Admin
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{{ path('app_login') }}" class="hover:text-pink-600 transition">
+                    <i class="fas fa-sign-in-alt mr-1"></i> Մուտք
+                </a>
+                <a href="{{ path('app_signup') }}" class="hover:text-pink-600 transition">
+                    <i class="fas fa-user-plus mr-1"></i> Գրանցվել
+                </a>
+            {% endif %}
 
             <!-- Booking Button -->
             <a href="#booking" class="bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-pink-600 transition shadow-lg transform hover:scale-105 duration-200">
@@ -93,14 +112,27 @@
         <div class="block px-6 py-3 border-b bg-gray-50">
             <span class="font-semibold text-pink-600 block mb-2">Վարպետներ</span>
             <div class="pl-4 space-y-2 text-sm text-gray-600 border-l-2 border-pink-200">
-                <a href="{{ path('app_artists', {'category': 'hair'}) }}" class="block py-1">Վարսահարդարներ</a>
-                <a href="{{ path('app_artists', {'category': 'nails'}) }}" class="block py-1">Մատնահարդարներ</a>
-                <a href="{{ path('app_artists', {'category': 'makeup'}) }}" class="block py-1">Դիմահարդարներ</a>
+                <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Վարսահարդարներ</a>
+                <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Մատնահարդարներ</a>
+                <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Դիմահարդարներ</a>
             </div>
         </div>
         <a href="{{ path('app_home') }}#our-services" class="block px-6 py-3 border-b hover:bg-gray-50">Ծառայություններ</a>
         <a href="{{ path('app_home') }}#about" class="block px-6 py-3 border-b hover:bg-gray-50">Մեր մասին</a>
         <a href="{{ path('app_home') }}#contact" class="block px-6 py-3 border-b hover:bg-gray-50">Կապ</a>
+        <a href="{{ path('app_blog_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Բլոգ</a>
+
+        {% if app.user %}
+            <a href="{{ path('app_profile') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Իմ պրոֆիլը</a>
+            {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTIST') %}
+                <a href="{{ path('admin') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Admin</a>
+            {% endif %}
+            <a href="{{ path('app_logout') }}" class="block px-6 py-3 border-b hover:bg-gray-50 text-red-600 font-semibold">Ելք</a>
+        {% else %}
+            <a href="{{ path('app_login') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Մուտք</a>
+            <a href="{{ path('app_signup') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Գրանցվել</a>
+        {% endif %}
+
         <a href="#booking" class="block px-6 py-3 border-b hover:bg-gray-50 text-pink-600 font-bold">Ամրագրել հիմա</a>
     </div>
 </header>
@@ -148,6 +180,103 @@
 {% include 'parts/booking_modal.html.twig' %}
 
 {% block javascripts %}{% endblock %}
+
+{# --- AJAX FILTER NAV (no full reload) --- #}
+<script>
+    (function () {
+        let lastSwapId = 0;
+
+        function canHandleClick(e, a) {
+            if (e.defaultPrevented) return false;
+            if (typeof e.button === 'number' && e.button !== 0) return false;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return false;
+            if (a.target && a.target !== '_self') return false;
+            if (a.hasAttribute('download')) return false;
+            const href = a.getAttribute('href');
+            if (!href || href.startsWith('#')) return false;
+            return true;
+        }
+
+        async function angoSwap(url, selector, push) {
+            const swapId = ++lastSwapId;
+            const target = document.querySelector(selector);
+            if (!target) {
+                window.location.href = url;
+                return;
+            }
+
+            target.setAttribute('aria-busy', 'true');
+            target.classList.add('opacity-50', 'pointer-events-none');
+
+            try {
+                const resp = await fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html',
+                    },
+                    credentials: 'same-origin',
+                });
+
+                if (!resp.ok) throw new Error('Bad response');
+                const html = await resp.text();
+
+                // Ignore out-of-order responses if the user clicked multiple filters quickly
+                if (swapId !== lastSwapId) return;
+
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const next = doc.querySelector(selector);
+                if (!next) {
+                    window.location.href = url;
+                    return;
+                }
+
+                target.replaceWith(next);
+                if (doc.title) document.title = doc.title;
+
+                if (push) {
+                    history.pushState({ __angoAjaxSwap: true, selector }, '', url);
+                }
+            } catch (err) {
+                window.location.href = url;
+            } finally {
+                const t = document.querySelector(selector);
+                if (t) {
+                    t.removeAttribute('aria-busy');
+                    t.classList.remove('opacity-50', 'pointer-events-none');
+                }
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            const a = e.target.closest('a[data-ajax-swap]');
+            if (!a) return;
+            if (!canHandleClick(e, a)) return;
+
+            const selector = a.dataset.ajaxSwap;
+            const href = a.getAttribute('href');
+            if (!selector || !href) return;
+
+            const url = new URL(href, window.location.href);
+            if (url.origin !== window.location.origin) return;
+
+            e.preventDefault();
+
+            // Mark current page state so browser Back restores the correct filtered content
+            const currentState = history.state || {};
+            if (!currentState.__angoAjaxSwap || currentState.selector !== selector) {
+                history.replaceState({ ...currentState, __angoAjaxSwap: true, selector }, '', window.location.href);
+            }
+
+            angoSwap(url.toString(), selector, true);
+        }, true);
+
+        window.addEventListener('popstate', function (e) {
+            const state = e.state;
+            if (!state || !state.__angoAjaxSwap || !state.selector) return;
+            angoSwap(window.location.href, state.selector, false);
+        });
+    })();
+</script>
 
 {# --- SCRIPT FOR BOOKING BUTTON --- #}
 <script>

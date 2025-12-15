@@ -1,0 +1,393 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ post.title }} | AnGo{% endblock %}
+
+{% block head_extra %}
+    <style>
+        /* Star rating input (no JS): rtl trick highlights previous stars */
+        .ango-star-rating {
+            direction: rtl;
+            unicode-bidi: bidi-override;
+            display: inline-flex;
+            gap: 0.25rem;
+        }
+        .ango-star-rating input { display: none; }
+        .ango-star-rating label {
+            color: #e5e7eb; /* gray-200 */
+            cursor: pointer;
+            transition: color .15s ease;
+            line-height: 1;
+        }
+        .ango-star-rating label:hover,
+        .ango-star-rating label:hover ~ label,
+        .ango-star-rating input:checked ~ label {
+            color: #facc15; /* yellow-400 */
+        }
+
+        /* Post-rating micro interaction (AJAX): pill "pop" + small check burst */
+        @keyframes angoRatePop {
+            0%   { transform: scale(1);   box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+            45%  { transform: scale(1.03); box-shadow: 0 18px 40px rgba(236,72,153,.18); }
+            100% { transform: scale(1);   box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+        }
+        .ango-rate-pop { animation: angoRatePop 520ms ease; }
+
+        #ratingSavedIcon {
+            opacity: 0;
+            transform: scale(.8);
+            will-change: transform, opacity;
+        }
+        @keyframes angoRateSaved {
+            0%   { opacity: 0; transform: scale(.6) rotate(-10deg); }
+            15%  { opacity: 1; transform: scale(1.05) rotate(0deg); }
+            35%  { opacity: 1; transform: scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: scale(.9) rotate(0deg); }
+        }
+        .ango-rate-saved { animation: angoRateSaved 1200ms ease forwards; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ango-rate-pop, .ango-rate-saved { animation: none !important; }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="bg-white">
+        <div class="container mx-auto px-4 py-10">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <a href="{{ path('app_artist_show', {id: post.artist.id}) }}" class="text-sm text-gray-500 hover:text-pink-600 transition">
+                        ← {{ post.artist.user.firstName }} {{ post.artist.user.lastName }}
+                    </a>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mt-3">{{ post.title }}</h1>
+                    <div class="flex flex-wrap items-center gap-2 mt-4">
+                        {% for s in post.services %}
+                            <a href="{{ path('app_blog_category', {category: s.category}) ~ '?service=' ~ s.id }}"
+                               class="text-xs font-semibold bg-pink-50 text-pink-700 px-2 py-1 rounded-full border border-pink-100 hover:bg-pink-100 transition">
+                                {{ s.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if post.imageUrl %}
+                    <div class="rounded-2xl overflow-hidden border bg-gray-100 mb-8">
+                        <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}" alt="{{ post.title }}" class="w-full h-auto">
+                    </div>
+                {% endif %}
+
+                <article class="prose max-w-none prose-p:leading-relaxed prose-a:text-pink-600">
+                    {{ post.content|raw }}
+                </article>
+
+                <div class="mt-12 border-t pt-8">
+                    {% set avg = ratingStats.avg|default(0) %}
+                    {% set count = ratingStats.count|default(0) %}
+                    {% set avgText = avg|number_format(1, '.', '') %}
+                    {% set percent = (avg / 5 * 100) %}
+                    {% set percent = percent < 0 ? 0 : (percent > 100 ? 100 : percent) %}
+
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+                        <h2 class="text-2xl font-bold">Գնահատական</h2>
+
+                        {# Rating pill (number + stars) #}
+                        <div id="ratingPill" class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-gray-200 bg-white shadow-sm relative">
+                            <span id="ratingAvg" class="text-lg font-bold text-gray-900">{{ avgText }}</span>
+
+                            <div class="relative leading-none" aria-label="{{ avgText }} / 5">
+                                <div class="flex text-gray-200 text-lg">
+                                    {% for i in 1..5 %}
+                                        <i class="fas fa-star" aria-hidden="true"></i>
+                                    {% endfor %}
+                                </div>
+                                <div id="ratingFill" class="absolute inset-0 overflow-hidden" style="width: {{ percent }}%;">
+                                    <div class="flex text-yellow-400 text-lg">
+                                        {% for i in 1..5 %}
+                                            <i class="fas fa-star" aria-hidden="true"></i>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <span id="ratingCount" class="text-sm text-gray-500">({{ count }})</span>
+
+                            <span id="ratingSavedIcon" aria-hidden="true"
+                                  style="position:absolute; top:-10px; right:-10px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:9999px; background:#22c55e; color:white; box-shadow:0 14px 30px rgba(34,197,94,.25);">
+                                <i class="fas fa-check" aria-hidden="true"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if app.user %}
+                        <div id="ratingAjaxMessage" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+
+                        <form id="ratingForm" method="post" action="{{ path('app_blog_rate', {id: post.id}) }}" class="flex flex-col gap-3">
+                            <input type="hidden" name="_token" value="{{ csrf_token('blog_rate_' ~ post.id) }}">
+
+                            <div class="flex items-center gap-3">
+                                <div class="ango-star-rating text-2xl">
+                                    {% for i in 5..1 %}
+                                        <input type="radio"
+                                               id="rate-{{ i }}"
+                                               name="value"
+                                               value="{{ i }}"
+                                               {{ myRating == i ? 'checked' : '' }}>
+                                        <label for="rate-{{ i }}" title="{{ i }} / 5" aria-label="{{ i }} / 5">
+                                            <i class="fas fa-star" aria-hidden="true"></i>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="text-xs text-gray-500">
+                                    {{ count == 0 ? 'Դուք կարող եք լինել առաջինը' : 'Շնորհակալություն' }}
+                                </div>
+                            </div>
+                        </form>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="text-pink-600 font-semibold hover:underline">
+                            Մուտք գործեք՝ գնահատելու համար
+                        </a>
+                    {% endif %}
+                </div>
+
+                <div class="mt-12 border-t pt-8">
+                    <h2 class="text-2xl font-bold mb-4">Մեկնաբանություններ</h2>
+
+                    {% if app.user %}
+                        <div id="commentAjaxMessage" class="hidden mb-3 rounded-xl border px-4 py-3 text-sm"></div>
+
+                        <form id="commentForm" method="post" action="{{ path('app_blog_comment', {id: post.id}) }}" class="mb-8">
+                            <input type="hidden" name="_token" value="{{ csrf_token('blog_comment_' ~ post.id) }}">
+                            <textarea id="commentBody" name="body" rows="4" class="w-full border rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-pink-200" placeholder="Գրեք ձեր կարծիքը..."></textarea>
+                            <div class="flex justify-end mt-3">
+                                <button id="commentSubmit" class="bg-gray-900 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-pink-600 transition">
+                                    Ավելացնել
+                                </button>
+                            </div>
+                        </form>
+                    {% else %}
+                        <a href="{{ path('app_login') }}" class="text-pink-600 font-semibold hover:underline">
+                            Մուտք գործեք՝ մեկնաբանելու համար
+                        </a>
+                    {% endif %}
+
+                    <div id="commentsList" class="space-y-4">
+                        {% if comments|length %}
+                            {% for c in comments %}
+                                <div class="bg-gray-50 border rounded-2xl p-5">
+                                    <div class="flex items-center justify-between">
+                                        <div class="font-bold text-gray-900 text-sm">
+                                            {{ c.user.firstName }} {{ c.user.lastName }}
+                                        </div>
+                                        <div class="text-xs text-gray-400">
+                                            {{ c.createdAt|date('Y-m-d H:i') }}
+                                        </div>
+                                    </div>
+                                    <div class="text-sm text-gray-700 mt-2 whitespace-pre-line">{{ c.body }}</div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div id="noComments" class="text-gray-500">
+                                Առաջինն եղեք, ով կթողնի մեկնաբանություն։
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        (function () {
+            const loginUrl = {{ path('app_login')|json_encode|raw }};
+
+            function setAjaxMessage(el, message, type) {
+                if (!el) return;
+                if (!message) {
+                    el.classList.add('hidden');
+                    el.textContent = '';
+                    return;
+                }
+
+                el.classList.remove('hidden');
+                el.classList.remove('bg-red-50', 'border-red-200', 'text-red-800', 'bg-green-50', 'border-green-200', 'text-green-800');
+
+                if (type === 'success') {
+                    el.classList.add('bg-green-50', 'border-green-200', 'text-green-800');
+                } else {
+                    el.classList.add('bg-red-50', 'border-red-200', 'text-red-800');
+                }
+                el.textContent = message;
+            }
+
+            function retrigger(el, className) {
+                if (!el) return;
+                el.classList.remove(className);
+                // Force reflow so animation can replay
+                void el.offsetWidth;
+                el.classList.add(className);
+            }
+
+            async function postForm(url, params) {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: new URLSearchParams(params)
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    data = null;
+                }
+
+                return {response, data};
+            }
+
+            // --- Rating AJAX ---
+            const ratingForm = document.getElementById('ratingForm');
+            if (ratingForm) {
+                const ratingMsg = document.getElementById('ratingAjaxMessage');
+                const ratingAvgEl = document.getElementById('ratingAvg');
+                const ratingCountEl = document.getElementById('ratingCount');
+                const ratingFillEl = document.getElementById('ratingFill');
+                const ratingPill = document.getElementById('ratingPill');
+                const ratingSavedIcon = document.getElementById('ratingSavedIcon');
+
+                ratingForm.addEventListener('change', async (e) => {
+                    const target = e.target;
+                    if (!target || target.name !== 'value') return;
+
+                    setAjaxMessage(ratingMsg, '', 'success');
+
+                    const token = ratingForm.querySelector('input[name="_token"]')?.value || '';
+                    const value = String(target.value || '');
+                    if (!value) return;
+
+                    // Optimistic: disable inputs while saving
+                    const inputs = Array.from(ratingForm.querySelectorAll('input[name="value"]'));
+                    inputs.forEach(i => i.disabled = true);
+
+                    try {
+                        const {response, data} = await postForm(ratingForm.action, {_token: token, value});
+
+                        if (response.status === 401 || response.status === 403) {
+                            window.location.href = loginUrl;
+                            return;
+                        }
+
+                        if (!response.ok || !data || data.success !== true) {
+                            setAjaxMessage(ratingMsg, (data && data.error) ? data.error : 'Չհաջողվեց պահպանել գնահատականը։', 'error');
+                            return;
+                        }
+
+                        const avg = Number(data.avg ?? 0);
+                        const count = Number(data.count ?? 0);
+
+                        if (ratingAvgEl) ratingAvgEl.textContent = avg.toFixed(1);
+                        if (ratingCountEl) ratingCountEl.textContent = '(' + String(count) + ')';
+                        if (ratingFillEl) {
+                            const percent = Math.max(0, Math.min(100, (avg / 5) * 100));
+                            ratingFillEl.style.width = percent.toFixed(2) + '%';
+                        }
+
+                        // Success effect (no reload)
+                        retrigger(ratingPill, 'ango-rate-pop');
+                        retrigger(ratingSavedIcon, 'ango-rate-saved');
+
+                        setTimeout(() => setAjaxMessage(ratingMsg, '', 'success'), 1500);
+                    } catch (err) {
+                        setAjaxMessage(ratingMsg, 'Համակարգային սխալ։', 'error');
+                    } finally {
+                        inputs.forEach(i => i.disabled = false);
+                    }
+                });
+            }
+
+            // --- Comment AJAX ---
+            const commentForm = document.getElementById('commentForm');
+            if (commentForm) {
+                const commentMsg = document.getElementById('commentAjaxMessage');
+                const commentBody = document.getElementById('commentBody');
+                const commentSubmit = document.getElementById('commentSubmit');
+                const commentsList = document.getElementById('commentsList');
+
+                commentForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    setAjaxMessage(commentMsg, '', 'success');
+
+                    const token = commentForm.querySelector('input[name="_token"]')?.value || '';
+                    const body = (commentBody && commentBody.value) ? commentBody.value.trim() : '';
+                    if (body.length < 3) {
+                        setAjaxMessage(commentMsg, 'Մեկնաբանությունը պետք է լինի առնվազն 3 նիշ։', 'error');
+                        return;
+                    }
+
+                    if (commentSubmit) commentSubmit.disabled = true;
+
+                    try {
+                        const {response, data} = await postForm(commentForm.action, {_token: token, body});
+
+                        if (response.status === 401 || response.status === 403) {
+                            window.location.href = loginUrl;
+                            return;
+                        }
+
+                        if (!response.ok || !data || data.success !== true) {
+                            setAjaxMessage(commentMsg, (data && data.error) ? data.error : 'Չհաջողվեց ավելացնել մեկնաբանությունը։', 'error');
+                            return;
+                        }
+
+                        const c = data.comment;
+                        if (c && commentsList) {
+                            const empty = document.getElementById('noComments');
+                            if (empty) empty.remove();
+
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'bg-gray-50 border rounded-2xl p-5';
+
+                            const header = document.createElement('div');
+                            header.className = 'flex items-center justify-between';
+
+                            const name = document.createElement('div');
+                            name.className = 'font-bold text-gray-900 text-sm';
+                            name.textContent = c.userName || 'User';
+
+                            const time = document.createElement('div');
+                            time.className = 'text-xs text-gray-400';
+                            time.textContent = c.createdAt || '';
+
+                            header.appendChild(name);
+                            header.appendChild(time);
+
+                            const bodyEl = document.createElement('div');
+                            bodyEl.className = 'text-sm text-gray-700 mt-2 whitespace-pre-line';
+                            bodyEl.textContent = c.body || '';
+
+                            wrapper.appendChild(header);
+                            wrapper.appendChild(bodyEl);
+
+                            commentsList.prepend(wrapper);
+                        }
+
+                        if (commentBody) commentBody.value = '';
+                        setTimeout(() => setAjaxMessage(commentMsg, '', 'success'), 1500);
+                    } catch (err) {
+                        setAjaxMessage(commentMsg, 'Համակարգային սխալ։', 'error');
+                    } finally {
+                        if (commentSubmit) commentSubmit.disabled = false;
+                    }
+                });
+            }
+        })();
+    </script>
+{% endblock %}
+
+

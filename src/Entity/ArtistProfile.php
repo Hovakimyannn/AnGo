@@ -32,9 +32,17 @@ class ArtistProfile
     #[ORM\ManyToMany(targetEntity: Service::class)]
     private Collection $services;
 
+    /**
+     * @var Collection<int, ArtistPost>
+     */
+    #[ORM\OneToMany(mappedBy: 'artist', targetEntity: ArtistPost::class, orphanRemoval: true)]
+    #[ORM\OrderBy(['publishedAt' => 'DESC', 'createdAt' => 'DESC'])]
+    private Collection $posts;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
+        $this->posts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,6 +120,14 @@ class ArtistProfile
         $this->services->removeElement($service);
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, ArtistPost>
+     */
+    public function getPosts(): Collection
+    {
+        return $this->posts;
     }
 
     // EasyAdmin-i hamar: Vorpeszi drop-down-um cuyc ta anuny
