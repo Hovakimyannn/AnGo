@@ -7,6 +7,7 @@ This repo includes a Railway-friendly `Dockerfile` that:
 - installs Composer deps in the image
 - runs **nginx + php-fpm** in a single container
 - listens on Railway's `$PORT`
+- generates a safe `.env` from `env.example` (this repo ignores `.env` in git, but Symfony Runtime expects it to exist)
 
 ### Required Railway variables
 - `APP_ENV=prod`

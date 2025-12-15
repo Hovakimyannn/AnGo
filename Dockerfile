@@ -63,6 +63,10 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
 COPY . .
 COPY --from=assets /app/public/build/ public/build/
 
+# Symfony Runtime loads ".env" by default. On Railway (git deploy), ".env" is often not committed.
+# Provide a safe fallback from env.example so the app/console don't crash at boot.
+RUN if [ ! -f .env ] && [ -f env.example ]; then cp env.example .env; fi
+
 COPY nginx/railway.conf.template /etc/nginx/conf.d/default.conf.template
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \

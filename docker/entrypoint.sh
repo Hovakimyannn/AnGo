@@ -5,6 +5,9 @@ set -eu
 PORT="${PORT:-8080}"
 export PORT
 
+# Helpful log line for Railway startup logs
+echo "Starting nginx+php-fpm (PORT=${PORT}, APP_ENV=${APP_ENV:-unset})"
+
 # Render nginx config with the correct listen port.
 envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf
 
