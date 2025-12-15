@@ -1,0 +1,19 @@
+.git
+.gitignore
+
+# Local dependencies / build outputs
+node_modules/
+vendor/
+var/
+public/build/
+
+# OS/editor junk
+.DS_Store
+.idea/
+.vscode/
+
+# Optional local env overrides (keep Railway env vars in dashboard)
+.env.local
+.env.*.local
+
+

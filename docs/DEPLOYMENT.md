@@ -1,5 +1,35 @@
 # Deployment (Production)
 
+## Railway (Dockerfile) — recommended
+
+This repo includes a Railway-friendly `Dockerfile` that:
+- builds Tailwind CSS during image build
+- installs Composer deps in the image
+- runs **nginx + php-fpm** in a single container
+- listens on Railway's `$PORT`
+
+### Required Railway variables
+- `APP_ENV=prod`
+- `APP_DEBUG=0`
+- `APP_SECRET` (generate a random 32+ char string)
+- `DATABASE_URL` (from Railway Postgres)
+
+Example `DATABASE_URL` format:
+
+```bash
+postgresql://USER:PASSWORD@HOST:PORT/DB?serverVersion=16&charset=utf8
+```
+
+### Database migrations
+After deploy (or on every deploy), run:
+
+```bash
+php bin/console doctrine:migrations:migrate --no-interaction
+```
+
+### Notes
+- `public/uploads/*` is **ephemeral** on most container platforms. For persistent uploads, use object storage (S3/R2/etc).
+
 ## 1) Install PHP dependencies (no dev)
 
 ```bash

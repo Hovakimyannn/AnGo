@@ -1,0 +1,48 @@
+server {
+    listen ${PORT};
+    server_name _;
+    root /var/www/html/public;
+
+    # Uploads can be larger than default 1m
+    client_max_body_size 20m;
+
+    # Log to container stdout/stderr (Railway captures these)
+    access_log /dev/stdout;
+    error_log /dev/stderr warn;
+
+    # Cache immutable/static assets aggressively
+    location ~* \.(?:css|js|mjs|map|ico|gif|png|jpg|jpeg|webp|svg|woff2?|ttf|eot)$ {
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+        try_files $uri =404;
+    }
+
+    # Cache uploaded images (filenames are content-addressed/unique in this app)
+    location ^~ /uploads/ {
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+        try_files $uri =404;
+    }
+
+    location / {
+        # Try to serve file directly, fallback to index.php
+        try_files $uri /index.php$is_args$args;
+    }
+
+    location ~ ^/index\.php(/|$) {
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        fastcgi_param DOCUMENT_ROOT $realpath_root;
+
+        internal;
+    }
+
+    location ~ \.php$ {
+        return 404;
+    }
+}
+
+
