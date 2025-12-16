@@ -2,7 +2,7 @@
   "name": "ango-assets",
   "private": true,
   "scripts": {
-    "build": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --minify",
+    "build:css": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --minify",
     "watch:css": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --watch"
   },
   "devDependencies": {
