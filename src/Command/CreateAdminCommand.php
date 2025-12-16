@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Entity\User;
+use App\Service\UserMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -20,11 +21,13 @@ class CreateAdminCommand extends Command
 {
     private UserPasswordHasherInterface $userPasswordHasher;
     private EntityManagerInterface $entityManager;
+    private UserMailer $userMailer;
 
-    public function __construct(UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager)
+    public function __construct(UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, UserMailer $userMailer)
     {
         $this->userPasswordHasher = $userPasswordHasher;
         $this->entityManager = $entityManager;
+        $this->userMailer = $userMailer;
         parent::__construct();
     }
 
@@ -67,6 +70,11 @@ class CreateAdminCommand extends Command
         // Save to database
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        // Best-effort: send account created email
+        if (!$this->userMailer->sendWelcome($user)) {
+            $io->warning('Admin user was created, but sending the welcome email failed (or recipient email was empty).');
+        }
 
         $io->success(sprintf('Admin user "%s" was successfully created.', $email));
 

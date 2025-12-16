@@ -30,6 +30,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $passwordResetTokenHash = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordResetTokenExpiresAt = null;
+
     #[ORM\Column(length: 255)]
     private ?string $firstName = null;
 
@@ -109,8 +115,39 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        // This app does not store temporary sensitive data on the user.
+    }
+
+    public function getPasswordResetTokenHash(): ?string
+    {
+        return $this->passwordResetTokenHash;
+    }
+
+    public function setPasswordResetTokenHash(?string $passwordResetTokenHash): static
+    {
+        $this->passwordResetTokenHash = $passwordResetTokenHash;
+
+        return $this;
+    }
+
+    public function getPasswordResetTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->passwordResetTokenExpiresAt;
+    }
+
+    public function setPasswordResetTokenExpiresAt(?\DateTimeImmutable $passwordResetTokenExpiresAt): static
+    {
+        $this->passwordResetTokenExpiresAt = $passwordResetTokenExpiresAt;
+
+        return $this;
+    }
+
+    public function clearPasswordResetToken(): static
+    {
+        $this->passwordResetTokenHash = null;
+        $this->passwordResetTokenExpiresAt = null;
+
+        return $this;
     }
 
     public function getFirstName(): ?string

@@ -57,6 +57,21 @@
 
             <div class="mt-8">
                 <div class="mt-6">
+                    {% for message in app.flashes('success') %}
+                        <div class="rounded-md bg-green-50 p-4 border-l-4 border-green-500 mb-4">
+                            <div class="flex">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="text-sm text-green-800">
+                                        {{ message }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+
                     <form action="{{ path('app_login') }}" method="POST" class="space-y-6">
 
                         {# Error Alert #}
@@ -127,7 +142,7 @@
                             </div>
 
                             <div class="text-sm">
-                                <a href="#" class="font-medium text-pink-600 hover:text-pink-500">Մոռացե՞լ եք գաղտնաբառը</a>
+                                <a href="{{ path('app_forgot_password') }}" class="font-medium text-pink-600 hover:text-pink-500">Մոռացե՞լ եք գաղտնաբառը</a>
                             </div>
                         </div>
 

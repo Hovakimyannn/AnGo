@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use DateTimeImmutable;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -22,34 +23,34 @@ final class SendTestEmailCommand extends Command
     public function __construct(
         private readonly MailerInterface $mailer,
         #[Autowire('%env(MAILER_FROM)%')]
-        private readonly string $from,
-    ) {
+        private readonly string          $from,
+    )
+    {
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this
-            ->addArgument('to', InputArgument::REQUIRED, 'Recipient email address');
+        $this->addArgument('to', InputArgument::REQUIRED, 'Recipient email address');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $to = trim((string) $input->getArgument('to'));
+        $to = trim((string)$input->getArgument('to'));
 
         if ($to === '') {
             $io->error('Recipient email is required.');
             return Command::INVALID;
         }
 
-        $email = (new Email())
+        $email = new Email()
             ->from($this->from)
             ->to($to)
             ->subject('SendGrid test email (AnGo)')
             ->text(sprintf(
                 "Hello!\n\nThis is a test email from AnGo.\nTime: %s\n",
-                (new \DateTimeImmutable())->format('c')
+                new DateTimeImmutable()->format('c')
             ));
 
         try {
@@ -63,5 +64,3 @@ final class SendTestEmailCommand extends Command
         return Command::SUCCESS;
     }
 }
-
-

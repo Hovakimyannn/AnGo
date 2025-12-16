@@ -20,7 +20,16 @@ composer install
 
 ## Email (SendGrid)
 
-This app uses **Symfony Mailer**. To send emails via **SendGrid SMTP**, set:
+This app uses **Symfony Mailer**.
+
+Recommended (SendGrid **API transport** — avoids SMTP port blocks/timeouts):
+
+```bash
+MAILER_DSN="sendgrid+api://YOUR_SENDGRID_API_KEY@default"
+MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+```
+
+SMTP fallback (if your network/provider allows outbound SMTP):
 
 ```bash
 MAILER_DSN="smtp://apikey:YOUR_SENDGRID_API_KEY@smtp.sendgrid.net:587"
@@ -34,6 +43,7 @@ php bin/console app:send-test-email you@example.com
 ```
 
 Notes:
+- If you see `Connection to "smtp.sendgrid.net:587" timed out`, switch to `sendgrid+api://...` (recommended) or try SMTP port `2525`.
 - `MAILER_FROM` must be a **SendGrid verified** sender (Single Sender Verification or Domain Authentication).
 - To disable sending locally, use: `MAILER_DSN="null://null"`.
 

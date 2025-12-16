@@ -14,10 +14,17 @@ This repo includes a Railway-friendly `Dockerfile` that:
 - `APP_DEBUG=0`
 - `APP_SECRET` (generate a random 32+ char string)
 - `DATABASE_URL` (from Railway Postgres)
-- `MAILER_DSN` (SendGrid SMTP DSN)
+- `MAILER_DSN` (SendGrid DSN)
 - `MAILER_FROM` (verified sender)
 
-SendGrid SMTP example:
+SendGrid (recommended: **API transport** — avoids SMTP port blocks/timeouts):
+
+```bash
+MAILER_DSN="sendgrid+api://YOUR_SENDGRID_API_KEY@default"
+MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+```
+
+SMTP fallback (if your network/provider allows outbound SMTP):
 
 ```bash
 MAILER_DSN="smtp://apikey:YOUR_SENDGRID_API_KEY@smtp.sendgrid.net:587"

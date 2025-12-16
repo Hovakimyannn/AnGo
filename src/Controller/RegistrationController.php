@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\UserMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ class RegistrationController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         UserPasswordHasherInterface $passwordHasher,
+        UserMailer $userMailer,
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_profile');
@@ -81,6 +83,9 @@ class RegistrationController extends AbstractController
 
                 $em->persist($user);
                 $em->flush();
+
+                // Best-effort welcome email (do not fail signup if email fails)
+                $userMailer->sendWelcome($user);
 
                 $this->addFlash('success', 'Հաշիվը ստեղծվեց։ Կարող եք մուտք գործել։');
                 return $this->redirectToRoute('app_login');
