@@ -7,6 +7,8 @@ parameters:
     # Fallbacks (in case MAILER_* env vars are not set)
     env(MAILER_DSN): 'null://null'
     env(MAILER_FROM): 'AnGo <noreply@example.com>'
+    # Base public URL used for generating absolute links in emails (recommended in prod)
+    env(APP_URL): ''
 
 services:
     # default configuration for services in *this* file

@@ -7,7 +7,6 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mime\Part\DataPart;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -18,8 +17,8 @@ final class UserMailer
         private readonly RouterInterface $router,
         #[Autowire('%env(MAILER_FROM)%')]
         private readonly string $from,
-        #[Autowire('%kernel.project_dir%')]
-        private readonly string $projectDir,
+        #[Autowire('%env(APP_URL)%')]
+        private readonly string $appUrl,
     ) {}
 
     /**
@@ -34,18 +33,15 @@ final class UserMailer
             return false;
         }
 
-        $loginUrl = $this->router->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_URL);
+        $loginUrl = $this->absoluteUrl($this->router->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_PATH));
+        $logoUrl = $this->getLogoUrl();
 
         $email = (new Email())
             ->from($this->from)
             ->to($to)
             ->subject('Բարի գալուստ AnGo')
-            ->text($this->buildWelcomeText($user, $loginUrl));
-
-        $logoCid = $this->embedLogo($email);
-        if (null !== $logoCid) {
-            $email->html($this->buildWelcomeHtml($user, $loginUrl, $logoCid));
-        }
+            ->text($this->buildWelcomeText($user, $loginUrl))
+            ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
 
         try {
             $this->mailer->send($email);
@@ -66,17 +62,16 @@ final class UserMailer
             return false;
         }
 
-        $resetUrl = $this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+        $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
+        $logoUrl = $this->getLogoUrl();
 
         $email = (new Email())
             ->from($this->from)
             ->to($to)
             ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
             ->text($this->buildAccountSetupText($user, $resetUrl))
+            ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
         ;
-
-        $logoCid = $this->embedLogo($email);
-        $email->html($this->buildAccountSetupHtml($user, $resetUrl, $logoCid));
 
         try {
             $this->mailer->send($email);
@@ -97,17 +92,16 @@ final class UserMailer
             return false;
         }
 
-        $resetUrl = $this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+        $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
+        $logoUrl = $this->getLogoUrl();
 
         $email = (new Email())
             ->from($this->from)
             ->to($to)
             ->subject('Գաղտնաբառի վերականգնում (AnGo)')
             ->text($this->buildPasswordResetText($user, $resetUrl))
+            ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
         ;
-
-        $logoCid = $this->embedLogo($email);
-        $email->html($this->buildPasswordResetHtml($user, $resetUrl, $logoCid));
 
         try {
             $this->mailer->send($email);
@@ -137,7 +131,7 @@ AnGo
 TEXT);
     }
 
-    private function buildWelcomeHtml(User $user, string $loginUrl, string $logoSrc): string
+    private function buildWelcomeHtml(User $user, string $loginUrl, ?string $logoSrc): string
     {
         $name = trim((string) $user->getFirstName());
         if ($name === '') {
@@ -301,32 +295,41 @@ HTML;
 HTML;
     }
 
-    private function embedLogo(Email $email): ?string
+    private function absoluteUrl(string $path): string
     {
-        try {
-            $candidates = [
-                $this->projectDir.'/public/uploads/photos/ango-logo.png',
-            ];
+        $path = trim($path);
+        if ($path === '' || !str_starts_with($path, '/')) {
+            return $path;
+        }
 
-            $path = null;
-            foreach ($candidates as $candidate) {
-                if (is_file($candidate)) {
-                    $path = $candidate;
-                    break;
-                }
-            }
-            if (null === $path) {
-                return null;
-            }
+        $base = $this->getBaseUrl();
+        if ($base === '') {
+            return $path;
+        }
 
-            $part = DataPart::fromPath($path, basename($path))->asInline();
-            $part->setContentId('ango-logo@ango');
-            $email->addPart($part);
+        return $base.$path;
+    }
 
-            return 'cid:'.$part->getContentId();
-        } catch (\Throwable) {
+    private function getBaseUrl(): string
+    {
+        $base = trim($this->appUrl);
+        if ($base !== '') {
+            return rtrim($base, '/');
+        }
+
+        $home = $this->router->generate('app_home', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        return rtrim($home, '/');
+    }
+
+    private function getLogoUrl(): ?string
+    {
+        $base = $this->getBaseUrl();
+        if ($base === '') {
             return null;
         }
+
+        return $base.'/uploads/photos/ango-logo.png';
     }
 }
 
