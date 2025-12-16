@@ -47,3 +47,6 @@ desktop.ini
 *.swp
 
 .env
+public/uploads/photos/*
+public/uploads/cache/*
+!public/uploads/photos/ango-logo.png
