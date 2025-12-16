@@ -18,6 +18,25 @@ App: `http://localhost:8085`
 composer install
 ```
 
+## Email (SendGrid)
+
+This app uses **Symfony Mailer**. To send emails via **SendGrid SMTP**, set:
+
+```bash
+MAILER_DSN="smtp://apikey:YOUR_SENDGRID_API_KEY@smtp.sendgrid.net:587"
+MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+```
+
+Then test:
+
+```bash
+php bin/console app:send-test-email you@example.com
+```
+
+Notes:
+- `MAILER_FROM` must be a **SendGrid verified** sender (Single Sender Verification or Domain Authentication).
+- To disable sending locally, use: `MAILER_DSN="null://null"`.
+
 ## Tailwind CSS (required for styles)
 This project serves Tailwind as **compiled CSS** (`public/build/app.css`).
 

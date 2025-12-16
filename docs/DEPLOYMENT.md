@@ -14,6 +14,15 @@ This repo includes a Railway-friendly `Dockerfile` that:
 - `APP_DEBUG=0`
 - `APP_SECRET` (generate a random 32+ char string)
 - `DATABASE_URL` (from Railway Postgres)
+- `MAILER_DSN` (SendGrid SMTP DSN)
+- `MAILER_FROM` (verified sender)
+
+SendGrid SMTP example:
+
+```bash
+MAILER_DSN="smtp://apikey:YOUR_SENDGRID_API_KEY@smtp.sendgrid.net:587"
+MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+```
 
 Example `DATABASE_URL` format:
 
@@ -30,6 +39,7 @@ php bin/console doctrine:migrations:migrate --no-interaction
 
 ### Notes
 - `public/uploads/*` is **ephemeral** on most container platforms. For persistent uploads, use object storage (S3/R2/etc).
+- SendGrid requires a **verified sender** (Single Sender Verification or Domain Authentication). If not verified, SendGrid may reject emails.
 
 ## 1) Install PHP dependencies (no dev)
 

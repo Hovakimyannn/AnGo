@@ -6,6 +6,7 @@ use App\Entity\Appointment;
 use App\Repository\ArtistProfileRepository;
 use App\Repository\ServiceRepository;
 use App\Service\BookingService;
+use App\Service\AppointmentMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +20,8 @@ class BookingController extends AbstractController
         private BookingService $bookingService,
         private ArtistProfileRepository $artistRepository,
         private ServiceRepository $serviceRepository,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private AppointmentMailer $appointmentMailer,
     ) {}
 
     // 0. Get All Artists
@@ -147,7 +149,8 @@ class BookingController extends AbstractController
         $this->em->persist($appointment);
         $this->em->flush();
 
-        // Aystex kareli e avelacnel Email Notification logic
+        // Email notification (best-effort; do not fail booking if email fails)
+        $this->appointmentMailer->sendBookingCreated($appointment);
 
         return $this->json(['success' => true, 'id' => $appointment->getId()]);
     }

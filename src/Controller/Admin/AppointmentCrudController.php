@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Appointment;
 use App\Entity\User as AppUser;
+use App\Service\AppointmentMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -36,6 +37,7 @@ class AppointmentCrudController extends AbstractCrudController
         private EntityManagerInterface $em,
         private AdminUrlGenerator $adminUrlGenerator,
         private CsrfTokenManagerInterface $csrfTokenManager,
+        private AppointmentMailer $appointmentMailer,
     ) {}
 
     public static function getEntityFqcn(): string
@@ -115,8 +117,13 @@ class AppointmentCrudController extends AbstractCrudController
             }
         }
 
+        $oldStatus = (string) $instance->getStatus();
         $instance->setStatus($status);
         $this->em->flush();
+
+        if ($oldStatus !== $status) {
+            $this->appointmentMailer->sendStatusChanged($instance, $oldStatus);
+        }
 
         return $this->json(['success' => true, 'status' => $instance->getStatus()]);
     }
@@ -139,8 +146,13 @@ class AppointmentCrudController extends AbstractCrudController
             }
         }
 
+        $oldStatus = (string) $instance->getStatus();
         $instance->setStatus($status);
         $this->em->flush();
+
+        if ($oldStatus !== $status) {
+            $this->appointmentMailer->sendStatusChanged($instance, $oldStatus);
+        }
         $this->addFlash('success', $message);
 
         return $this->redirectToIndex();
