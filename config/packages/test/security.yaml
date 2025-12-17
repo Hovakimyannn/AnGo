@@ -1,0 +1,15 @@
+security:
+  # In tests we avoid DB-backed user provider so functional tests can run without a database.
+  providers:
+    test_user_provider:
+      memory:
+        users:
+          admin@example.com:
+            # password: "password"
+            password: '$2y$04$71AqUf3XRCogXlwLBIYn3u9sTJo6IGMf3KHA0j/mLcy8vICsaakf2'
+            roles: [ROLE_ADMIN]
+
+  firewalls:
+    main:
+      provider: test_user_provider
+

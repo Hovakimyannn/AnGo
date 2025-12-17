@@ -13,13 +13,8 @@ framework:
     trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
-    # Remove or comment this section to explicitly disable session support.
+    # Keep cookie flags consistent across envs.
     session:
-        # Use Symfony's native file session handler (creates the directory if missing).
-        # This avoids issues where PHP's default session.save_path is not writable in some containers,
-        # which can break login/CSRF by losing sessions between requests.
-        handler_id: session.handler.native_file
-        save_path: '%kernel.project_dir%/var/sessions/%kernel.environment%'
         cookie_secure: auto
         cookie_samesite: lax
 

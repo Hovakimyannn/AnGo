@@ -50,3 +50,8 @@ desktop.ini
 public/uploads/photos/*
 public/uploads/cache/*
 !public/uploads/photos/ango-logo.png
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

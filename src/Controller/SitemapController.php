@@ -43,28 +43,36 @@ final class SitemapController extends AbstractController
         }
 
         // --- Dynamic pages: artists + published posts ---
-        foreach ($artistProfileRepository->findAll() as $artist) {
-            $id = $artist->getId();
-            if (!$id) {
-                continue;
+        try {
+            foreach ($artistProfileRepository->findAll() as $artist) {
+                $id = $artist->getId();
+                if (!$id) {
+                    continue;
+                }
+                $addUrl($this->generateUrl('app_artist_show', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.6);
             }
-            $addUrl($this->generateUrl('app_artist_show', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.6);
+        } catch (\Throwable) {
+            // If DB is temporarily unavailable, keep sitemap functional with static URLs.
         }
 
-        foreach ($artistPostRepository->findPublishedByCategory(null, null) as $post) {
-            $id = $post->getId();
-            $slug = $post->getSlug();
-            if (!$id || !$slug) {
-                continue;
-            }
+        try {
+            foreach ($artistPostRepository->findPublishedByCategory(null, null) as $post) {
+                $id = $post->getId();
+                $slug = $post->getSlug();
+                if (!$id || !$slug) {
+                    continue;
+                }
 
-            $last = $post->getUpdatedAt() ?? $post->getPublishedAt() ?? $post->getCreatedAt();
-            $addUrl(
-                $this->generateUrl('app_blog_show', ['id' => $id, 'slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
-                $last,
-                'monthly',
-                0.6
-            );
+                $last = $post->getUpdatedAt() ?? $post->getPublishedAt() ?? $post->getCreatedAt();
+                $addUrl(
+                    $this->generateUrl('app_blog_show', ['id' => $id, 'slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
+                    $last,
+                    'monthly',
+                    0.6
+                );
+            }
+        } catch (\Throwable) {
+            // If DB is temporarily unavailable, keep sitemap functional with static URLs.
         }
 
         $xml = $this->buildSitemapXml(array_values($urls));
