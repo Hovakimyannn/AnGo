@@ -5,6 +5,13 @@ framework:
     http_method_override: false
     handle_all_throwables: true
 
+    # Behind a reverse proxy (Railway, nginx, etc.) the app receives HTTP traffic,
+    # while users connect over HTTPS. Trust proxy headers so Symfony can detect the
+    # original scheme/host and generate correct absolute URLs (avoids Chrome's
+    # "information you're about to submit is not secure" warning on admin forms).
+    trusted_proxies: '%env(default::TRUSTED_PROXIES)%'
+    trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
+
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
     session:

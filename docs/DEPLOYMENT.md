@@ -13,6 +13,7 @@ This repo includes a Railway-friendly `Dockerfile` that:
 - `APP_ENV=prod`
 - `APP_DEBUG=0`
 - `APP_SECRET` (generate a random 32+ char string)
+- `TRUSTED_PROXIES=REMOTE_ADDR` (so Symfony trusts `X-Forwarded-Proto` and generates HTTPS URLs)
 - `DATABASE_URL` (from Railway Postgres)
 - `MAILER_DSN` (SendGrid DSN)
 - `MAILER_FROM` (verified sender)
