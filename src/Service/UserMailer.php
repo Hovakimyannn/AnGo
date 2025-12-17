@@ -17,6 +17,8 @@ final class UserMailer
         private readonly RouterInterface $router,
         #[Autowire('%env(MAILER_FROM)%')]
         private readonly string $from,
+        #[Autowire('%env(MAILER_DSN)%')]
+        private readonly string $mailerDsn,
         #[Autowire('%env(APP_URL)%')]
         private readonly string $appUrl,
     ) {}
@@ -33,6 +35,11 @@ final class UserMailer
             return false;
         }
 
+        if ($this->isMailerDisabled()) {
+            $this->logMailerDisabled('welcome', $to);
+            return false;
+        }
+
         $loginUrl = $this->absoluteUrl($this->router->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
@@ -45,7 +52,8 @@ final class UserMailer
 
         try {
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface) {
+        } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->logSendFailure('welcome', $to, $e);
             return false;
         }
 
@@ -62,6 +70,11 @@ final class UserMailer
             return false;
         }
 
+        if ($this->isMailerDisabled()) {
+            $this->logMailerDisabled('account_setup', $to);
+            return false;
+        }
+
         $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
@@ -75,7 +88,8 @@ final class UserMailer
 
         try {
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface) {
+        } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->logSendFailure('account_setup', $to, $e);
             return false;
         }
 
@@ -92,6 +106,11 @@ final class UserMailer
             return false;
         }
 
+        if ($this->isMailerDisabled()) {
+            $this->logMailerDisabled('password_reset', $to);
+            return false;
+        }
+
         $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
@@ -105,11 +124,52 @@ final class UserMailer
 
         try {
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface) {
+        } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->logSendFailure('password_reset', $to, $e);
             return false;
         }
 
         return true;
+    }
+
+    private function isMailerDisabled(): bool
+    {
+        $dsn = strtolower(trim($this->mailerDsn));
+        if ($dsn === '') {
+            return true;
+        }
+
+        // Symfony's recommended "disable mailer" DSN.
+        if (str_starts_with($dsn, 'null://')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private function logMailerDisabled(string $type, string $to): void
+    {
+        // Use error_log so it shows in container logs (Railway) without requiring extra bundles.
+        error_log(sprintf('[UserMailer] Mailer disabled (MAILER_DSN="%s"). Skipping "%s" email to "%s".', $this->sanitizeDsnForLogs($this->mailerDsn), $type, $to));
+    }
+
+    private function logSendFailure(string $type, string $to, \Throwable $e): void
+    {
+        error_log(sprintf('[UserMailer] Failed sending "%s" email to "%s": %s', $type, $to, $e->getMessage()));
+    }
+
+    private function sanitizeDsnForLogs(string $dsn): string
+    {
+        $dsn = trim($dsn);
+        if ($dsn === '') {
+            return '';
+        }
+
+        // Mask credentials/keys in case someone logs full DSN.
+        // Examples:
+        // - smtp://user:pass@host:587 -> smtp://***@host:587
+        // - sendgrid+api://KEY@default -> sendgrid+api://***@default
+        return preg_replace('~://([^@/]+)@~', '://***@', $dsn) ?? '***';
     }
 
     private function buildWelcomeText(User $user, string $loginUrl): string
