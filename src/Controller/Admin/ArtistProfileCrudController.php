@@ -14,6 +14,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
+use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistProfileCrudController extends AbstractCrudController
 {
@@ -50,6 +51,15 @@ class ArtistProfileCrudController extends AbstractCrudController
             ->setBasePath('uploads/photos') // Vortexic karda browser-y
             ->setUploadDir('public/uploads/photos') // Vortex qci server-y
             ->setUploadedFileNamePattern('[randomhash].[extension]')
+            // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)
+            ->setFormTypeOption('constraints', [
+                new Image([
+                    'maxSize' => '5M',
+                    'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                    'mimeTypesMessage' => 'Խնդրում ենք վերբեռնել ճիշտ նկար (JPG/PNG/WebP)։',
+                ]),
+            ])
+            ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
         yield AssociationField::new('services', 'Ծառայություններ')

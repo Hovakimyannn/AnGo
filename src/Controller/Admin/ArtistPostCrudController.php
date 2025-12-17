@@ -22,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistPostCrudController extends AbstractCrudController
 {
@@ -115,6 +116,15 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setBasePath('uploads/posts')
             ->setUploadDir('public/uploads/posts')
             ->setUploadedFileNamePattern('[randomhash].[extension]')
+            // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)
+            ->setFormTypeOption('constraints', [
+                new Image([
+                    'maxSize' => '5M',
+                    'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                    'mimeTypesMessage' => 'Խնդրում ենք վերբեռնել ճիշտ նկար (JPG/PNG/WebP)։',
+                ]),
+            ])
+            ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
         $servicesField = AssociationField::new('services', 'Services')
