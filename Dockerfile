@@ -103,7 +103,9 @@ COPY --from=test /tmp/tests-passed /tmp/tests-passed
 RUN chmod +x /entrypoint.sh \
   && rm -f /etc/nginx/sites-enabled/default \
   && mkdir -p /var/www/html/var/cache /var/www/html/var/log \
-  && chown -R www-data:www-data /var/www/html/var
+  && chown -R www-data:www-data /var/www/html/var \
+  # Make var/ writable even if the platform runs the container as a non-www-data user.
+  && chmod -R a+rwX /var/www/html/var
 
 EXPOSE 8080
 CMD ["/entrypoint.sh"]

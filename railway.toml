@@ -1,20 +1,6 @@
-[build]
-builder = "nixpacks"
-
-[phases.setup]
-nixPkgs = ["nodejs_20", "php82", "php82Packages.composer"]
-
-[phases.install]
-cmds = [
-  "composer install --no-dev --optimize-autoloader",
-  "npm ci --production=false"
-]
-
-[phases.build]
-cmds = [
-  "npm run build",
-  "php bin/console cache:clear --env=prod --no-debug"
-]
+# This project is deployed using the Dockerfile (see railway.json).
+# Keep this file minimal to avoid overriding the Dockerfile CMD.
 
 [deploy]
-startCommand = "sh -c 'php -S 0.0.0.0:${PORT} -t public router.php'"
+# Use the image entrypoint (nginx + php-fpm).
+startCommand = "/entrypoint.sh"
