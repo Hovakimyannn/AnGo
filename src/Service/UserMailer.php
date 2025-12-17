@@ -55,12 +55,12 @@ final class UserMailer
         $logoUrl = $this->getLogoUrl();
 
         try {
-            $email = (new Email())
-                ->from($this->from)
-                ->to($to)
-                ->subject('Բարի գալուստ AnGo')
-                ->text($this->buildWelcomeText($user, $loginUrl))
-                ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Բարի գալուստ AnGo')
+            ->text($this->buildWelcomeText($user, $loginUrl))
+            ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
 
             $this->mailer->send($email);
         } catch (\Throwable $e) {
@@ -96,13 +96,13 @@ final class UserMailer
         $logoUrl = $this->getLogoUrl();
 
         try {
-            $email = (new Email())
-                ->from($this->from)
-                ->to($to)
-                ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
-                ->text($this->buildAccountSetupText($user, $resetUrl))
-                ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
-            ;
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
+            ->text($this->buildAccountSetupText($user, $resetUrl))
+            ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
+        ;
 
             $this->mailer->send($email);
         } catch (\Throwable $e) {
@@ -138,13 +138,13 @@ final class UserMailer
         $logoUrl = $this->getLogoUrl();
 
         try {
-            $email = (new Email())
-                ->from($this->from)
-                ->to($to)
-                ->subject('Գաղտնաբառի վերականգնում (AnGo)')
-                ->text($this->buildPasswordResetText($user, $resetUrl))
-                ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
-            ;
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Գաղտնաբառի վերականգնում (AnGo)')
+            ->text($this->buildPasswordResetText($user, $resetUrl))
+            ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
+        ;
 
             $this->mailer->send($email);
         } catch (\Throwable $e) {

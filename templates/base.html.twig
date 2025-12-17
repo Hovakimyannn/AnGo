@@ -51,7 +51,7 @@
         <a href="{{ path('app_home') }}" class="flex items-center rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-200">
             <span class="inline-flex items-center bg-white rounded-2xl overflow-hidden px-2 py-1 transition duration-200 ease-out transform hover:scale-[1.01]">
                 <img
-                    src="{{ asset('uploads/photos/ango-logo.png') }}"
+                    src="{{ asset('uploads/photos/ango-logo.png') }}?v={{ asset_version('uploads/photos/ango-logo.png') }}"
                     alt="AnGo"
                     class="w-auto object-contain"
                     style="height: 56px; max-width: 220px;"
