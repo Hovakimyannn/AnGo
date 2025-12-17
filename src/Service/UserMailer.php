@@ -54,17 +54,18 @@ final class UserMailer
         $loginUrl = $this->absoluteUrl($this->router->generate('app_login', [], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
-        $email = (new Email())
-            ->from($this->from)
-            ->to($to)
-            ->subject('Բարի գալուստ AnGo')
-            ->text($this->buildWelcomeText($user, $loginUrl))
-            ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
-
         try {
+            $email = (new Email())
+                ->from($this->from)
+                ->to($to)
+                ->subject('Բարի գալուստ AnGo')
+                ->text($this->buildWelcomeText($user, $loginUrl))
+                ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
+
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface|\Throwable $e) {
-            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
+        } catch (\Throwable $e) {
+            $prefix = $e instanceof TransportExceptionInterface ? 'Transport error: ' : 'Mailer error: ';
+            $this->lastFailureReason = $prefix.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('welcome', $to, $e);
             return false;
         }
@@ -94,18 +95,19 @@ final class UserMailer
         $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
-        $email = (new Email())
-            ->from($this->from)
-            ->to($to)
-            ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
-            ->text($this->buildAccountSetupText($user, $resetUrl))
-            ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
-        ;
-
         try {
+            $email = (new Email())
+                ->from($this->from)
+                ->to($to)
+                ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
+                ->text($this->buildAccountSetupText($user, $resetUrl))
+                ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
+            ;
+
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface|\Throwable $e) {
-            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
+        } catch (\Throwable $e) {
+            $prefix = $e instanceof TransportExceptionInterface ? 'Transport error: ' : 'Mailer error: ';
+            $this->lastFailureReason = $prefix.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('account_setup', $to, $e);
             return false;
         }
@@ -135,18 +137,19 @@ final class UserMailer
         $resetUrl = $this->absoluteUrl($this->router->generate('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_PATH));
         $logoUrl = $this->getLogoUrl();
 
-        $email = (new Email())
-            ->from($this->from)
-            ->to($to)
-            ->subject('Գաղտնաբառի վերականգնում (AnGo)')
-            ->text($this->buildPasswordResetText($user, $resetUrl))
-            ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
-        ;
-
         try {
+            $email = (new Email())
+                ->from($this->from)
+                ->to($to)
+                ->subject('Գաղտնաբառի վերականգնում (AnGo)')
+                ->text($this->buildPasswordResetText($user, $resetUrl))
+                ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
+            ;
+
             $this->mailer->send($email);
-        } catch (TransportExceptionInterface|\Throwable $e) {
-            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
+        } catch (\Throwable $e) {
+            $prefix = $e instanceof TransportExceptionInterface ? 'Transport error: ' : 'Mailer error: ';
+            $this->lastFailureReason = $prefix.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('password_reset', $to, $e);
             return false;
         }
