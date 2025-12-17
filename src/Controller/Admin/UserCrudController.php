@@ -76,8 +76,11 @@ class UserCrudController extends AbstractCrudController
 
         if (!$this->userMailer->sendAccountSetup($entityInstance, $token)) {
             $resetUrl = $this->generateUrl('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+            $reason = trim((string) $this->userMailer->getLastFailureReason());
+            $reasonText = $reason !== '' ? sprintf(' Պատճառ՝ %s', $reason) : '';
             $this->addFlash('warning', sprintf(
-                'Օգտատերը ստեղծվեց, բայց email ուղարկել չհաջողվեց (ստուգեք MAILER_DSN / MAILER_FROM prod-ում, SendGrid-ի դեպքում՝ verified sender)։ Reset link: %s',
+                'Օգտատերը ստեղծվեց, բայց email ուղարկել չհաջողվեց (ստուգեք MAILER_DSN / MAILER_FROM prod-ում, SendGrid-ի դեպքում՝ verified sender)։%s Reset link: %s',
+                $reasonText,
                 $resetUrl
             ));
 

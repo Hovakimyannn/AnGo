@@ -12,6 +12,8 @@ use Symfony\Component\Routing\RouterInterface;
 
 final class UserMailer
 {
+    private ?string $lastFailureReason = null;
+
     public function __construct(
         private readonly MailerInterface $mailer,
         private readonly RouterInterface $router,
@@ -23,6 +25,11 @@ final class UserMailer
         private readonly string $appUrl,
     ) {}
 
+    public function getLastFailureReason(): ?string
+    {
+        return $this->lastFailureReason;
+    }
+
     /**
      * Sends a simple welcome email (e.g. after signup).
      *
@@ -30,12 +37,16 @@ final class UserMailer
      */
     public function sendWelcome(User $user): bool
     {
+        $this->lastFailureReason = null;
+
         $to = trim((string) $user->getEmail());
         if ($to === '') {
+            $this->lastFailureReason = 'Recipient email-ը դատարկ է։';
             return false;
         }
 
         if ($this->isMailerDisabled()) {
+            $this->lastFailureReason = 'Mailer disabled է (MAILER_DSN-ը դատարկ է կամ null://)։';
             $this->logMailerDisabled('welcome', $to);
             return false;
         }
@@ -53,6 +64,7 @@ final class UserMailer
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('welcome', $to, $e);
             return false;
         }
@@ -65,12 +77,16 @@ final class UserMailer
      */
     public function sendAccountSetup(User $user, string $token): bool
     {
+        $this->lastFailureReason = null;
+
         $to = trim((string) $user->getEmail());
         if ($to === '') {
+            $this->lastFailureReason = 'Recipient email-ը դատարկ է։';
             return false;
         }
 
         if ($this->isMailerDisabled()) {
+            $this->lastFailureReason = 'Mailer disabled է (MAILER_DSN-ը դատարկ է կամ null://)։';
             $this->logMailerDisabled('account_setup', $to);
             return false;
         }
@@ -89,6 +105,7 @@ final class UserMailer
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('account_setup', $to, $e);
             return false;
         }
@@ -101,12 +118,16 @@ final class UserMailer
      */
     public function sendPasswordReset(User $user, string $token): bool
     {
+        $this->lastFailureReason = null;
+
         $to = trim((string) $user->getEmail());
         if ($to === '') {
+            $this->lastFailureReason = 'Recipient email-ը դատարկ է։';
             return false;
         }
 
         if ($this->isMailerDisabled()) {
+            $this->lastFailureReason = 'Mailer disabled է (MAILER_DSN-ը դատարկ է կամ null://)։';
             $this->logMailerDisabled('password_reset', $to);
             return false;
         }
@@ -125,6 +146,7 @@ final class UserMailer
         try {
             $this->mailer->send($email);
         } catch (TransportExceptionInterface|\Throwable $e) {
+            $this->lastFailureReason = 'Transport error: '.$this->sanitizeForUi($e->getMessage());
             $this->logSendFailure('password_reset', $to, $e);
             return false;
         }
@@ -155,7 +177,7 @@ final class UserMailer
 
     private function logSendFailure(string $type, string $to, \Throwable $e): void
     {
-        error_log(sprintf('[UserMailer] Failed sending "%s" email to "%s": %s', $type, $to, $e->getMessage()));
+        error_log(sprintf('[UserMailer] Failed sending "%s" email to "%s": %s', $type, $to, $this->sanitizeForUi($e->getMessage())));
     }
 
     private function sanitizeDsnForLogs(string $dsn): string
@@ -170,6 +192,17 @@ final class UserMailer
         // - smtp://user:pass@host:587 -> smtp://***@host:587
         // - sendgrid+api://KEY@default -> sendgrid+api://***@default
         return preg_replace('~://([^@/]+)@~', '://***@', $dsn) ?? '***';
+    }
+
+    private function sanitizeForUi(string $message): string
+    {
+        $message = trim($message);
+        if ($message === '') {
+            return '';
+        }
+
+        // Mask any embedded DSN/API keys in exception messages.
+        return preg_replace('~://([^@\s/]+)@~', '://***@', $message) ?? '***';
     }
 
     private function buildWelcomeText(User $user, string $loginUrl): string
