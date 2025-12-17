@@ -23,7 +23,7 @@ chmod -R ug+rwX /var/www/html/var/tmp /var/www/html/public/uploads
 
 # Ensure PHP's default session.save_path exists and is writable (do NOT change the path).
 # This prevents login/CSRF issues when the default session directory is missing/not writable.
-sess_save_path="$(php -r 'echo ini_get(\"session.save_path\");')"
+sess_save_path="$(php -r 'echo ini_get("session.save_path");' 2>/dev/null || true)"
 sess_dir="${sess_save_path##*;}"
 if [ -n "${sess_dir}" ] && [ "${sess_dir}" != "/tmp" ]; then
   mkdir -p "${sess_dir}"
