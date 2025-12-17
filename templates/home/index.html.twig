@@ -15,20 +15,50 @@
     <div class="relative h-[600px] flex items-center justify-center overflow-hidden">
         {# Background Image with Overlay #}
         <div class="absolute inset-0 z-0">
-            <img
-                src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80"
-                srcset="
-                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=80 640w,
-                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80 960w,
-                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1280&q=80 1280w,
-                    https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1674&q=80 1674w
-                "
-                sizes="100vw"
-                alt="Սրահ"
-                class="w-full h-full object-cover"
-                loading="eager"
-                fetchpriority="high"
-            >
+            {% if homeSettings is defined and homeSettings and homeSettings.heroImage %}
+                {% set hero = homeSettings.heroImage %}
+                <picture>
+                    <source
+                        type="image/webp"
+                        srcset="
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=640&fmt=webp' }} 640w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=960&fmt=webp' }} 960w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=1280&fmt=webp' }} 1280w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=1674&fmt=webp' }} 1674w
+                        "
+                        sizes="100vw"
+                    >
+                    <img
+                        src="{{ path('app_image_photo', { filename: hero }) ~ '?w=960&fmt=jpg' }}"
+                        srcset="
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=640&fmt=jpg' }} 640w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=960&fmt=jpg' }} 960w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=1280&fmt=jpg' }} 1280w,
+                            {{ path('app_image_photo', { filename: hero }) ~ '?w=1674&fmt=jpg' }} 1674w
+                        "
+                        sizes="100vw"
+                        alt="Սրահ"
+                        class="w-full h-full object-cover"
+                        loading="eager"
+                        fetchpriority="high"
+                    >
+                </picture>
+            {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80"
+                    srcset="
+                        https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=640&q=80 640w,
+                        https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=960&q=80 960w,
+                        https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1280&q=80 1280w,
+                        https://images.unsplash.com/photo-1560066984-138dadb4c035?ixlib=rb-4.0.3&auto=format&fit=crop&w=1674&q=80 1674w
+                    "
+                    sizes="100vw"
+                    alt="Սրահ"
+                    class="w-full h-full object-cover"
+                    loading="eager"
+                    fetchpriority="high"
+                >
+            {% endif %}
             <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/40"></div>
         </div>
 
@@ -61,20 +91,51 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Վարսահարդարում -->
                 <a href="{{ path('app_blog_category', {category: 'hair'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
-                    <img
-                        src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60"
-                        srcset="
-                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=240&q=60 240w,
-                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=320&q=60 320w,
-                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60 360w,
-                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=480&q=60 480w,
-                            https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=640&q=60 640w
-                        "
-                        sizes="(min-width: 768px) 33vw, 100vw"
-                        alt="Վարսահարդարում"
-                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-                        loading="lazy"
-                    >
+                    {% if homeSettings is defined and homeSettings and homeSettings.serviceHairImage %}
+                        {% set hair = homeSettings.serviceHairImage %}
+                        <picture>
+                            <source
+                                type="image/webp"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=240&fmt=webp' }} 240w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=320&fmt=webp' }} 320w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=360&fmt=webp' }} 360w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=480&fmt=webp' }} 480w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=640&fmt=webp' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                            >
+                            <img
+                                src="{{ path('app_image_photo', { filename: hair }) ~ '?w=360&fmt=jpg' }}"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=240&fmt=jpg' }} 240w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=320&fmt=jpg' }} 320w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=360&fmt=jpg' }} 360w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=480&fmt=jpg' }} 480w,
+                                    {{ path('app_image_photo', { filename: hair }) ~ '?w=640&fmt=jpg' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                                alt="Վարսահարդարում"
+                                class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                                loading="lazy"
+                            >
+                        </picture>
+                    {% else %}
+                        <img
+                            src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60"
+                            srcset="
+                                https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=240&q=60 240w,
+                                https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=320&q=60 320w,
+                                https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=360&q=60 360w,
+                                https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=480&q=60 480w,
+                                https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=640&q=60 640w
+                            "
+                            sizes="(min-width: 768px) 33vw, 100vw"
+                            alt="Վարսահարդարում"
+                            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                            loading="lazy"
+                        >
+                    {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-cut text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Վարսահարդարում</h3>
@@ -85,20 +146,51 @@
                 </a>
                 <!-- Դիմահարդարում -->
                 <a href="{{ path('app_blog_category', {category: 'makeup'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
-                    <img
-                        src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60"
-                        srcset="
-                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=240&q=60 240w,
-                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=320&q=60 320w,
-                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60 360w,
-                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=480&q=60 480w,
-                            https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=640&q=60 640w
-                        "
-                        sizes="(min-width: 768px) 33vw, 100vw"
-                        alt="Դիմահարդարում"
-                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-                        loading="lazy"
-                    >
+                    {% if homeSettings is defined and homeSettings and homeSettings.serviceMakeupImage %}
+                        {% set makeup = homeSettings.serviceMakeupImage %}
+                        <picture>
+                            <source
+                                type="image/webp"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=240&fmt=webp' }} 240w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=320&fmt=webp' }} 320w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=360&fmt=webp' }} 360w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=480&fmt=webp' }} 480w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=640&fmt=webp' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                            >
+                            <img
+                                src="{{ path('app_image_photo', { filename: makeup }) ~ '?w=360&fmt=jpg' }}"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=240&fmt=jpg' }} 240w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=320&fmt=jpg' }} 320w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=360&fmt=jpg' }} 360w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=480&fmt=jpg' }} 480w,
+                                    {{ path('app_image_photo', { filename: makeup }) ~ '?w=640&fmt=jpg' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                                alt="Դիմահարդարում"
+                                class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                                loading="lazy"
+                            >
+                        </picture>
+                    {% else %}
+                        <img
+                            src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60"
+                            srcset="
+                                https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=240&q=60 240w,
+                                https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=320&q=60 320w,
+                                https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=360&q=60 360w,
+                                https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=480&q=60 480w,
+                                https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=640&q=60 640w
+                            "
+                            sizes="(min-width: 768px) 33vw, 100vw"
+                            alt="Դիմահարդարում"
+                            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                            loading="lazy"
+                        >
+                    {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-magic text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Դիմահարդարում</h3>
@@ -109,20 +201,51 @@
                 </a>
                 <!-- Մատնահարդարում -->
                 <a href="{{ path('app_blog_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
-                    <img
-                        src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60"
-                        srcset="
-                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=240&q=60 240w,
-                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=320&q=60 320w,
-                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60 360w,
-                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=480&q=60 480w,
-                            https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=640&q=60 640w
-                        "
-                        sizes="(min-width: 768px) 33vw, 100vw"
-                        alt="Մատնահարդարում"
-                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-                        loading="lazy"
-                    >
+                    {% if homeSettings is defined and homeSettings and homeSettings.serviceNailsImage %}
+                        {% set nails = homeSettings.serviceNailsImage %}
+                        <picture>
+                            <source
+                                type="image/webp"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=240&fmt=webp' }} 240w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=320&fmt=webp' }} 320w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=360&fmt=webp' }} 360w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=480&fmt=webp' }} 480w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=640&fmt=webp' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                            >
+                            <img
+                                src="{{ path('app_image_photo', { filename: nails }) ~ '?w=360&fmt=jpg' }}"
+                                srcset="
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=240&fmt=jpg' }} 240w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=320&fmt=jpg' }} 320w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=360&fmt=jpg' }} 360w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=480&fmt=jpg' }} 480w,
+                                    {{ path('app_image_photo', { filename: nails }) ~ '?w=640&fmt=jpg' }} 640w
+                                "
+                                sizes="(min-width: 768px) 33vw, 100vw"
+                                alt="Մատնահարդարում"
+                                class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                                loading="lazy"
+                            >
+                        </picture>
+                    {% else %}
+                        <img
+                            src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60"
+                            srcset="
+                                https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=240&q=60 240w,
+                                https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=320&q=60 320w,
+                                https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=360&q=60 360w,
+                                https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=480&q=60 480w,
+                                https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=640&q=60 640w
+                            "
+                            sizes="(min-width: 768px) 33vw, 100vw"
+                            alt="Մատնահարդարում"
+                            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                            loading="lazy"
+                        >
+                    {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-hand-sparkles text-4xl text-white mb-3"></i>
                         <h3 class="text-2xl font-bold text-white">Մատնահարդարում</h3>

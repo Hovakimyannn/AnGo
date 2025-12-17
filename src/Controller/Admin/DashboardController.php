@@ -6,13 +6,17 @@ use App\Entity\Appointment;
 use App\Entity\ArtistPost;
 use App\Entity\ArtistProfile;
 use App\Entity\Availability;
+use App\Entity\HomePageSettings;
 use App\Entity\PostComment;
 use App\Entity\PostRating;
 use App\Entity\Service;
 use App\Entity\User;
+use App\Repository\HomePageSettingsRepository;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,6 +27,32 @@ class DashboardController extends AbstractDashboardController
     {
         // Aystex hetagayum kavelacnenq statistika
         return $this->render('admin/dashboard.html.twig');
+    }
+
+    #[Route('/admin/home-images', name: 'admin_home_images')]
+    public function homeImages(AdminUrlGenerator $adminUrlGenerator, HomePageSettingsRepository $homePageSettingsRepository): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $settings = $homePageSettingsRepository->findOneBy([]);
+
+        $adminUrlGenerator->unsetAll()
+            ->setController(HomePageSettingsCrudController::class);
+
+        if ($settings instanceof HomePageSettings && $settings->getId()) {
+            $url = $adminUrlGenerator
+                ->setAction(Action::EDIT)
+                ->setEntityId($settings->getId())
+                ->generateUrl();
+
+            return $this->redirect($url);
+        }
+
+        $url = $adminUrlGenerator
+            ->setAction(Action::NEW)
+            ->generateUrl();
+
+        return $this->redirect($url);
     }
 
     public function configureDashboard(): Dashboard
@@ -51,6 +81,9 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Posts', 'fas fa-pen', ArtistPost::class);
             yield MenuItem::linkToCrud('Comments', 'fas fa-comments', PostComment::class);
             yield MenuItem::linkToCrud('Ratings', 'fas fa-star', PostRating::class);
+
+            yield MenuItem::section('Կայք');
+            yield MenuItem::linkToRoute('Home նկարներ', 'fas fa-image', 'admin_home_images');
             return;
         }
 

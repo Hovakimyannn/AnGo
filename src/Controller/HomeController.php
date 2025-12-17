@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\HomePageSettingsRepository;
 use App\Repository\ArtistProfileRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(ArtistProfileRepository $artistRepository, ServiceRepository $serviceRepository): Response
+    public function index(ArtistProfileRepository $artistRepository, ServiceRepository $serviceRepository, HomePageSettingsRepository $homePageSettingsRepository): Response
     {
         // Vercnum enq 3 patahakan kam verjin artistnerin Home page-i hamar
         // Irական project-um kareli e nshel "Featured" dasht ev yst dra filter anel
@@ -20,9 +21,12 @@ class HomeController extends AbstractController
         // Vercnum enq carayutyunnery (Category-neri hamar)
         $services = $serviceRepository->findAll();
 
+        $homeSettings = $homePageSettingsRepository->findOneBy([]);
+
         return $this->render('home/index.html.twig', [
             'artists' => $artists,
             'services' => $services,
+            'homeSettings' => $homeSettings,
         ]);
     }
 }
