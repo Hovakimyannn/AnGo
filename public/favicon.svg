@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#111827"/>
+  <!-- Simple gem mark -->
+  <path d="M18 26L26 14h12l8 12-12 30H30L18 26Z" fill="#db2777"/>
+  <path d="M26 14l6 10 6-10" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.7" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18 26h28" fill="none" stroke="#ffffff" stroke-width="2" opacity="0.25" stroke-linecap="round"/>
+</svg>
+
+
