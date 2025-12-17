@@ -22,6 +22,13 @@ mkdir -p /var/www/html/public/uploads/photos /var/www/html/public/uploads/posts 
 chown -R www-data:www-data /var/www/html/var/tmp /var/www/html/public/uploads
 chmod -R a+rwX /var/www/html/var/tmp /var/www/html/public/uploads
 
+# If uploads are stored on a mounted volume, it may start empty and hide the repo's files.
+# Seed the branding logo into uploads if it's missing so emails/header don't break.
+if [ ! -f /var/www/html/public/uploads/photos/ango-logo.png ] && [ -f /var/www/html/public/branding/ango-logo.png ]; then
+  cp -f /var/www/html/public/branding/ango-logo.png /var/www/html/public/uploads/photos/ango-logo.png || true
+  chmod a+rw /var/www/html/public/uploads/photos/ango-logo.png || true
+fi
+
 # Ensure PHP's default session.save_path exists and is writable (do NOT change the path).
 # This prevents login/CSRF issues when the default session directory is missing/not writable.
 sess_save_path="$(php -r 'echo ini_get("session.save_path");' 2>/dev/null || true)"

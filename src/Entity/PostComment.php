@@ -7,7 +7,8 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostCommentRepository::class)]
-#[ORM\Table(name: 'artist_post_comment', indexes: [new ORM\Index(name: 'idx_post_comment_approved', columns: ['is_approved', 'created_at'])])]
+#[ORM\Table(name: 'artist_post_comment')]
+#[ORM\Index(name: 'idx_post_comment_approved', columns: ['is_approved', 'created_at'])]
 class PostComment
 {
     #[ORM\Id]

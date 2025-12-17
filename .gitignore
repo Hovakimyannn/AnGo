@@ -48,6 +48,7 @@ desktop.ini
 
 .env
 public/uploads/photos/*
+public/uploads/posts/*
 public/uploads/cache/*
 !public/uploads/photos/ango-logo.png
 

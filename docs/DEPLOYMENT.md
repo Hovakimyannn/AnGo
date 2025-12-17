@@ -46,7 +46,10 @@ php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 ### Notes
-- `public/uploads/*` is **ephemeral** on most container platforms. For persistent uploads, use object storage (S3/R2/etc).
+- `public/uploads/*` is **ephemeral** on most container platforms.
+  - **Railway Volume (recommended)**: create a Volume and mount it to `/var/www/html/public/uploads`.
+    This will persist uploads across deploys.
+  - **Object storage**: S3/R2/etc (more scalable, more work to integrate).
 - SendGrid requires a **verified sender** (Single Sender Verification or Domain Authentication). If not verified, SendGrid may reject emails.
 
 ## 1) Install PHP dependencies (no dev)
