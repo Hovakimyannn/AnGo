@@ -117,7 +117,7 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setUploadDir('public/uploads/posts')
             ->setUploadedFileNamePattern('[randomhash].[extension]')
             // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)
-            ->setFormTypeOption('constraints', [
+            ->setFileConstraints([
                 new Image([
                     'maxSize' => '5M',
                     'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],

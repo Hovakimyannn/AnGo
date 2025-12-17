@@ -17,9 +17,10 @@ chown -R www-data:www-data /var/www/html/var
 
 # Ensure uploads/tmp dirs exist and are writable (EasyAdmin image uploads).
 mkdir -p /var/www/html/var/tmp
+mkdir -p /var/www/html/var/sessions
 mkdir -p /var/www/html/public/uploads/photos /var/www/html/public/uploads/posts /var/www/html/public/uploads/cache/photos
-chown -R www-data:www-data /var/www/html/var/tmp /var/www/html/public/uploads
-chmod -R ug+rwX /var/www/html/var/tmp /var/www/html/public/uploads
+chown -R www-data:www-data /var/www/html/var/tmp /var/www/html/var/sessions /var/www/html/public/uploads
+chmod -R ug+rwX /var/www/html/var/tmp /var/www/html/var/sessions /var/www/html/public/uploads
 
 # Start PHP-FPM (background) + nginx (foreground)
 php-fpm -D
