@@ -28,7 +28,9 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Beauty Salon Admin');
+            ->setTitle('Beauty Salon Admin')
+            // Avoid "Path must not be empty" in EasyAdmin layout when dashboard favicon path is empty.
+            ->setFaviconPath('favicon.svg');
     }
 
     public function configureMenuItems(): iterable
