@@ -33,6 +33,7 @@ RUN apt-get update \
     nginx \
     libzip-dev \
     libpq-dev \
+    libicu-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
     libwebp-dev \
@@ -41,6 +42,7 @@ RUN apt-get update \
 RUN docker-php-ext-configure gd --with-jpeg --with-webp \
   && docker-php-ext-install -j"$(nproc)" \
     gd \
+    intl \
     opcache \
     pdo \
     pdo_pgsql \
