@@ -14,6 +14,7 @@ envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/d
 # Ensure Symfony writable dirs exist (cache/logs)
 mkdir -p /var/www/html/var/cache /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
+chmod -R ug+rwX /var/www/html/var || true
 
 # Ensure uploads/tmp dirs exist and are writable (EasyAdmin image uploads).
 mkdir -p /var/www/html/var/tmp
