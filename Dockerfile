@@ -68,6 +68,7 @@ COPY --from=assets /app/public/build/ public/build/
 RUN if [ ! -f .env ] && [ -f env.example ]; then cp env.example .env; fi
 
 COPY nginx/railway.conf.template /etc/nginx/conf.d/default.conf.template
+COPY docker/php-uploads.ini /usr/local/etc/php/conf.d/zzz-uploads.ini
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh \
   && rm -f /etc/nginx/sites-enabled/default \

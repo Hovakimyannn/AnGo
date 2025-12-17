@@ -3,6 +3,9 @@ server {
     server_name _;
     root /var/www/html/public;
 
+    # Allow reasonable request sizes for admin image uploads
+    client_max_body_size 12m;
+
     location / {
         try_files $uri /index.php$is_args$args;
     }

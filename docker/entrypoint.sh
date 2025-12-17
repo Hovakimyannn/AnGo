@@ -15,6 +15,12 @@ envsubst '$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/d
 mkdir -p /var/www/html/var/cache /var/www/html/var/log
 chown -R www-data:www-data /var/www/html/var
 
+# Ensure uploads/tmp dirs exist and are writable (EasyAdmin image uploads).
+mkdir -p /var/www/html/var/tmp
+mkdir -p /var/www/html/public/uploads/photos /var/www/html/public/uploads/posts /var/www/html/public/uploads/cache/photos
+chown -R www-data:www-data /var/www/html/var/tmp /var/www/html/public/uploads
+chmod -R ug+rwX /var/www/html/var/tmp /var/www/html/public/uploads
+
 # Start PHP-FPM (background) + nginx (foreground)
 php-fpm -D
 exec nginx -g 'daemon off;'
