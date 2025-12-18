@@ -20,7 +20,7 @@
     {% set __ango_page_title = block('title')|striptags|trim %}
     {% set __ango_page_desc = block('meta_description')|striptags|trim %}
     {% set __ango_page_url = absolute_url(app.request.pathinfo) %}
-    {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png')) %}
+    {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png') ~ '?v=' ~ asset_version('uploads/photos/ango-logo.png')) %}
     {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'AnGo' %}
     {% set __ango_og_type = (__ango_og_type is defined and __ango_og_type) ? __ango_og_type : 'website' %}
     <meta property="og:site_name" content="AnGo">

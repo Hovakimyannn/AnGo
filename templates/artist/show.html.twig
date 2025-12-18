@@ -1,12 +1,26 @@
 {% extends 'base.html.twig' %}
 
 {% if artist.photoUrl %}
-    {% set __ango_og_image = absolute_url(asset('uploads/photos/' ~ artist.photoUrl)) %}
+    {# Add a version query param to help social platforms refresh cached previews #}
+    {% set __ango_og_image = absolute_url(asset('uploads/photos/' ~ artist.photoUrl) ~ '?v=' ~ asset_version('uploads/photos/' ~ artist.photoUrl)) %}
     {% set __ango_og_image_alt = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
 {% endif %}
 
 {% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | AnGo{% endblock %}
-{% block meta_description %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }}։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։{% endblock %}
+{% block meta_description -%}
+{%- set fullName = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim -%}
+{%- set svcLimit = 4 -%}
+{%- set svcBits = [] -%}
+{%- for s in artist.services|slice(0, svcLimit) -%}
+    {%- set svcBits = svcBits|merge([s.name ~ '՝ ' ~ s.price ~ '֏']) -%}
+{%- endfor -%}
+{%- if svcBits -%}
+    {%- set svcTail = (artist.services|length > svcLimit) ? ' և այլն' : '' -%}
+    {{- fullName }} — {{ artist.specialization }}։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։
+{%- else -%}
+    {{- fullName }} — {{ artist.specialization }}։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։
+{%- endif -%}
+{%- endblock %}
 
 {% block structured_data %}
     {{ parent() }}
