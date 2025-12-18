@@ -1,12 +1,89 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ artist.user.firstName }} | AnGo{% endblock %}
+{% if artist.photoUrl %}
+    {% set __ango_og_image = absolute_url(asset('uploads/photos/' ~ artist.photoUrl)) %}
+    {% set __ango_og_image_alt = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
+{% endif %}
+
+{% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | AnGo{% endblock %}
+{% block meta_description %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }}։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __ango_site_url = absolute_url(path('app_home')) %}
+    {% set __page_url = absolute_url(app.request.pathinfo) %}
+    {% set __full_name = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
+    {% set __bio = (artist.bio ? artist.bio|striptags|replace({'&nbsp;': ' '})|trim : '') %}
+
+    {% set __offers = [] %}
+    {% for s in artist.services %}
+        {% set __offers = __offers|merge([{
+            '@type': 'Offer',
+            'price': s.price,
+            'priceCurrency': 'AMD',
+            'itemOffered': {
+                '@type': 'Service',
+                'name': s.name,
+                'serviceType': s.category,
+                'timeRequired': 'PT' ~ s.durationMinutes ~ 'M'
+            }
+        }]) %}
+    {% endfor %}
+
+    {% set __works = [] %}
+    {% if posts is defined %}
+        {% for p in posts %}
+            {% set __work = {
+                '@type': 'CreativeWork',
+                'name': p.title,
+                'url': absolute_url(path('app_blog_show', {id: p.id, slug: p.slug}))
+            } %}
+            {% if p.imageUrl %}
+                {% set __work = __work|merge({'image': absolute_url(asset('uploads/posts/' ~ p.imageUrl))}) %}
+            {% endif %}
+            {% set __works = __works|merge([{
+                '@type': 'ListItem',
+                'position': loop.index,
+                'item': __work
+            }]) %}
+        {% endfor %}
+    {% endif %}
+
+    {% set __person = {
+        '@type': 'Person',
+        '@id': __page_url ~ '#person',
+        'name': __full_name,
+        'url': __page_url,
+        'jobTitle': artist.specialization,
+        'description': __bio,
+        'worksFor': { '@id': __ango_site_url ~ '#localbusiness' },
+        'makesOffer': __offers
+    } %}
+    {% if artist.photoUrl %}
+        {% set __person = __person|merge({'image': absolute_url(asset('uploads/photos/' ~ artist.photoUrl))}) %}
+    {% endif %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [
+                __person,
+                {
+                    '@type': 'ItemList',
+                    'name': 'Աշխատանքներ',
+                    'itemListElement': __works
+                }
+            ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
 
 {% block body %}
     <div class="bg-white">
         <!-- Header Image -->
         <div class="relative h-80 bg-gray-900">
-            <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1920&auto=format&fit=crop" class="w-full h-full object-cover opacity-40">
+            <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1920&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-40">
             <div class="absolute inset-0 flex items-center justify-center">
                 <h1 class="text-4xl font-bold text-white">{{ artist.user.firstName }} {{ artist.user.lastName }}</h1>
             </div>
@@ -19,9 +96,9 @@
                 <div class="md:col-span-1">
                     <div class="rounded-2xl overflow-hidden shadow-2xl -mt-32 relative bg-white border-4 border-white">
                         {% if artist.photoUrl %}
-                            <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" class="w-full h-auto">
+                            <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-auto">
                         {% else %}
-                            <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}" class="w-full h-auto">
+                            <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-auto">
                         {% endif %}
 
                         {% set artistAvg = artist.user.artistRatingAvg|default(0) %}

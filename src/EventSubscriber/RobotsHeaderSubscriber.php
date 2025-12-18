@@ -44,8 +44,11 @@ final class RobotsHeaderSubscriber implements EventSubscriberInterface
         $path = $request->getPathInfo();
         $isAdminOrAuth = str_starts_with($path, '/admin')
             || str_starts_with($path, '/login')
+            || str_starts_with($path, '/signup')
+            || str_starts_with($path, '/profile')
             || str_starts_with($path, '/reset-password')
-            || str_starts_with($path, '/forgot-password');
+            || str_starts_with($path, '/forgot-password')
+            || str_starts_with($path, '/logout');
 
         // Public pages should be indexable.
         $response->headers->set('X-Robots-Tag', $isAdminOrAuth ? 'noindex, nofollow' : 'index, follow');

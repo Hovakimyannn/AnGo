@@ -1,6 +1,48 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ category }} | AnGo{% endblock %}
+{% block meta_description %}AnGo վարպետներ՝ {{ category }}։ Տեսեք մեր վարպետներին և ամրագրեք այցը առցանց։{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __ango_site_url = absolute_url(path('app_home')) %}
+
+    {% set __artist_list = [] %}
+    {% if artists is defined %}
+        {% for a in artists %}
+            {% set __full_name = (a.user.firstName ~ ' ' ~ a.user.lastName)|trim %}
+            {% set __person = {
+                '@type': 'Person',
+                'name': __full_name,
+                'jobTitle': a.specialization,
+                'url': absolute_url(path('app_artist_show', {id: a.id})),
+                'worksFor': { '@id': __ango_site_url ~ '#localbusiness' }
+            } %}
+            {% if a.photoUrl %}
+                {% set __person = __person|merge({'image': absolute_url(asset('uploads/photos/' ~ a.photoUrl))}) %}
+            {% endif %}
+            {% set __artist_list = __artist_list|merge([{
+                '@type': 'ListItem',
+                'position': loop.index,
+                'item': __person
+            }]) %}
+        {% endfor %}
+    {% endif %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [
+                {
+                    '@type': 'ItemList',
+                    'name': category,
+                    'itemListElement': __artist_list
+                }
+            ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
 
 {% block body %}
     <div id="artistsContent" class="container mx-auto px-4 py-12">

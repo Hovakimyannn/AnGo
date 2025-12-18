@@ -1,8 +1,60 @@
 {% extends 'base.html.twig' %}
 
+{% set __ango_og_type = 'article' %}
+{% if post.imageUrl %}
+    {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ post.imageUrl)) %}
+    {% set __ango_og_image_alt = post.title %}
+{% endif %}
+
 {% block title %}{{ post.title }} | AnGo{% endblock %}
+{% block meta_description %}{{ post.excerpt(160) }}{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __ango_site_url = absolute_url(path('app_home')) %}
+    {% set __page_url = absolute_url(app.request.pathinfo) %}
+    {% set __author_name = (post.artist.user.firstName ~ ' ' ~ post.artist.user.lastName)|trim %}
+
+    {% set __keywords = [] %}
+    {% for s in post.services %}
+        {% set __keywords = __keywords|merge([s.name]) %}
+    {% endfor %}
+
+    {% set __blog_post = {
+        '@type': 'BlogPosting',
+        '@id': __page_url ~ '#blogposting',
+        'headline': post.title,
+        'description': post.excerpt(180),
+        'url': __page_url,
+        'mainEntityOfPage': __page_url,
+        'inLanguage': 'hy-AM',
+        'author': {
+            '@type': 'Person',
+            'name': __author_name,
+            'url': absolute_url(path('app_artist_show', {id: post.artist.id}))
+        },
+        'publisher': { '@id': __ango_site_url ~ '#organization' },
+        'datePublished': (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')),
+        'dateModified': (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c'))),
+        'keywords': __keywords
+    } %}
+    {% if post.imageUrl %}
+        {% set __blog_post = __blog_post|merge({'image': absolute_url(asset('uploads/posts/' ~ post.imageUrl))}) %}
+    {% endif %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [ __blog_post ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
 
 {% block head_extra %}
+    <meta property="article:published_time" content="{{ (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')) }}">
+    <meta property="article:modified_time" content="{{ (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c'))) }}">
+    <meta property="article:author" content="{{ absolute_url(path('app_artist_show', {id: post.artist.id})) }}">
     <style>
         /* Star rating input (no JS): rtl trick highlights previous stars */
         .ango-star-rating {

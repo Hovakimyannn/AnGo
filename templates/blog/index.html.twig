@@ -1,6 +1,55 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}{{ categoryLabel }} | AnGo{% endblock %}
+{% block meta_description %}AnGo բլոգ՝ {{ categoryLabel }}։ Տեսեք վարպետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+
+    {% set __posts = [] %}
+    {% if posts is defined %}
+        {% for p in posts %}
+            {% set __item = {
+                '@type': 'BlogPosting',
+                'headline': p.title,
+                'url': absolute_url(path('app_blog_show', {id: p.id, slug: p.slug})),
+                'author': {
+                    '@type': 'Person',
+                    'name': (p.artist.user.firstName ~ ' ' ~ p.artist.user.lastName)|trim,
+                    'url': absolute_url(path('app_artist_show', {id: p.artist.id}))
+                },
+                'datePublished': (p.publishedAt ? p.publishedAt|date('c') : p.createdAt|date('c'))
+            } %}
+            {% if p.imageUrl %}
+                {% set __item = __item|merge({'image': absolute_url(asset('uploads/posts/' ~ p.imageUrl))}) %}
+            {% endif %}
+            {% set __posts = __posts|merge([{
+                '@type': 'ListItem',
+                'position': loop.index,
+                'item': __item
+            }]) %}
+        {% endfor %}
+    {% endif %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [
+                {
+                    '@type': 'CollectionPage',
+                    'name': categoryLabel,
+                    'url': absolute_url(app.request.pathinfo)
+                },
+                {
+                    '@type': 'ItemList',
+                    'name': categoryLabel,
+                    'itemListElement': __posts
+                }
+            ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
 
 {% block body %}
     <div class="bg-white">

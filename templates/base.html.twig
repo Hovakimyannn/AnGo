@@ -4,10 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
-    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <title>{% block title %}AnGo{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
     <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
+
+    {# Favicons (Google Search often ignores SVG-only favicons; include PNG sizes too) #}
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}?v={{ asset_version('favicon-48x48.png') }}">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}?v={{ asset_version('favicon-96x96.png') }}">
+    <link rel="icon" type="image/png" sizes="144x144" href="{{ asset('favicon-144x144.png') }}?v={{ asset_version('favicon-144x144.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon-192x192.png') }}?v={{ asset_version('favicon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v={{ asset_version('apple-touch-icon.png') }}">
+    <meta name="theme-color" content="#111827">
+
+    {# Open Graph / social previews #}
+    {% set __ango_page_title = block('title')|striptags|trim %}
+    {% set __ango_page_desc = block('meta_description')|striptags|trim %}
+    {% set __ango_page_url = absolute_url(app.request.pathinfo) %}
+    {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png')) %}
+    {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'AnGo' %}
+    {% set __ango_og_type = (__ango_og_type is defined and __ango_og_type) ? __ango_og_type : 'website' %}
+    <meta property="og:site_name" content="AnGo">
+    <meta property="og:title" content="{{ __ango_page_title }}">
+    <meta property="og:description" content="{{ __ango_page_desc }}">
+    <meta property="og:type" content="{{ __ango_og_type }}">
+    <meta property="og:url" content="{{ __ango_page_url }}">
+    <meta property="og:image" content="{{ __ango_og_image }}">
+    <meta property="og:image:alt" content="{{ __ango_og_image_alt }}">
+    <meta property="og:locale" content="hy_AM">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ __ango_page_title }}">
+    <meta name="twitter:description" content="{{ __ango_page_desc }}">
+    <meta name="twitter:image" content="{{ __ango_og_image }}">
+    <meta name="twitter:image:alt" content="{{ __ango_og_image_alt }}">
 
     {# Tailwind CSS (compiled) #}
     <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
@@ -39,6 +67,81 @@
             text-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
         }
     </style>
+    {% block structured_data %}
+        {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+        {% set __ango_site_url = absolute_url(path('app_home')) %}
+        <script type="application/ld+json">
+            {{ {
+                '@context': 'https://schema.org',
+                '@graph': [
+                    {
+                        '@type': 'WebSite',
+                        '@id': __ango_site_url ~ '#website',
+                        'url': __ango_site_url,
+                        'name': 'AnGo',
+                        'inLanguage': 'hy-AM'
+                    },
+                    {
+                        '@type': 'Organization',
+                        '@id': __ango_site_url ~ '#organization',
+                        'name': 'AnGo',
+                        'url': __ango_site_url,
+                        'logo': {
+                            '@type': 'ImageObject',
+                            'url': __ango_og_image
+                        },
+                        'sameAs': [
+                            'https://www.instagram.com/angobeauty__/',
+                            'https://www.facebook.com/profile.php?id=61580633960341'
+                        ]
+                    },
+                    {
+                        '@type': 'BeautySalon',
+                        '@id': __ango_site_url ~ '#localbusiness',
+                        'name': 'AnGo',
+                        'url': __ango_site_url,
+                        'image': __ango_og_image,
+                        'telephone': '+37494649924',
+                        'address': {
+                            '@type': 'PostalAddress',
+                            'streetAddress': 'Սարալանջի 22',
+                            'addressLocality': 'Աբովյան',
+                            'addressCountry': 'AM'
+                        },
+                        'openingHoursSpecification': [
+                            {
+                                '@type': 'OpeningHoursSpecification',
+                                'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+                                'opens': '10:00',
+                                'closes': '20:00'
+                            },
+                            {
+                                '@type': 'OpeningHoursSpecification',
+                                'dayOfWeek': ['Sunday'],
+                                'opens': '11:00',
+                                'closes': '18:00'
+                            }
+                        ],
+                        'parentOrganization': { '@id': __ango_site_url ~ '#organization' }
+                    },
+                    {
+                        '@type': 'WebPage',
+                        '@id': __ango_page_url ~ '#webpage',
+                        'url': __ango_page_url,
+                        'name': __ango_page_title,
+                        'description': __ango_page_desc,
+                        'inLanguage': 'hy-AM',
+                        'isPartOf': { '@id': __ango_site_url ~ '#website' },
+                        'about': { '@id': __ango_site_url ~ '#localbusiness' },
+                        'primaryImageOfPage': {
+                            '@type': 'ImageObject',
+                            'url': __ango_og_image
+                        }
+                    }
+                ]
+            }|json_encode(__ango_json_opts)|raw }}
+        </script>
+    {% endblock %}
     {% block head_extra %}{% endblock %}
     {% block stylesheets %}{% endblock %}
 </head>
