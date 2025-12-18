@@ -48,8 +48,14 @@ php bin/console doctrine:migrations:migrate --no-interaction
 ### Notes
 - `public/uploads/*` is **ephemeral** on most container platforms.
   - **Railway Volume (recommended)**: create a Volume and mount it to `/var/www/html/public/uploads`.
-    This will persist uploads across deploys.
+    - Railway UI: open your **Service** → **Volumes** → **New Volume** → set **Mount Path** to `/var/www/html/public/uploads`
+    - Deploy again — uploads will persist across deploys.
+    - You do **NOT** need to commit uploads to git: `.gitignore` already ignores `public/uploads/*` (keeps only `public/uploads/photos/ango-logo.png`).
+  - **Custom mount path (optional)**: if you mount your volume somewhere else (e.g. `/data/uploads`), set `UPLOADS_DIR=/data/uploads`.
+    The container entrypoint will symlink it back to `/var/www/html/public/uploads` so the app keeps working without code changes.
   - **Object storage**: S3/R2/etc (more scalable, more work to integrate).
+- If you deploy to a VPS with `rsync --delete` (or any “sync + delete” strategy), make sure you **exclude** `public/uploads/`
+  or use a shared directory + symlink, otherwise your deploy tool will delete runtime uploads.
 - SendGrid requires a **verified sender** (Single Sender Verification or Domain Authentication). If not verified, SendGrid may reject emails.
 
 ## 1) Install PHP dependencies (no dev)
