@@ -58,6 +58,7 @@ php bin/console doctrine:migrations:migrate --no-interaction
   or use a shared directory + symlink, otherwise your deploy tool will delete runtime uploads.
 - SendGrid requires a **verified sender** (Single Sender Verification or Domain Authentication). If not verified, SendGrid may reject emails.
 
+
 ## 1) Install PHP dependencies (no dev)
 
 ```bash
