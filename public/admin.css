@@ -5,17 +5,41 @@
 
 /* --- Admin dashboard (EasyAdmin /admin) --- */
 .ango-dashboard {
-    --ango-card-radius: 16px;
-    --ango-card-shadow: 0 10px 28px rgba(16, 24, 40, 0.10);
-    --ango-card-shadow-hover: 0 14px 40px rgba(16, 24, 40, 0.16);
+    --ango-card-radius: 18px;
+    --ango-card-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
+    --ango-card-shadow-hover: 0 18px 50px rgba(16, 24, 40, 0.14);
+    --ango-accent-a: 99, 102, 241; /* indigo-ish */
+    --ango-accent-b: 34, 197, 94;  /* green-ish */
 }
 
 .ango-dashboard .card {
+    position: relative;
+    overflow: hidden;
     border-radius: var(--ango-card-radius);
-    border: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.08));
+    border: 1px solid #636363;
     background: var(--bs-body-bg, #fff);
     box-shadow: var(--ango-card-shadow);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ango-dashboard .card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background:
+        radial-gradient(700px circle at 0% 0%, rgba(var(--ango-accent-a), 0.18), transparent 40%),
+        radial-gradient(700px circle at 100% 0%, rgba(var(--ango-accent-b), 0.14), transparent 42%);
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.ango-dashboard .card-body {
+    position: relative; /* above ::before */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1.1rem 1.15rem;
+    gap: 0.35rem;
 }
 
 .ango-dashboard .card:hover {
@@ -30,24 +54,46 @@
 
 .ango-dashboard .card .text-muted {
     font-size: 0.85rem;
-}
-
-.ango-dashboard .h3 {
-    letter-spacing: -0.02em;
-}
-
-.ango-dashboard a.small {
-    text-decoration: none;
+    letter-spacing: 0.02em;
     font-weight: 600;
 }
 
+.ango-dashboard .card .h3 {
+    letter-spacing: -0.03em;
+    font-weight: 800;
+    margin-top: 0.15rem;
+}
+
+.ango-dashboard a.small {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: fit-content;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.10));
+    background: rgba(2, 6, 23, 0.03);
+    color: var(--bs-body-color, #111827);
+}
+
+.ango-dashboard a.small::after {
+    content: "→";
+    font-weight: 900;
+}
+
 .ango-dashboard a.small:hover {
-    text-decoration: underline;
+    background: rgba(2, 6, 23, 0.06);
+    border-color: var(--bs-border-color, rgba(0, 0, 0, 0.16));
+    text-decoration: none;
 }
 
 .ango-dashboard .table-responsive {
     border-radius: var(--ango-card-radius);
-    border: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.08));
+    border: 1px solid #636363;
     background: var(--bs-body-bg, #fff);
 }
 
@@ -61,11 +107,26 @@
     letter-spacing: 0.04em;
     color: var(--bs-secondary-color, #667085);
     background: rgba(2, 6, 23, 0.02);
-    border-bottom: 1px solid var(--bs-border-color, rgba(0, 0, 0, 0.08));
+    border-bottom: 1px solid #636363;
 }
 
 [data-bs-theme="dark"] .ango-dashboard .card {
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+[data-bs-theme="dark"] .ango-dashboard .card::before {
+    opacity: 0.65;
+}
+
+[data-bs-theme="dark"] .ango-dashboard a.small {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+}
+
+[data-bs-theme="dark"] .ango-dashboard a.small:hover {
+    background: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
 [data-bs-theme="dark"] .ango-dashboard .table thead th {
