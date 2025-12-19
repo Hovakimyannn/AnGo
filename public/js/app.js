@@ -31,22 +31,27 @@
     // ---------------------------------------------------------------------
     (function () {
         // --- UI LOGIC ---
+        const CATEGORY_LABELS = {
+            hair: 'Վարսահարդարում',
+            makeup: 'Դիմահարդարում',
+            nails: 'Մատնահարդարում',
+        };
+        const CATEGORY_ORDER = { hair: 1, makeup: 2, nails: 3 };
+
         if (typeof window.__bookingMode === 'undefined') {
             window.__bookingMode = 'global'; // 'global' | 'artist'
-        }
-        if (typeof window.__bookingAllServicesOptions === 'undefined') {
-            window.__bookingAllServicesOptions = null;
         }
         if (typeof window.__bookingArtistsCache === 'undefined') {
             window.__bookingArtistsCache = null; // cached from /api/booking/artists
         }
-
-        function initBookingCaches() {
-            const serviceSelect = document.getElementById('serviceSelect');
-            if (serviceSelect && window.__bookingAllServicesOptions === null) {
-                window.__bookingAllServicesOptions = serviceSelect.innerHTML;
-            }
+        if (typeof window.__bookingServicesCache === 'undefined') {
+            window.__bookingServicesCache = null; // cached from /api/booking/services
         }
+
+        /** @type {Array<{id:number|string,name:string,category?:string,price?:number,durationMinutes?:number}>} */
+        let currentServices = [];
+        /** @type {string|null} */
+        let currentArtistId = null;
 
         function openBooking(options = {}) {
             const modal = document.getElementById('bookingModal');
@@ -60,17 +65,26 @@
                 content.classList.add('scale-100', 'opacity-100');
             }, 10);
 
-            initBookingCaches();
-
             const artistId = options && options.artistId ? String(options.artistId) : null;
             window.__bookingMode = artistId ? 'artist' : 'global';
+            currentArtistId = artistId;
+            currentServices = [];
 
             resetBookingFormState();
 
             if (artistId) {
                 // Artist-specific booking: artist is locked, services are filtered by artist
                 setArtistLocked(artistId);
-                loadServicesForArtist(artistId);
+                loadServicesForArtist(artistId).then((services) => {
+                    currentServices = services;
+                    populateCategoryOptionsFromServices(services);
+                    autoSelectCategoryIfSingle(services);
+                });
+            } else {
+                // Warm up global services cache (doesn't block UI)
+                ensureServicesCache().then((services) => {
+                    currentServices = services;
+                });
             }
         }
 
@@ -86,13 +100,20 @@
 
         // --- API LOGIC ---
         function resetBookingFormState() {
+            const categorySelect = document.getElementById('categorySelect');
             const artistSelect = document.getElementById('artistSelect');
             const serviceSelect = document.getElementById('serviceSelect');
             const dateInput = document.getElementById('dateInput');
 
-            // restore service options for global mode
-            if (serviceSelect && window.__bookingAllServicesOptions !== null) {
-                serviceSelect.innerHTML = window.__bookingAllServicesOptions;
+            if (categorySelect) {
+                const keys = Object.keys(CATEGORY_LABELS).sort((a, b) => (CATEGORY_ORDER[a] ?? 99) - (CATEGORY_ORDER[b] ?? 99));
+                categorySelect.innerHTML = '<option value="">-- Ընտրել --</option>' + keys.map(k => `<option value="${k}">${CATEGORY_LABELS[k] || k}</option>`).join('');
+                categorySelect.value = '';
+                categorySelect.disabled = false;
+            }
+
+            if (serviceSelect) {
+                serviceSelect.innerHTML = '<option value="">-- Նախ ընտրեք կատեգորիան --</option>';
                 serviceSelect.value = '';
             }
 
@@ -105,7 +126,7 @@
             if (dateInput) dateInput.value = '';
 
             // steps
-            document.getElementById('stepService')?.classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('stepService')?.classList.add('opacity-50', 'pointer-events-none');
             document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
             document.getElementById('stepDate')?.classList.add('opacity-50', 'pointer-events-none');
             document.getElementById('stepSlots')?.classList.add('hidden');
@@ -144,29 +165,175 @@
         }
 
         async function loadServicesForArtist(artistId) {
+            try {
+                const response = await fetch(`/api/booking/services/${artistId}`);
+                const services = await response.json();
+                return Array.isArray(services) ? services : [];
+            } catch (e) {
+                console.error('Error:', e);
+                return [];
+            }
+        }
+
+        function populateCategoryOptionsFromServices(services) {
+            const categorySelect = document.getElementById('categorySelect');
+            if (!categorySelect) return;
+
+            const categories = Array.from(new Set(
+                (Array.isArray(services) ? services : [])
+                    .map(s => (s && s.category ? String(s.category) : ''))
+                    .filter(Boolean)
+            ));
+
+            if (categories.length === 0) return;
+
+            categories.sort((a, b) => (CATEGORY_ORDER[a] ?? 99) - (CATEGORY_ORDER[b] ?? 99));
+
+            const current = categorySelect.value;
+            categorySelect.innerHTML = '<option value="">-- Ընտրել --</option>' + categories.map(k => `<option value="${k}">${CATEGORY_LABELS[k] || k}</option>`).join('');
+            const next = categories.includes(current) ? current : '';
+            categorySelect.value = next;
+            if (next !== current) {
+                onCategoryChange();
+            }
+        }
+
+        function autoSelectCategoryIfSingle(services) {
+            const categorySelect = document.getElementById('categorySelect');
+            if (!categorySelect) return;
+
+            const categories = Array.from(new Set(
+                (Array.isArray(services) ? services : [])
+                    .map(s => (s && s.category ? String(s.category) : ''))
+                    .filter(Boolean)
+            ));
+
+            if (categories.length !== 1) return;
+
+            categorySelect.value = categories[0];
+            onCategoryChange();
+        }
+
+        function readServicesFromDomFallback() {
             const serviceSelect = document.getElementById('serviceSelect');
+            if (!serviceSelect) return [];
+
+            const services = [];
+            Array.from(serviceSelect.options).forEach((opt) => {
+                if (!opt.value) return;
+
+                const category = opt.dataset.category ? String(opt.dataset.category) : '';
+                if (!category) return;
+
+                const rawLabel = (opt.textContent || '').trim();
+                const name = opt.dataset.name ? String(opt.dataset.name) : rawLabel.replace(/\s*\(\s*[\d.]+\s*AMD\s*\)\s*$/, '').trim();
+                let price = undefined;
+                if (opt.dataset.price) {
+                    const p = Number(opt.dataset.price);
+                    price = Number.isFinite(p) ? p : undefined;
+                } else {
+                    const m = rawLabel.match(/\(\s*([\d.]+)\s*AMD\s*\)/);
+                    if (m && m[1]) {
+                        const p = Number(m[1]);
+                        price = Number.isFinite(p) ? p : undefined;
+                    }
+                }
+
+                services.push({ id: opt.value, name, category, price });
+            });
+
+            return services;
+        }
+
+        async function ensureServicesCache() {
+            if (window.__bookingServicesCache !== null) return window.__bookingServicesCache;
+
+            try {
+                const response = await fetch('/api/booking/services');
+                const services = await response.json();
+                window.__bookingServicesCache = Array.isArray(services) ? services : [];
+            } catch (e) {
+                console.error('Error:', e);
+                window.__bookingServicesCache = readServicesFromDomFallback();
+            }
+
+            return window.__bookingServicesCache;
+        }
+
+        async function ensureCurrentServices() {
+            if (Array.isArray(currentServices) && currentServices.length) return currentServices;
+
+            if (window.__bookingMode === 'artist' && currentArtistId) {
+                currentServices = await loadServicesForArtist(currentArtistId);
+                populateCategoryOptionsFromServices(currentServices);
+                return currentServices;
+            }
+
+            currentServices = await ensureServicesCache();
+            return currentServices;
+        }
+
+        async function onCategoryChange() {
+            const category = document.getElementById('categorySelect')?.value;
+            const serviceSelect = document.getElementById('serviceSelect');
+            const artistSelect = document.getElementById('artistSelect');
+            const dateInput = document.getElementById('dateInput');
+
+            // reset downstream
+            document.getElementById('stepSlots')?.classList.add('hidden');
+            document.getElementById('stepClient')?.classList.add('hidden');
+            document.getElementById('stepDate')?.classList.add('opacity-50', 'pointer-events-none');
+            if (dateInput) dateInput.value = '';
+
+            const selectedTime = document.getElementById('selectedTime');
+            if (selectedTime) selectedTime.value = '';
+
+            if (window.__bookingMode === 'global') {
+                document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
+                if (artistSelect) {
+                    artistSelect.disabled = false;
+                    artistSelect.value = '';
+                    artistSelect.innerHTML = '<option value="">-- Նախ ընտրեք ծառայությունը --</option>';
+                }
+            }
+
+            if (!category) {
+                document.getElementById('stepService')?.classList.add('opacity-50', 'pointer-events-none');
+                if (serviceSelect) {
+                    serviceSelect.innerHTML = '<option value="">-- Նախ ընտրեք կատեգորիան --</option>';
+                    serviceSelect.value = '';
+                }
+                return;
+            }
+
+            document.getElementById('stepService')?.classList.remove('opacity-50', 'pointer-events-none');
             if (!serviceSelect) return;
 
             serviceSelect.innerHTML = '<option value="">Բեռնվում է...</option>';
             serviceSelect.value = '';
 
-            try {
-                const response = await fetch(`/api/booking/services/${artistId}`);
-                const services = await response.json();
-                serviceSelect.innerHTML = '<option value="">-- Ընտրել --</option>';
-                (Array.isArray(services) ? services : []).forEach(service => {
-                    serviceSelect.innerHTML += `<option value="${service.id}">${service.name} (${service.price} AMD)</option>`;
-                });
+            const services = await ensureCurrentServices();
+            const filtered = (Array.isArray(services) ? services : [])
+                .filter(s => String(s.category || '') === String(category))
+                .sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'hy'));
 
-                // If only one service, auto-select it
-                const opts = Array.from(serviceSelect.options).filter(o => o.value);
-                if (opts.length === 1) {
-                    serviceSelect.value = opts[0].value;
-                    enableDate();
-                }
-            } catch (e) {
-                console.error('Error:', e);
-                serviceSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել ծառայությունները</option>';
+            if (filtered.length === 0) {
+                serviceSelect.innerHTML = '<option value="">Այս կատեգորիայում ծառայություններ չկան</option>';
+                return;
+            }
+
+            serviceSelect.innerHTML = '<option value="">-- Ընտրել --</option>';
+            filtered.forEach((service) => {
+                const name = String(service.name || '').trim();
+                const price = service.price;
+                const label = name + ((price !== undefined && price !== null && price !== '') ? ` (${price} AMD)` : '');
+                serviceSelect.innerHTML += `<option value="${service.id}">${label}</option>`;
+            });
+
+            // If only one service, auto-select it
+            if (filtered.length === 1) {
+                serviceSelect.value = String(filtered[0].id);
+                onServiceChange();
             }
         }
 
@@ -195,6 +362,7 @@
 
         function onServiceChange() {
             const serviceId = document.getElementById('serviceSelect')?.value;
+            const dateInput = document.getElementById('dateInput');
 
             // reset downstream
             document.getElementById('stepDate')?.classList.add('opacity-50', 'pointer-events-none');
@@ -202,26 +370,26 @@
             document.getElementById('stepClient')?.classList.add('hidden');
             const selectedTime = document.getElementById('selectedTime');
             if (selectedTime) selectedTime.value = '';
+            if (dateInput) dateInput.value = '';
 
-            if (!serviceId) {
-                document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
-                const artistSelect = document.getElementById('artistSelect');
-                if (artistSelect) {
-                    artistSelect.disabled = (window.__bookingMode === 'artist');
-                    artistSelect.value = '';
-                    if (window.__bookingMode === 'global') {
+            if (window.__bookingMode === 'global') {
+                if (!serviceId) {
+                    document.getElementById('stepArtist')?.classList.add('opacity-50', 'pointer-events-none');
+                    const artistSelect = document.getElementById('artistSelect');
+                    if (artistSelect) {
+                        artistSelect.disabled = false;
+                        artistSelect.value = '';
                         artistSelect.innerHTML = '<option value="">-- Նախ ընտրեք ծառայությունը --</option>';
                     }
+                    return;
                 }
+
+                loadArtistsByService(serviceId);
                 return;
             }
 
-            if (window.__bookingMode === 'global') {
-                loadArtistsByService(serviceId);
-            } else {
-                // artist mode: artist already selected, just enable date when both chosen
-                enableDate();
-            }
+            // artist mode: artist already selected, just enable date when both chosen
+            enableDate();
         }
 
         function onArtistChange() {
@@ -348,6 +516,9 @@
             const form = document.getElementById('bookingForm');
             if (form) form.addEventListener('submit', submitBooking);
 
+            const categorySelect = document.getElementById('categorySelect');
+            if (categorySelect) categorySelect.addEventListener('change', onCategoryChange);
+
             const serviceSelect = document.getElementById('serviceSelect');
             if (serviceSelect) serviceSelect.addEventListener('change', onServiceChange);
 
@@ -361,6 +532,7 @@
         // Expose globals (keeps existing inline handlers working).
         window.openBooking = openBooking;
         window.closeBooking = closeBooking;
+        window.onCategoryChange = onCategoryChange;
         window.onServiceChange = onServiceChange;
         window.onArtistChange = onArtistChange;
         window.loadSlots = loadSlots;

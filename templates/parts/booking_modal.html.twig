@@ -16,16 +16,34 @@
         <div class="p-6 max-h-[80vh] overflow-y-auto">
             <form id="bookingForm">
 
-                <!-- Step 1: Service (global booking flow) -->
-                <div class="mb-5" id="stepService">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">1. Ընտրեք Ծառայությունը</label>
+                <!-- Step 1: Category -->
+                <div class="mb-5" id="stepCategory">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">1. Ընտրեք Կատեգորիան</label>
+                    <div class="relative">
+                        <select id="categorySelect"
+                                required
+                                class="w-full appearance-none border border-gray-300 rounded-lg bg-white px-3 py-2.5 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                            <option value="">-- Ընտրել --</option>
+                            <option value="hair">Վարսահարդարում</option>
+                            <option value="makeup">Դիմահարդարում</option>
+                            <option value="nails">Մատնահարդարում</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Step 2: Service -->
+                <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepService">
+                    <label class="block text-sm font-bold text-gray-700 mb-2">2. Ընտրեք Ծառայությունը</label>
                     <div class="relative">
                         <select id="serviceSelect"
                                 required
                                 class="w-full appearance-none border border-gray-300 rounded-lg bg-white px-3 py-2.5 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
-                            <option value="">-- Ընտրել --</option>
+                            <option value="">-- Նախ ընտրեք կատեգորիան --</option>
                             {% for service in (services is defined ? services : []) %}
-                                <option value="{{ service.id }}">{{ service.name }} ({{ service.price }} AMD)</option>
+                                <option value="{{ service.id }}" data-category="{{ service.category }}" data-name="{{ service.name }}" data-price="{{ service.price }}">{{ service.name }} ({{ service.price }} AMD)</option>
                             {% endfor %}
                         </select>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
@@ -34,9 +52,9 @@
                     </div>
                 </div>
 
-                <!-- Step 2: Artist -->
+                <!-- Step 3: Artist -->
                 <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepArtist">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">2. Ընտրեք Վարպետին</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">3. Ընտրեք Վարպետին</label>
                     <div class="relative">
                         <select id="artistSelect"
                                 required
@@ -49,15 +67,15 @@
                     </div>
                 </div>
 
-                <!-- Step 3: Date -->
+                <!-- Step 4: Date -->
                 <div class="mb-5 opacity-50 pointer-events-none transition-all" id="stepDate">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">3. Ընտրեք Օրը</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">4. Ընտրեք Օրը</label>
                     <input type="date" id="dateInput" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-pink-500 focus:ring-pink-500 p-2.5 bg-gray-50 border">
                 </div>
 
-                <!-- Step 4: Time Slots -->
+                <!-- Step 5: Time Slots -->
                 <div class="mb-5 hidden" id="stepSlots">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">4. Ազատ Ժամեր</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-2">5. Ազատ Ժամեր</label>
                     <div id="slotsContainer" class="grid grid-cols-4 gap-2">
                         <!-- Slots will be injected here via JS -->
                     </div>

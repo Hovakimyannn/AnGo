@@ -42,6 +42,34 @@ class BookingController extends AbstractController
         return $this->json($data);
     }
 
+    // 0.05 Get All Services (for global booking flow)
+    #[Route('/services', methods: ['GET'])]
+    public function getAllServices(): JsonResponse
+    {
+        $services = $this->serviceRepository->findAll();
+        usort($services, static function ($a, $b) {
+            $ac = (string) $a->getCategory();
+            $bc = (string) $b->getCategory();
+            if ($ac === $bc) {
+                return strcmp((string) $a->getName(), (string) $b->getName());
+            }
+            return strcmp($ac, $bc);
+        });
+
+        $data = [];
+        foreach ($services as $service) {
+            $data[] = [
+                'id' => $service->getId(),
+                'name' => $service->getName(),
+                'category' => $service->getCategory(),
+                'price' => $service->getPrice(),
+                'durationMinutes' => $service->getDurationMinutes(),
+            ];
+        }
+
+        return $this->json($data);
+    }
+
     // 0.1 Get Services by Artist
     #[Route('/services/{artistId}', methods: ['GET'])]
     public function getServicesByArtist(int $artistId): JsonResponse
@@ -59,6 +87,7 @@ class BookingController extends AbstractController
             $data[] = [
                 'id' => $service->getId(),
                 'name' => $service->getName(),
+                'category' => $service->getCategory(),
                 'price' => $service->getPrice(),
                 'durationMinutes' => $service->getDurationMinutes(),
             ];
