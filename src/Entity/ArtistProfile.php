@@ -10,6 +10,12 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class ArtistProfile
 {
+    private const FALLBACK_CATEGORY_LABELS = [
+        'hair' => 'Վարսահարդարում',
+        'makeup' => 'Դիմահարդարում',
+        'nails' => 'Մատնահարդարում',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -19,8 +25,9 @@ class ArtistProfile
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $specialization = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(onDelete: 'SET NULL')]
+    private ?ServiceCategory $category = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $bio = null;
@@ -29,7 +36,7 @@ class ArtistProfile
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photoUrl = null;
 
-    #[ORM\ManyToMany(targetEntity: Service::class)]
+    #[ORM\ManyToMany(targetEntity: Service::class, inversedBy: 'artistProfiles')]
     private Collection $services;
 
     /**
@@ -62,14 +69,44 @@ class ArtistProfile
         return $this;
     }
 
-    public function getSpecialization(): ?string
+    public function getSpecialization(): string
     {
-        return $this->specialization;
+        $label = $this->category?->getLabel();
+        if ($label !== null && trim($label) !== '') {
+            return $label;
+        }
+
+        // Fallback for legacy data (before category was set): infer from services
+        $keys = [];
+        foreach ($this->services as $svc) {
+            $k = $svc->getCategory();
+            if ($k) {
+                $keys[(string) $k] = true;
+            }
+        }
+        if (count($keys) === 0) {
+            return '';
+        }
+
+        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $best = array_key_first($keys);
+        foreach (array_keys($keys) as $k) {
+            if (($order[$k] ?? 99) < ($order[$best] ?? 99)) {
+                $best = $k;
+            }
+        }
+
+        return self::FALLBACK_CATEGORY_LABELS[$best] ?? $best;
     }
 
-    public function setSpecialization(string $specialization): static
+    public function getCategory(): ?ServiceCategory
     {
-        $this->specialization = $specialization;
+        return $this->category;
+    }
+
+    public function setCategory(?ServiceCategory $category): static
+    {
+        $this->category = $category;
 
         return $this;
     }

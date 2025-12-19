@@ -9,7 +9,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -43,8 +42,8 @@ class ArtistProfileCrudController extends AbstractCrudController
             ->setHelp('Ընտրեք այն օգտատիրոջը, ով հանդիսանում է տվյալ վարպետը։')
             ->setPermission('ROLE_ADMIN');
 
-        yield TextField::new('specialization', 'Մասնագիտացում')
-            ->setHelp('Օրինակ՝ վարսահարդար, մատնահարդար, դիմահարդար։');
+        yield AssociationField::new('category', 'Կատեգորիա')
+            ->setHelp('Ընտրեք կատեգորիա (կառավարվում է Admin → Կատեգորիաներ)։');
 
         // Nkarneri Upload
         yield ImageField::new('photoUrl', 'Պրոֆիլի նկար')

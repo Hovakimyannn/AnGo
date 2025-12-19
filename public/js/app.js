@@ -31,12 +31,29 @@
     // ---------------------------------------------------------------------
     (function () {
         // --- UI LOGIC ---
-        const CATEGORY_LABELS = {
-            hair: 'Վարսահարդարում',
-            makeup: 'Դիմահարդարում',
-            nails: 'Մատնահարդարում',
-        };
-        const CATEGORY_ORDER = { hair: 1, makeup: 2, nails: 3 };
+        const DEFAULT_CATEGORIES = [
+            { key: 'hair', label: 'Վարսահարդարում', order: 1 },
+            { key: 'makeup', label: 'Դիմահարդարում', order: 2 },
+            { key: 'nails', label: 'Մատնահարդարում', order: 3 },
+        ];
+
+        /** @type {Array<{key:string,label:string,order?:number}>} */
+        let categoriesConfig = DEFAULT_CATEGORIES.slice();
+        /** @type {Record<string,{label:string,order:number}>} */
+        let categoriesMeta = Object.create(null);
+
+        function rebuildCategoriesMeta() {
+            categoriesMeta = Object.create(null);
+            (Array.isArray(categoriesConfig) ? categoriesConfig : []).forEach((c) => {
+                if (!c || !c.key) return;
+                const key = String(c.key);
+                const label = String(c.label || key);
+                const order = Number.isFinite(Number(c.order)) ? Number(c.order) : 100;
+                categoriesMeta[key] = { label, order };
+            });
+        }
+
+        rebuildCategoriesMeta();
 
         if (typeof window.__bookingMode === 'undefined') {
             window.__bookingMode = 'global'; // 'global' | 'artist'
@@ -47,11 +64,61 @@
         if (typeof window.__bookingServicesCache === 'undefined') {
             window.__bookingServicesCache = null; // cached from /api/booking/services
         }
+        if (typeof window.__bookingCategoriesCache === 'undefined') {
+            window.__bookingCategoriesCache = null; // cached from /api/booking/categories
+        }
 
         /** @type {Array<{id:number|string,name:string,category?:string,price?:number,durationMinutes?:number}>} */
         let currentServices = [];
         /** @type {string|null} */
         let currentArtistId = null;
+
+        function categoryLabel(key) {
+            const k = String(key || '');
+            return categoriesMeta[k]?.label || k;
+        }
+
+        function categoryOrder(key) {
+            const k = String(key || '');
+            return categoriesMeta[k]?.order ?? 100;
+        }
+
+        function sortedUniqueCategoryKeys(keys) {
+            const unique = Array.from(new Set((Array.isArray(keys) ? keys : []).filter(Boolean).map(k => String(k))));
+            unique.sort((a, b) => {
+                const ao = categoryOrder(a);
+                const bo = categoryOrder(b);
+                if (ao !== bo) return ao - bo;
+                return categoryLabel(a).localeCompare(categoryLabel(b), 'hy');
+            });
+            return unique;
+        }
+
+        async function ensureCategoriesCache() {
+            if (window.__bookingCategoriesCache) return window.__bookingCategoriesCache;
+
+            try {
+                const response = await fetch('/api/booking/categories');
+                const cats = await response.json();
+                const list = Array.isArray(cats) ? cats : [];
+                window.__bookingCategoriesCache = list.length ? list : DEFAULT_CATEGORIES.slice();
+            } catch (e) {
+                console.error('Error:', e);
+                window.__bookingCategoriesCache = DEFAULT_CATEGORIES.slice();
+            }
+
+            categoriesConfig = window.__bookingCategoriesCache.slice();
+            rebuildCategoriesMeta();
+            return window.__bookingCategoriesCache;
+        }
+
+        function renderCategoryOptions(categorySelect, keys, currentValue) {
+            const safeKeys = sortedUniqueCategoryKeys(keys);
+            categorySelect.innerHTML = '<option value="">-- Ընտրել --</option>' + safeKeys
+                .map(k => `<option value="${k}">${categoryLabel(k) || k}</option>`)
+                .join('');
+            categorySelect.value = safeKeys.includes(String(currentValue || '')) ? String(currentValue || '') : '';
+        }
 
         function openBooking(options = {}) {
             const modal = document.getElementById('bookingModal');
@@ -72,15 +139,26 @@
 
             resetBookingFormState();
 
+            const categoriesPromise = ensureCategoriesCache();
+
             if (artistId) {
                 // Artist-specific booking: artist is locked, services are filtered by artist
                 setArtistLocked(artistId);
-                loadServicesForArtist(artistId).then((services) => {
+                Promise.all([categoriesPromise, loadServicesForArtist(artistId)]).then(([, services]) => {
                     currentServices = services;
                     populateCategoryOptionsFromServices(services);
                     autoSelectCategoryIfSingle(services);
                 });
             } else {
+                // Update category list from DB-config (doesn't block UI)
+                categoriesPromise.then(() => {
+                    const categorySelect = document.getElementById('categorySelect');
+                    if (categorySelect) {
+                        const current = categorySelect.value;
+                        renderCategoryOptions(categorySelect, categoriesConfig.map(c => c.key), current);
+                    }
+                });
+
                 // Warm up global services cache (doesn't block UI)
                 ensureServicesCache().then((services) => {
                     currentServices = services;
@@ -106,8 +184,7 @@
             const dateInput = document.getElementById('dateInput');
 
             if (categorySelect) {
-                const keys = Object.keys(CATEGORY_LABELS).sort((a, b) => (CATEGORY_ORDER[a] ?? 99) - (CATEGORY_ORDER[b] ?? 99));
-                categorySelect.innerHTML = '<option value="">-- Ընտրել --</option>' + keys.map(k => `<option value="${k}">${CATEGORY_LABELS[k] || k}</option>`).join('');
+                renderCategoryOptions(categorySelect, DEFAULT_CATEGORIES.map(c => c.key), categorySelect.value);
                 categorySelect.value = '';
                 categorySelect.disabled = false;
             }
@@ -187,10 +264,8 @@
 
             if (categories.length === 0) return;
 
-            categories.sort((a, b) => (CATEGORY_ORDER[a] ?? 99) - (CATEGORY_ORDER[b] ?? 99));
-
             const current = categorySelect.value;
-            categorySelect.innerHTML = '<option value="">-- Ընտրել --</option>' + categories.map(k => `<option value="${k}">${CATEGORY_LABELS[k] || k}</option>`).join('');
+            renderCategoryOptions(categorySelect, categories, current);
             const next = categories.includes(current) ? current : '';
             categorySelect.value = next;
             if (next !== current) {

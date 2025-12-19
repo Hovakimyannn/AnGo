@@ -20,4 +20,28 @@ class ServiceRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Service::class);
     }
+
+    /**
+     * @return string[]
+     */
+    public function findDistinctCategoryKeys(): array
+    {
+        $rows = $this->createQueryBuilder('s')
+            ->select('DISTINCT s.category AS category')
+            ->andWhere('s.category IS NOT NULL')
+            ->andWhere("s.category <> ''")
+            ->orderBy('s.category', 'ASC')
+            ->getQuery()
+            ->getScalarResult();
+
+        $keys = [];
+        foreach ($rows as $row) {
+            $key = (string) ($row['category'] ?? '');
+            if ($key !== '') {
+                $keys[] = $key;
+            }
+        }
+
+        return $keys;
+    }
 }

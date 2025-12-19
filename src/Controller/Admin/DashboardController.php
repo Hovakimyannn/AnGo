@@ -10,6 +10,7 @@ use App\Entity\HomePageSettings;
 use App\Entity\PostComment;
 use App\Entity\PostRating;
 use App\Entity\Service;
+use App\Entity\ServiceCategory;
 use App\Entity\User;
 use App\Repository\HomePageSettingsRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -77,6 +78,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::section('Կառավարում');
             yield MenuItem::linkToCrud('Օգտատերեր', 'fas fa-users', User::class);
             yield MenuItem::linkToCrud('Վարպետներ', 'fas fa-paint-brush', ArtistProfile::class);
+            yield MenuItem::linkToCrud('Կատեգորիաներ', 'fas fa-layer-group', ServiceCategory::class);
             yield MenuItem::linkToCrud('Ծառայություններ', 'fas fa-cut', Service::class);
             yield MenuItem::linkToCrud('Աշխատանքային գրաֆիկ', 'fas fa-clock', Availability::class);
 

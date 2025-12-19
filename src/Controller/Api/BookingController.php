@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\Appointment;
 use App\Repository\ArtistProfileRepository;
+use App\Repository\ServiceCategoryRepository;
 use App\Repository\ServiceRepository;
 use App\Service\BookingService;
 use App\Service\AppointmentMailer;
@@ -19,6 +20,7 @@ class BookingController extends AbstractController
     public function __construct(
         private BookingService $bookingService,
         private ArtistProfileRepository $artistRepository,
+        private ServiceCategoryRepository $serviceCategoryRepository,
         private ServiceRepository $serviceRepository,
         private EntityManagerInterface $em,
         private AppointmentMailer $appointmentMailer,
@@ -36,6 +38,42 @@ class BookingController extends AbstractController
                 'id' => $artist->getId(),
                 'name' => (string)$artist->getUser(),
                 'photo' => $artist->getPhotoUrl(),
+            ];
+        }
+
+        return $this->json($data);
+    }
+
+    // 0.02 Get Categories (labels & ordering for booking flow)
+    #[Route('/categories', methods: ['GET'])]
+    public function getCategories(): JsonResponse
+    {
+        try {
+            $cats = $this->serviceCategoryRepository->findActiveOrdered();
+        } catch (\Throwable) {
+            $cats = [];
+        }
+
+        $data = [];
+        foreach ($cats as $cat) {
+            $key = (string) $cat->getKey();
+            if ($key === '') {
+                continue;
+            }
+
+            $data[] = [
+                'key' => $key,
+                'label' => (string) $cat->getLabel(),
+                'order' => (int) $cat->getSortOrder(),
+            ];
+        }
+
+        // Fallback defaults (in case DB is empty)
+        if (count($data) === 0) {
+            $data = [
+                ['key' => 'hair', 'label' => 'Վարսահարդարում', 'order' => 1],
+                ['key' => 'makeup', 'label' => 'Դիմահարդարում', 'order' => 2],
+                ['key' => 'nails', 'label' => 'Մատնահարդարում', 'order' => 3],
             ];
         }
 
