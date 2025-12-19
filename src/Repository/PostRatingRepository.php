@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\ArtistProfile;
 use App\Entity\ArtistPost;
 use App\Entity\PostRating;
 use App\Entity\User;
@@ -40,6 +41,27 @@ class PostRatingRepository extends ServiceEntityRepository
     public function findOneByPostAndUser(ArtistPost $post, User $user): ?PostRating
     {
         return $this->findOneBy(['post' => $post, 'user' => $user]);
+    }
+
+    public function countCreatedInRange(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        ?ArtistProfile $artist = null,
+    ): int {
+        $qb = $this->createQueryBuilder('r')
+            ->select('COUNT(r.id)')
+            ->andWhere('r.createdAt >= :from')
+            ->andWhere('r.createdAt < :to')
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
+
+        if ($artist) {
+            $qb->join('r.post', 'p')
+                ->andWhere('p.artist = :artist')
+                ->setParameter('artist', $artist);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }
 

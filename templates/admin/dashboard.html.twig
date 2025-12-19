@@ -1,9 +1,407 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block content_title %}Բարի գալուստ ադմին պանել{% endblock %}
+{% set role = dashboard.role|default('unknown') %}
+
+{% set statusMeta = {
+  'PENDING':   {'label': 'Սպասման մեջ', 'badgeClass': 'badge badge-warning'},
+  'CONFIRMED': {'label': 'Հաստատված',   'badgeClass': 'badge badge-success'},
+  'COMPLETED': {'label': 'Ավարտված',    'badgeClass': 'badge badge-info'},
+  'CANCELED':  {'label': 'Չեղարկված',   'badgeClass': 'badge badge-danger'}
+} %}
+
+{% block content_title %}
+    {% if role == 'admin' %}
+        Ադմին վահանակ
+    {% elseif role == 'artist' %}
+        Իմ վահանակը
+    {% else %}
+        Վահանակ
+    {% endif %}
+{% endblock %}
 
 {% block main %}
-    <div class="alert alert-info">
-        Այստեղ շուտով կլինեն վիճակագրական տվյալներ (ամրագրումների քանակ, եկամուտ և այլն)։
-    </div>
+    {% if role == 'artist' and dashboard.missingProfile|default(false) %}
+        <div class="alert alert-warning">
+            Ձեր վարպետի պրոֆիլը դեռ չկա։ Խնդրում ենք կապ հաստատել ադմինի հետ, որ ստեղծեն `ArtistProfile`։
+        </div>
+    {% else %}
+    {% if role == 'admin' %}
+        {% set usersUrl = ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('index') %}
+        {% set artistsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index') %}
+        {% set categoriesUrl = ea_url().setController('App\\Controller\\Admin\\ServiceCategoryCrudController').setAction('index') %}
+        {% set servicesUrl = ea_url().setController('App\\Controller\\Admin\\ServiceCrudController').setAction('index') %}
+        {% set appointmentsUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index') %}
+        {% set postsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index') %}
+        {% set commentsUrl = ea_url().setController('App\\Controller\\Admin\\PostCommentCrudController').setAction('index') %}
+        {% set ratingsUrl = ea_url().setController('App\\Controller\\Admin\\PostRatingCrudController').setAction('index') %}
+
+        <div class="row g-3">
+            <div class="col-12 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Օգտատերեր</div>
+                        <div class="h3 mb-0">{{ dashboard.counts.users|default(0)|number_format(0, '.', ' ') }}</div>
+                        <a class="small" href="{{ usersUrl }}">Բացել</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Վարպետներ</div>
+                        <div class="h3 mb-0">{{ dashboard.counts.artists|default(0)|number_format(0, '.', ' ') }}</div>
+                        <a class="small" href="{{ artistsUrl }}">Բացել</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Կատեգորիաներ</div>
+                        <div class="h3 mb-0">{{ dashboard.counts.serviceCategories|default(0)|number_format(0, '.', ' ') }}</div>
+                        <a class="small" href="{{ categoriesUrl }}">Բացել</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Ծառայություններ</div>
+                        <div class="h3 mb-0">{{ dashboard.counts.services|default(0)|number_format(0, '.', ' ') }}</div>
+                        <a class="small" href="{{ servicesUrl }}">Բացել</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Ամրագրումներ</h2>
+            <div class="row g-3">
+                {% for k, meta in statusMeta %}
+                    <div class="col-12 col-md-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="text-muted">{{ meta.label }}</div>
+                                    <span class="{{ meta.badgeClass }}">{{ k }}</span>
+                                </div>
+                                <div class="h3 mb-0">{{ dashboard.appointments.byStatus[k]|default(0)|number_format(0, '.', ' ') }}</div>
+                                <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Այսօր</div>
+                            <div class="h3 mb-0">{{ dashboard.appointments.today|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Հաջորդ 7 օր</div>
+                            <div class="h3 mb-0">{{ dashboard.appointments.upcoming7|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Ընդհանուր</div>
+                            <div class="h3 mb-0">{{ dashboard.appointments.total|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Եկամուտ (մոտավոր)</h2>
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Այսօր (ավարտված)</div>
+                            <div class="h3 mb-0">{{ dashboard.revenue.todayCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Այս ամիս (ավարտված)</div>
+                            <div class="h3 mb-0">{{ dashboard.revenue.thisMonthCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Նշում</div>
+                            <div class="small text-muted">
+                                Եկամուտը հաշվվում է `SUM(service.price)` ըստ ավարտված ամրագրումների․ եթե ծառայության գինը փոխվի՝ թվերը կփոխվեն։
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Բլոգ</h2>
+            <div class="row g-3">
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Published posts</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.publishedPosts|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Draft posts</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.draftPosts|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Comments (7 օր)</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.commentsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ commentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Ratings (7 օր)</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.ratingsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ ratingsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Մոտակա ամրագրումներ</h2>
+            {% if dashboard.appointments.upcomingList is empty %}
+                <div class="alert alert-light mb-0">Մոտակա ամրագրումներ չկան։</div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Ամսաթիվ</th>
+                            <th>Հաճախորդ</th>
+                            <th>Ծառայություն</th>
+                            <th>Վարպետ</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for a in dashboard.appointments.upcomingList %}
+                            {% set editUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id) %}
+                            <tr>
+                                <td><a href="{{ editUrl }}">{{ a.startDatetime|date('Y-m-d H:i') }}</a></td>
+                                <td>{{ a.clientName }}</td>
+                                <td>{{ a.service.name }}</td>
+                                <td>{{ a.artist.user.firstName }} {{ a.artist.user.lastName }}</td>
+                                {% set meta = statusMeta[a.status]|default({'label': a.status, 'badgeClass': 'badge badge-secondary'}) %}
+                                <td><span class="{{ meta.badgeClass }}">{{ a.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    {% elseif role == 'artist' %}
+        {% set appointmentsUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index') %}
+        {% set myProfileUrl = ea_url().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index') %}
+        {% set postsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index') %}
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Իմ rating-ը</div>
+                        <div class="h3 mb-0">
+                            {{ (dashboard.artist.ratingAvg|default(0))|number_format(2, '.', ' ') }}
+                            <span class="text-muted small">({{ dashboard.artist.ratingCount|default(0)|number_format(0, '.', ' ') }})</span>
+                        </div>
+                        <a class="small" href="{{ myProfileUrl }}">Իմ պրոֆիլը</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Իմ ամրագրումները</div>
+                        <div class="h3 mb-0">{{ dashboard.appointments.total|default(0)|number_format(0, '.', ' ') }}</div>
+                        <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="text-muted">Այս ամիս եկամուտ (ավարտված)</div>
+                        <div class="h3 mb-0">{{ dashboard.revenue.thisMonthCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Իմ ամրագրումների վիճակագրություն</h2>
+            <div class="row g-3">
+                {% for k, meta in statusMeta %}
+                    <div class="col-12 col-md-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div class="text-muted">{{ meta.label }}</div>
+                                    <span class="{{ meta.badgeClass }}">{{ k }}</span>
+                                </div>
+                                <div class="h3 mb-0">{{ dashboard.appointments.byStatus[k]|default(0)|number_format(0, '.', ' ') }}</div>
+                                <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Այսօր</div>
+                            <div class="h3 mb-0">{{ dashboard.appointments.today|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Հաջորդ 7 օր</div>
+                            <div class="h3 mb-0">{{ dashboard.appointments.upcoming7|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Իմ բլոգը</h2>
+            <div class="row g-3">
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Published posts</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.publishedPosts|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Draft posts</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.draftPosts|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Comments (7 օր)</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.commentsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted">Ratings (7 օր)</div>
+                            <div class="h3 mb-0">{{ dashboard.blog.ratingsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if dashboard.blog.topPosts|default([]) is not empty %}
+                <div class="mt-3 table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Post</th>
+                            <th>Avg rating</th>
+                            <th>Count</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in dashboard.blog.topPosts %}
+                            {% set p = row.post %}
+                            <tr>
+                                <td>{{ p.title }}</td>
+                                <td>{{ (row.avgRating|default(0))|number_format(2, '.', ' ') }}</td>
+                                <td>{{ row.ratingCount|default(0)|number_format(0, '.', ' ') }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-4">
+            <h2 class="h5 mb-3">Մոտակա ամրագրումներ</h2>
+            {% if dashboard.appointments.upcomingList is empty %}
+                <div class="alert alert-light mb-0">Մոտակա ամրագրումներ չկան։</div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Ամսաթիվ</th>
+                            <th>Հաճախորդ</th>
+                            <th>Ծառայություն</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for a in dashboard.appointments.upcomingList %}
+                            {% set editUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id) %}
+                            <tr>
+                                <td><a href="{{ editUrl }}">{{ a.startDatetime|date('Y-m-d H:i') }}</a></td>
+                                <td>{{ a.clientName }}</td>
+                                <td>{{ a.service.name }}</td>
+                                {% set meta = statusMeta[a.status]|default({'label': a.status, 'badgeClass': 'badge badge-secondary'}) %}
+                                <td><span class="{{ meta.badgeClass }}">{{ a.status }}</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            Այստեղ շուտով կլինեն վիճակագրական տվյալներ։
+        </div>
+    {% endif %}
+    {% endif %}
 {% endblock %}

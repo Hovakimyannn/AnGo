@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\ArtistProfile;
 use App\Entity\ArtistPost;
 use App\Entity\PostComment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -30,6 +31,33 @@ class PostCommentRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
+    }
+
+    public function countCreatedInRange(
+        \DateTimeInterface $from,
+        \DateTimeInterface $to,
+        ?ArtistProfile $artist = null,
+        ?bool $isApproved = null,
+    ): int {
+        $qb = $this->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->andWhere('c.createdAt >= :from')
+            ->andWhere('c.createdAt < :to')
+            ->setParameter('from', $from)
+            ->setParameter('to', $to);
+
+        if ($isApproved !== null) {
+            $qb->andWhere('c.isApproved = :approved')
+                ->setParameter('approved', $isApproved);
+        }
+
+        if ($artist) {
+            $qb->join('c.post', 'p')
+                ->andWhere('p.artist = :artist')
+                ->setParameter('artist', $artist);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }
 

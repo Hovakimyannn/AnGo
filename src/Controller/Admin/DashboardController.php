@@ -12,7 +12,9 @@ use App\Entity\PostRating;
 use App\Entity\Service;
 use App\Entity\ServiceCategory;
 use App\Entity\User;
+use App\Repository\ArtistProfileRepository;
 use App\Repository\HomePageSettingsRepository;
+use App\Service\DashboardStatsService;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -24,11 +26,45 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardController extends AbstractDashboardController
 {
+    public function __construct(
+        private readonly DashboardStatsService $dashboardStatsService,
+        private readonly ArtistProfileRepository $artistProfileRepository,
+    ) {
+    }
+
     #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
-        // Aystex hetagayum kavelacnenq statistika
-        return $this->render('admin/dashboard.html.twig');
+        if ($this->isGranted('ROLE_ADMIN')) {
+            return $this->render('admin/dashboard.html.twig', [
+                'dashboard' => $this->dashboardStatsService->getAdminStats(),
+            ]);
+        }
+
+        if ($this->isGranted('ROLE_ARTIST')) {
+            $user = $this->getUser();
+            $artist = $user instanceof User ? $this->artistProfileRepository->findOneBy(['user' => $user]) : null;
+
+            if (!$artist instanceof ArtistProfile) {
+                return $this->render('admin/dashboard.html.twig', [
+                    'dashboard' => [
+                        'role' => 'artist',
+                        'missingProfile' => true,
+                    ],
+                ]);
+            }
+
+            return $this->render('admin/dashboard.html.twig', [
+                'dashboard' => $this->dashboardStatsService->getArtistStats($artist),
+            ]);
+        }
+
+        // Fallback (should not happen due to access_control)
+        return $this->render('admin/dashboard.html.twig', [
+            'dashboard' => [
+                'role' => 'unknown',
+            ],
+        ]);
     }
 
     #[Route('/admin/home-images', name: 'admin_home_images')]
