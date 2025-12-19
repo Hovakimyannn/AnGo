@@ -391,128 +391,145 @@
     // Snowfall overlay
     // ---------------------------------------------------------------------
     (function () {
-        const canvas = document.getElementById('angoSnowCanvas');
-        if (!canvas) return;
+        function initSnow() {
+            const canvas = document.getElementById('angoSnowCanvas');
+            if (!canvas) return;
 
-        // Respect accessibility & performance preferences.
-        const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const saveData = !!(navigator.connection && navigator.connection.saveData);
-        if (prefersReducedMotion || saveData) {
-            canvas.style.display = 'none';
-            return;
-        }
-
-        /** @type {CanvasRenderingContext2D|null} */
-        const ctx = canvas.getContext('2d', { alpha: true });
-        if (!ctx) return;
-
-        let width = 0;
-        let height = 0;
-        let dpr = 1;
-        /** @type {Array<{x:number,y:number,r:number,vy:number,vx:number,wobble:number,wobbleSpeed:number,o:number}>} */
-        let flakes = [];
-        let rafId = 0;
-        let lastTs = performance.now();
-
-        function rand(min, max) {
-            return Math.random() * (max - min) + min;
-        }
-
-        function resizeCanvas() {
-            // Use bounding box to match CSS size (handles zoom/layout).
-            const rect = canvas.getBoundingClientRect();
-            width = Math.max(1, Math.floor(rect.width));
-            height = Math.max(1, Math.floor(rect.height));
-            dpr = Math.min(2, window.devicePixelRatio || 1);
-
-            canvas.width = Math.floor(width * dpr);
-            canvas.height = Math.floor(height * dpr);
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-
-        function makeFlake() {
-            const r = rand(0.8, 2.8);
-            return {
-                x: rand(0, width),
-                y: rand(-height, height),
-                r,
-                vy: rand(0.7, 1.6),
-                vx: rand(-0.25, 0.25),
-                wobble: rand(0, Math.PI * 2),
-                wobbleSpeed: rand(0.008, 0.02),
-                o: rand(0.25, 0.75)
-            };
-        }
-
-        function initFlakes() {
-            // Density scales with viewport, with a safe upper bound.
-            const target = Math.min(180, Math.max(60, Math.round(width / 10)));
-            flakes = new Array(target).fill(0).map(makeFlake);
-        }
-
-        function step(ts) {
-            const dt = Math.min(0.05, (ts - lastTs) / 1000); // cap to avoid huge jumps
-            lastTs = ts;
-
-            ctx.clearRect(0, 0, width, height);
-
-            for (let i = 0; i < flakes.length; i++) {
-                const f = flakes[i];
-                f.wobble += f.wobbleSpeed;
-
-                // 60 is a normalization factor so speeds feel consistent across dt.
-                const dx = (f.vx + Math.sin(f.wobble) * 0.25) * 60 * dt;
-                const dy = f.vy * 60 * dt;
-                f.x += dx;
-                f.y += dy;
-
-                // Wrap around screen bounds.
-                if (f.y - f.r > height) {
-                    f.y = -f.r;
-                    f.x = rand(0, width);
-                }
-                if (f.x < -f.r) f.x = width + f.r;
-                if (f.x > width + f.r) f.x = -f.r;
-
-                ctx.globalAlpha = f.o;
-                ctx.beginPath();
-                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                ctx.fillStyle = '#ffffff';
-                ctx.fill();
+            // Respect accessibility & performance preferences.
+            const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const saveData = !!(navigator.connection && navigator.connection.saveData);
+            if (prefersReducedMotion || saveData) {
+                canvas.style.display = 'none';
+                return;
             }
 
-            ctx.globalAlpha = 1;
-            rafId = requestAnimationFrame(step);
-        }
+            /** @type {CanvasRenderingContext2D|null} */
+            const ctx = canvas.getContext('2d', { alpha: true });
+            if (!ctx) return;
 
-        function start() {
-            if (rafId) return;
-            lastTs = performance.now();
-            rafId = requestAnimationFrame(step);
-        }
+            let width = 0;
+            let height = 0;
+            let dpr = 1;
+            /** @type {Array<{x:number,y:number,r:number,vy:number,vx:number,wobble:number,wobbleSpeed:number,o:number}>} */
+            let flakes = [];
+            let rafId = 0;
+            let lastTs = performance.now();
 
-        function stop() {
-            if (!rafId) return;
-            cancelAnimationFrame(rafId);
-            rafId = 0;
-        }
+            function rand(min, max) {
+                return Math.random() * (max - min) + min;
+            }
 
-        // Init
-        resizeCanvas();
-        initFlakes();
-        start();
+            function resizeCanvas() {
+                // Use bounding box to match CSS size (handles zoom/layout).
+                const rect = canvas.getBoundingClientRect();
+                width = Math.max(1, Math.floor(rect.width));
+                height = Math.max(1, Math.floor(rect.height));
+                dpr = Math.min(2, window.devicePixelRatio || 1);
 
-        // Re-init on resize/orientation changes.
-        window.addEventListener('resize', function () {
+                canvas.width = Math.floor(width * dpr);
+                canvas.height = Math.floor(height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            function makeFlake() {
+                const r = rand(0.8, 2.8);
+                return {
+                    x: rand(0, width),
+                    y: rand(-height, height),
+                    r,
+                    vy: rand(0.7, 1.6),
+                    vx: rand(-0.25, 0.25),
+                    wobble: rand(0, Math.PI * 2),
+                    wobbleSpeed: rand(0.008, 0.02),
+                    o: rand(0.25, 0.75)
+                };
+            }
+
+            function initFlakes() {
+                // Density scales with viewport, with a safe upper bound.
+                const target = Math.min(180, Math.max(60, Math.round(width / 10)));
+                flakes = new Array(target).fill(0).map(makeFlake);
+            }
+
+            function step(ts) {
+                const dt = Math.min(0.05, (ts - lastTs) / 1000); // cap to avoid huge jumps
+                lastTs = ts;
+
+                ctx.clearRect(0, 0, width, height);
+
+                for (let i = 0; i < flakes.length; i++) {
+                    const f = flakes[i];
+                    f.wobble += f.wobbleSpeed;
+
+                    // 60 is a normalization factor so speeds feel consistent across dt.
+                    const dx = (f.vx + Math.sin(f.wobble) * 0.25) * 60 * dt;
+                    const dy = f.vy * 60 * dt;
+                    f.x += dx;
+                    f.y += dy;
+
+                    // Wrap around screen bounds.
+                    if (f.y - f.r > height) {
+                        f.y = -f.r;
+                        f.x = rand(0, width);
+                    }
+                    if (f.x < -f.r) f.x = width + f.r;
+                    if (f.x > width + f.r) f.x = -f.r;
+
+                    ctx.globalAlpha = f.o;
+                    ctx.beginPath();
+                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fill();
+                }
+
+                ctx.globalAlpha = 1;
+                rafId = requestAnimationFrame(step);
+            }
+
+            function start() {
+                if (rafId) return;
+                lastTs = performance.now();
+                rafId = requestAnimationFrame(step);
+            }
+
+            function stop() {
+                if (!rafId) return;
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
+
+            // Init
             resizeCanvas();
             initFlakes();
-        }, { passive: true });
+            start();
 
-        // Pause when tab is hidden to save CPU.
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) stop();
-            else start();
-        });
+            // Re-init on resize/orientation changes.
+            window.addEventListener('resize', function () {
+                resizeCanvas();
+                initFlakes();
+            }, { passive: true });
+
+            // Pause when tab is hidden to save CPU.
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) stop();
+                else start();
+            });
+        }
+
+        // Defer initialization to avoid impacting LCP/first render.
+        const run = function () {
+            try {
+                initSnow();
+            } catch (e) {
+                // no-op
+            }
+        };
+
+        if (typeof window.requestIdleCallback === 'function') {
+            window.requestIdleCallback(run, { timeout: 2000 });
+        } else {
+            setTimeout(run, 1200);
+        }
     })();
 
     // ---------------------------------------------------------------------

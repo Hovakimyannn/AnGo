@@ -11,8 +11,15 @@
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v={{ asset_version('apple-touch-icon.png') }}">
     <meta name="theme-color" content="#111827">
     <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
+    {% set __ango_fa_local_path = 'vendor/fontawesome/css/all.min.css' %}
+    {% set __ango_fa_local_ver = asset_version(__ango_fa_local_path) %}
+    {% if __ango_fa_local_ver != '0' %}
+        <link rel="preload" href="{{ asset(__ango_fa_local_path) }}?v={{ __ango_fa_local_ver }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link href="{{ asset(__ango_fa_local_path) }}?v={{ __ango_fa_local_ver }}" rel="stylesheet"></noscript>
+    {% else %}
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
+    {% endif %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Armenian:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">

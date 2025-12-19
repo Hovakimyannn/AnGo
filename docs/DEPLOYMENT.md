@@ -70,6 +70,7 @@ composer install --no-dev --optimize-autoloader
 ```bash
 npm ci
 npm run build:css
+npm run build:fa
 ```
 
 Deploy the output:

@@ -41,8 +41,15 @@
     <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
 
     {# Icons #}
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
+    {% set __ango_fa_local_path = 'vendor/fontawesome/css/all.min.css' %}
+    {% set __ango_fa_local_ver = asset_version(__ango_fa_local_path) %}
+    {% if __ango_fa_local_ver != '0' %}
+        <link rel="preload" href="{{ asset(__ango_fa_local_path) }}?v={{ __ango_fa_local_ver }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link href="{{ asset(__ango_fa_local_path) }}?v={{ __ango_fa_local_ver }}" rel="stylesheet"></noscript>
+    {% else %}
+        <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"></noscript>
+    {% endif %}
 
     {# Fonts #}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -138,13 +145,35 @@
         <!-- Logo -->
         <a href="{{ path('app_home') }}" class="flex items-center rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-200">
             <span class="inline-flex items-center rounded-2xl overflow-hidden px-2 py-1 transition duration-200 ease-out transform hover:scale-[1.01]">
-                <img
-                    src="{{ asset('uploads/photos/ango-logo.png') }}?v={{ asset_version('uploads/photos/ango-logo.png') }}"
-                    alt="AnGo"
-                    class="w-auto object-contain h-14 max-w-[220px]"
-                    loading="eager"
-                    decoding="async"
-                >
+                {% set __ango_logo_file = 'ango-logo.png' %}
+                {% set __ango_logo_v = asset_version('uploads/photos/' ~ __ango_logo_file) %}
+                {% set __ango_logo_base = path('app_image_photo', { filename: __ango_logo_file }) %}
+                <picture>
+                    <source
+                        type="image/webp"
+                        srcset="
+                            {{ __ango_logo_base ~ '?w=96&fmt=webp&v=' ~ __ango_logo_v }} 96w,
+                            {{ __ango_logo_base ~ '?w=192&fmt=webp&v=' ~ __ango_logo_v }} 192w,
+                            {{ __ango_logo_base ~ '?w=288&fmt=webp&v=' ~ __ango_logo_v }} 288w
+                        "
+                        sizes="96px"
+                    >
+                    <img
+                        src="{{ __ango_logo_base ~ '?w=96&fmt=png&v=' ~ __ango_logo_v }}"
+                        srcset="
+                            {{ __ango_logo_base ~ '?w=96&fmt=png&v=' ~ __ango_logo_v }} 96w,
+                            {{ __ango_logo_base ~ '?w=192&fmt=png&v=' ~ __ango_logo_v }} 192w
+                        "
+                        sizes="96px"
+                        width="96"
+                        height="56"
+                        alt="AnGo"
+                        class="w-auto object-contain h-14 max-w-[220px]"
+                        loading="eager"
+                        decoding="async"
+                        fetchpriority="low"
+                    >
+                </picture>
             </span>
         </a>
 

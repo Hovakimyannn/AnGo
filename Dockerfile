@@ -21,7 +21,8 @@ COPY templates ./templates
 COPY src ./src
 
 RUN mkdir -p public/build \
-  && npm run build:css
+  && npm run build:css \
+  && npm run build:fa
 
 FROM php:8.4-fpm-bookworm AS base
 
@@ -68,6 +69,7 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
 
 COPY . .
 COPY --from=assets /app/public/build/ public/build/
+COPY --from=assets /app/public/vendor/fontawesome/ public/vendor/fontawesome/
 
 # Symfony Runtime loads ".env" by default. In CI/build we may not have it committed.
 RUN if [ ! -f .env ] && [ -f env.example ]; then cp env.example .env; fi
@@ -93,6 +95,7 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 composer install \
 
 COPY . .
 COPY --from=assets /app/public/build/ public/build/
+COPY --from=assets /app/public/vendor/fontawesome/ public/vendor/fontawesome/
 
 # Symfony Runtime loads ".env" by default. On Railway (git deploy), ".env" is often not committed.
 # Provide a safe fallback from env.example so the app/console don't crash at boot.

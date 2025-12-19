@@ -24,6 +24,11 @@ composer.phar
 npm-debug.log
 /.parcel-cache
 /dist/
+/public/vendor/fontawesome/
+
+# Lighthouse reports (generated)
+/*-mobile-report.json
+/*-desktop-report.json
 
 # IDEs
 /.idea/
