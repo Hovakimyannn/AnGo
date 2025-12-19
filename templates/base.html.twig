@@ -49,41 +49,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Armenian:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Armenian:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
-    <style>
-        body {
-            font-family: 'Inter', 'Noto Sans Armenian', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-            font-synthesis: none;
-            -webkit-font-smoothing: antialiased;
-            text-rendering: optimizeLegibility;
-        }
-
-        /* Force Armenian content to use Armenian-optimized font */
-        :lang(hy) body {
-            font-family: 'Noto Sans Armenian', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
-        }
-
-        /* Avoid filter-based drop-shadow (can distort glyph rendering in some browsers) */
-        .text-shadow-soft {
-            text-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
-        }
-
-        /* --- Snowfall overlay --- */
-        .ango-snowfall {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 55; /* header is z-50; booking modal is z-[60] */
-            opacity: 0.9;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .ango-snowfall {
-                display: none !important;
-            }
-        }
-    </style>
     {% block structured_data %}
         {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
         {% set __ango_site_url = absolute_url(path('app_home')) %}
@@ -176,8 +141,7 @@
                 <img
                     src="{{ asset('uploads/photos/ango-logo.png') }}?v={{ asset_version('uploads/photos/ango-logo.png') }}"
                     alt="AnGo"
-                    class="w-auto object-contain"
-                    style="height: 56px; max-width: 220px;"
+                    class="w-auto object-contain h-14 max-w-[220px]"
                     loading="eager"
                     decoding="async"
                 >
