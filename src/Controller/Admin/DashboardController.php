@@ -13,6 +13,7 @@ use App\Entity\Service;
 use App\Entity\User;
 use App\Repository\HomePageSettingsRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -61,6 +62,13 @@ class DashboardController extends AbstractDashboardController
             ->setTitle('Beauty Salon Admin')
             // Avoid "Path must not be empty" in EasyAdmin layout when dashboard favicon path is empty.
             ->setFaviconPath('favicon.svg');
+    }
+
+    public function configureAssets(): Assets
+    {
+        return parent::configureAssets()
+            ->addCssFile('admin.css')
+            ->addJsFile('admin.js');
     }
 
     public function configureMenuItems(): iterable

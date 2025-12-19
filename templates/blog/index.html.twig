@@ -80,8 +80,7 @@
                                 {% set href = t.key ? path(t.route, {category: t.key}) : path(t.route) %}
                                 <a href="{{ href }}"
                                    data-ajax-swap="#blogContent"
-                                   class="px-2 py-2 text-sm font-semibold border-b-2 {{ isActive ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
-                                   style="border-bottom: 2px solid {{ isActive ? '#111827' : 'transparent' }};">
+                                   class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ isActive ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                     {{ t.label }}
                                 </a>
                             {% endfor %}
@@ -94,16 +93,14 @@
                         <nav class="-mb-px flex items-center space-x-10 overflow-x-auto whitespace-nowrap">
                             <a href="{{ baseHref }}"
                                data-ajax-swap="#blogContent"
-                               class="px-2 py-2 text-sm font-semibold border-b-2 {{ (not selectedServiceId) ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
-                               style="border-bottom: 2px solid {{ (not selectedServiceId) ? '#111827' : 'transparent' }};">
+                               class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ (not selectedServiceId) ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                 Բոլոր ծառայությունները
                             </a>
 
                             {% for s in services %}
                                 <a href="{{ baseHref ~ '?service=' ~ s.id }}"
                                    data-ajax-swap="#blogContent"
-                                   class="px-2 py-2 text-sm font-semibold border-b-2 {{ selectedServiceId == s.id ? 'text-gray-900' : 'text-gray-500 hover:text-gray-900 hover:border-gray-300' }} transition"
-                                   style="border-bottom: 2px solid {{ selectedServiceId == s.id ? '#111827' : 'transparent' }};">
+                                   class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ selectedServiceId == s.id ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                     {{ s.name }}
                                 </a>
                             {% endfor %}
