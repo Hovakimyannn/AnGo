@@ -27,6 +27,10 @@ class Appointment
     #[ORM\JoinColumn(nullable: false)]
     private ?Service $service = null;
 
+    // Snapshot: keep service price at booking time (so reports don't change when service price changes later)
+    #[ORM\Column]
+    private float $servicePriceAtBooking = 0.0;
+
     #[ORM\Column(length: 255)]
     private ?string $clientName = null;
 
@@ -78,6 +82,24 @@ class Appointment
     public function setService(?Service $service): static
     {
         $this->service = $service;
+
+        // Auto-fill on create (admin CRUD creates Appointment objects too).
+        // Do not overwrite if already set (allows manual override / preserves historical data).
+        if ($service instanceof Service && $this->servicePriceAtBooking <= 0) {
+            $this->servicePriceAtBooking = (float) ($service->getPrice() ?? 0);
+        }
+
+        return $this;
+    }
+
+    public function getServicePriceAtBooking(): float
+    {
+        return $this->servicePriceAtBooking;
+    }
+
+    public function setServicePriceAtBooking(float $servicePriceAtBooking): static
+    {
+        $this->servicePriceAtBooking = $servicePriceAtBooking;
 
         return $this;
     }

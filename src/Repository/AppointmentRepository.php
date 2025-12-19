@@ -118,8 +118,7 @@ class AppointmentRepository extends ServiceEntityRepository
         }
 
         $qb = $this->createQueryBuilder('a')
-            ->select('COALESCE(SUM(s.price), 0) AS total')
-            ->join('a.service', 's')
+            ->select('COALESCE(SUM(a.servicePriceAtBooking), 0) AS total')
             ->andWhere('a.startDatetime >= :from')
             ->andWhere('a.startDatetime < :to')
             ->setParameter('from', $from)

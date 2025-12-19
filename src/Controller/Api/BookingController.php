@@ -201,6 +201,7 @@ class BookingController extends AbstractController
         $appointment = new Appointment();
         $appointment->setArtist($artist);
         $appointment->setService($service);
+        $appointment->setServicePriceAtBooking((float) ($service->getPrice() ?? 0));
         $appointment->setClientName($data['name']);
         $appointment->setClientPhone($data['phone']);
         $appointment->setClientEmail($data['email']);
