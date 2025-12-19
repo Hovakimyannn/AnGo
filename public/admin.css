@@ -5,7 +5,6 @@
 
 /* --- Admin dashboard (EasyAdmin /admin) --- */
 .ango-dashboard {
-    --ango-card-radius: 18px;
     --ango-card-shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
     --ango-card-shadow-hover: 0 18px 50px rgba(16, 24, 40, 0.14);
     --ango-accent-a: 99, 102, 241; /* indigo-ish */
