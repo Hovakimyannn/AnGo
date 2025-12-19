@@ -132,18 +132,22 @@
         </div>
 
         <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16">
+            {% set __hero_title_pre = (homeSettings is defined and homeSettings and homeSettings.heroTitlePre) ? homeSettings.heroTitlePre : 'Բացահայտեք Ձեր' %}
+            {% set __hero_title_highlight = (homeSettings is defined and homeSettings and homeSettings.heroTitleHighlight) ? homeSettings.heroTitleHighlight : 'Կատարելությունը' %}
+            {% set __hero_subtitle = (homeSettings is defined and homeSettings and homeSettings.heroSubtitle) ? homeSettings.heroSubtitle : 'Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։' %}
+            {% set __hero_btn_primary = (homeSettings is defined and homeSettings and homeSettings.heroPrimaryButtonLabel) ? homeSettings.heroPrimaryButtonLabel : 'Ամրագրել Այց' %}
+            {% set __hero_btn_secondary = (homeSettings is defined and homeSettings and homeSettings.heroSecondaryButtonLabel) ? homeSettings.heroSecondaryButtonLabel : 'Տեսնել Վարպետներին' %}
+
             <h1 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight text-shadow-soft">
-                Բացահայտեք Ձեր <br/><span class="text-pink-500">Կատարելությունը</span>
+                {{ __hero_title_pre }} <br/><span class="text-pink-500">{{ __hero_title_highlight }}</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-200 mb-10 font-light">
-                Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։
-            </p>
+            <p class="text-lg md:text-xl text-gray-200 mb-10 font-light">{{ __hero_subtitle|e|nl2br }}</p>
             <div class="flex flex-col md:flex-row gap-4 justify-center">
                 <a href="#booking" class="bg-pink-600 text-white px-8 py-4 rounded-full font-bold hover:bg-pink-700 transition shadow-xl hover:shadow-pink-500/30 transform hover:-translate-y-1">
-                    Ամրագրել Այց
+                    {{ __hero_btn_primary }}
                 </a>
                 <a href="#masters" class="bg-white/10 backdrop-blur border border-white/30 text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-gray-900 transition">
-                    Տեսնել Վարպետներին
+                    {{ __hero_btn_secondary }}
                 </a>
             </div>
         </div>
@@ -153,12 +157,15 @@
     <section id="our-services" class="py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Մեր Ծառայությունները</h2>
+                {% set __services_title = (homeSettings is defined and homeSettings and homeSettings.servicesTitle) ? homeSettings.servicesTitle : 'Մեր Ծառայությունները' %}
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __services_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Վարսահարդարում -->
+                {% set __hair_title = (homeSettings is defined and homeSettings and homeSettings.serviceHairTitle) ? homeSettings.serviceHairTitle : 'Վարսահարդարում' %}
+                {% set __hair_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceHairSubtitle) ? homeSettings.serviceHairSubtitle : 'Կտրվածքներ, ներկում և խնամք' %}
                 <a href="{{ path('app_blog_category', {category: 'hair'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceHairImage %}
                         {% set hair = homeSettings.serviceHairImage %}
@@ -207,13 +214,15 @@
                     {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-cut text-4xl text-white mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white">Վարսահարդարում</h3>
+                        <h3 class="text-2xl font-bold text-white">{{ __hair_title }}</h3>
                         <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
-                            Կտրվածքներ, ներկում և խնամք
+                            {{ __hair_subtitle }}
                         </p>
                     </div>
                 </a>
                 <!-- Դիմահարդարում -->
+                {% set __makeup_title = (homeSettings is defined and homeSettings and homeSettings.serviceMakeupTitle) ? homeSettings.serviceMakeupTitle : 'Դիմահարդարում' %}
+                {% set __makeup_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceMakeupSubtitle) ? homeSettings.serviceMakeupSubtitle : 'Երեկոյան և ամենօրյա make-up' %}
                 <a href="{{ path('app_blog_category', {category: 'makeup'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceMakeupImage %}
                         {% set makeup = homeSettings.serviceMakeupImage %}
@@ -262,13 +271,15 @@
                     {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-magic text-4xl text-white mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white">Դիմահարդարում</h3>
+                        <h3 class="text-2xl font-bold text-white">{{ __makeup_title }}</h3>
                         <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
-                            Երեկոյան և ամենօրյա make-up
+                            {{ __makeup_subtitle }}
                         </p>
                     </div>
                 </a>
                 <!-- Մատնահարդարում -->
+                {% set __nails_title = (homeSettings is defined and homeSettings and homeSettings.serviceNailsTitle) ? homeSettings.serviceNailsTitle : 'Մատնահարդարում' %}
+                {% set __nails_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceNailsSubtitle) ? homeSettings.serviceNailsSubtitle : 'Մանիկյուր և Պեդիկյուր' %}
                 <a href="{{ path('app_blog_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceNailsImage %}
                         {% set nails = homeSettings.serviceNailsImage %}
@@ -317,9 +328,9 @@
                     {% endif %}
                     <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
                         <i class="fas fa-hand-sparkles text-4xl text-white mb-3"></i>
-                        <h3 class="text-2xl font-bold text-white">Մատնահարդարում</h3>
+                        <h3 class="text-2xl font-bold text-white">{{ __nails_title }}</h3>
                         <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
-                            Մանիկյուր և Պեդիկյուր
+                            {{ __nails_subtitle }}
                         </p>
                     </div>
                 </a>
@@ -331,8 +342,10 @@
     <section id="masters" class="py-20 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Թոփ Վարպետներ</h2>
-                <p class="text-gray-500 max-w-2xl mx-auto">Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ</p>
+                {% set __artists_title = (homeSettings is defined and homeSettings and homeSettings.artistsTitle) ? homeSettings.artistsTitle : 'Թոփ Վարպետներ' %}
+                {% set __artists_subtitle = (homeSettings is defined and homeSettings and homeSettings.artistsSubtitle) ? homeSettings.artistsSubtitle : 'Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ' %}
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __artists_title }}</h2>
+                <p class="text-gray-500 max-w-2xl mx-auto">{{ __artists_subtitle }}</p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -404,33 +417,42 @@
     <section id="about" class="py-20 bg-white">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Մեր մասին</h2>
+                {% set __about_title = (homeSettings is defined and homeSettings and homeSettings.aboutTitle) ? homeSettings.aboutTitle : 'Մեր մասին' %}
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __about_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
             </div>
 
             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 <div class="md:col-span-2">
-                    <p class="text-gray-600 leading-relaxed">
-                        AnGo-ը ստեղծվել է՝ մեկ նպատակով․ առաջարկել բարձրակարգ ծառայություններ, պրոֆեսիոնալ մոտեցում և
-                        հարմարավետ միջավայր՝ յուրաքանչյուր այցը դարձնելով հաճելի փորձ։
-                    </p>
-                    <p class="text-gray-600 leading-relaxed mt-4">
-                        Մեր թիմը մշտապես հետևում է նորաձևության թրենդներին և աշխատում է որակյալ նյութերով՝ ապահովելով
-                        լավագույն արդյունքը։
-                    </p>
+                    {% set __about_text_1 = (homeSettings is defined and homeSettings and homeSettings.aboutText1) ? homeSettings.aboutText1 : 'AnGo-ը ստեղծվել է՝ մեկ նպատակով․ առաջարկել բարձրակարգ ծառայություններ, պրոֆեսիոնալ մոտեցում և հարմարավետ միջավայր՝ յուրաքանչյուր այցը դարձնելով հաճելի փորձ։' %}
+                    {% set __about_text_2 = (homeSettings is defined and homeSettings and homeSettings.aboutText2) ? homeSettings.aboutText2 : 'Մեր թիմը մշտապես հետևում է նորաձևության թրենդներին և աշխատում է որակյալ նյութերով՝ ապահովելով լավագույն արդյունքը։' %}
+                    <p class="text-gray-600 leading-relaxed">{{ __about_text_1|e|nl2br }}</p>
+                    <p class="text-gray-600 leading-relaxed mt-4">{{ __about_text_2|e|nl2br }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
                     <div class="flex items-center gap-3 mb-4">
                         <span class="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center">
                             <i class="fas fa-award"></i>
                         </span>
-                        <div class="font-bold text-gray-900">Ինչու՞ մենք</div>
+                        {% set __why_us_title = (homeSettings is defined and homeSettings and homeSettings.whyUsTitle) ? homeSettings.whyUsTitle : 'Ինչու՞ մենք' %}
+                        <div class="font-bold text-gray-900">{{ __why_us_title }}</div>
                     </div>
                     <ul class="text-sm text-gray-600 space-y-2">
-                        <li>Պրոֆեսիոնալ վարպետներ</li>
-                        <li>Անհատական մոտեցում</li>
-                        <li>Որակյալ նյութեր</li>
-                        <li>Հարմարավետ միջավայր</li>
+                        {% set __why_us_items = [] %}
+                        {% if homeSettings is defined and homeSettings and homeSettings.whyUsItems %}
+                            {% for line in homeSettings.whyUsItems|replace({"\r": ""})|split("\n") %}
+                                {% if line|trim %}
+                                    {% set __why_us_items = __why_us_items|merge([line|trim]) %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        {% if __why_us_items is empty %}
+                            {% set __why_us_items = ['Պրոֆեսիոնալ վարպետներ', 'Անհատական մոտեցում', 'Որակյալ նյութեր', 'Հարմարավետ միջավայր'] %}
+                        {% endif %}
+
+                        {% for item in __why_us_items %}
+                            <li>{{ item }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -441,23 +463,28 @@
     <section id="contact" class="py-20 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Կապ</h2>
+                {% set __contact_title = (homeSettings is defined and homeSettings and homeSettings.contactTitle) ? homeSettings.contactTitle : 'Կապ' %}
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __contact_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
             </div>
 
             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div class="font-bold text-gray-900 mb-2"><i class="fas fa-map-marker-alt mr-2 text-pink-600"></i> Հասցե</div>
-                    <div class="text-gray-600 text-sm">Ք.Աբովյան, Սարալանջի 22</div>
+                    {% set __contact_address = (homeSettings is defined and homeSettings and homeSettings.contactAddress) ? homeSettings.contactAddress : 'Ք.Աբովյան, Սարալանջի 22' %}
+                    <div class="text-gray-600 text-sm">{{ __contact_address }}</div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div class="font-bold text-gray-900 mb-2"><i class="fas fa-phone mr-2 text-pink-600"></i> Հեռախոս</div>
-                    <div class="text-gray-600 text-sm">+374 94 64 99 24</div>
+                    {% set __contact_phone = (homeSettings is defined and homeSettings and homeSettings.contactPhone) ? homeSettings.contactPhone : '+374 94 64 99 24' %}
+                    <div class="text-gray-600 text-sm">{{ __contact_phone }}</div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div class="font-bold text-gray-900 mb-2"><i class="far fa-clock mr-2 text-pink-600"></i> Աշխատանքային ժամեր</div>
-                    <div class="text-gray-600 text-sm">Երկ - Շաբ: 10:00 - 20:00</div>
-                    <div class="text-gray-600 text-sm">Կիր: 11:00 - 18:00</div>
+                    {% set __hours_1 = (homeSettings is defined and homeSettings and homeSettings.contactHoursLine1) ? homeSettings.contactHoursLine1 : 'Երկ - Շաբ: 10:00 - 20:00' %}
+                    {% set __hours_2 = (homeSettings is defined and homeSettings and homeSettings.contactHoursLine2) ? homeSettings.contactHoursLine2 : 'Կիր: 11:00 - 18:00' %}
+                    <div class="text-gray-600 text-sm">{{ __hours_1 }}</div>
+                    <div class="text-gray-600 text-sm">{{ __hours_2 }}</div>
                 </div>
             </div>
         </div>

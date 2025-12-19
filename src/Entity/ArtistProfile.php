@@ -36,6 +36,9 @@ class ArtistProfile
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photoUrl = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $coverImageUrl = null;
+
     #[ORM\ManyToMany(targetEntity: Service::class, inversedBy: 'artistProfiles')]
     private Collection $services;
 
@@ -131,6 +134,18 @@ class ArtistProfile
     public function setPhotoUrl(?string $photoUrl): static
     {
         $this->photoUrl = $photoUrl;
+
+        return $this;
+    }
+
+    public function getCoverImageUrl(): ?string
+    {
+        return $this->coverImageUrl;
+    }
+
+    public function setCoverImageUrl(?string $coverImageUrl): static
+    {
+        $this->coverImageUrl = $coverImageUrl;
 
         return $this;
     }

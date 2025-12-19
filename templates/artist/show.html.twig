@@ -97,7 +97,35 @@
     <div class="bg-white">
         <!-- Header Image -->
         <div class="relative h-80 bg-gray-900">
-            <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1920&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-40">
+            {% if artist.coverImageUrl %}
+                {% set cover = artist.coverImageUrl %}
+                <picture>
+                    <source
+                        type="image/webp"
+                        srcset="
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=960&fmt=webp' }} 960w,
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=1280&fmt=webp' }} 1280w,
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=1920&fmt=webp' }} 1920w
+                        "
+                        sizes="100vw"
+                    >
+                    <img
+                        src="{{ path('app_image_photo', { filename: cover }) ~ '?w=1920&fmt=jpg' }}"
+                        srcset="
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=960&fmt=jpg' }} 960w,
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=1280&fmt=jpg' }} 1280w,
+                            {{ path('app_image_photo', { filename: cover }) ~ '?w=1920&fmt=jpg' }} 1920w
+                        "
+                        sizes="100vw"
+                        alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
+                        class="w-full h-full object-cover opacity-40"
+                        loading="lazy"
+                        decoding="async"
+                    >
+                </picture>
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=1920&auto=format&fit=crop" alt="" class="w-full h-full object-cover opacity-40">
+            {% endif %}
             <div class="absolute inset-0 flex items-center justify-center">
                 <h1 class="text-4xl font-bold text-white">{{ artist.user.firstName }} {{ artist.user.lastName }}</h1>
             </div>

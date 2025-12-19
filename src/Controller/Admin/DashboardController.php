@@ -91,7 +91,7 @@ class DashboardController extends AbstractDashboardController
             yield MenuItem::linkToCrud('Ratings', 'fas fa-star', PostRating::class);
 
             yield MenuItem::section('Կայք');
-            yield MenuItem::linkToRoute('Home նկարներ', 'fas fa-image', 'admin_home_images');
+            yield MenuItem::linkToRoute('Գլխավոր էջի կարգավորումներ', 'fas fa-image', 'admin_home_images');
             return;
         }
 

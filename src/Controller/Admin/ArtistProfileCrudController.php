@@ -45,19 +45,30 @@ class ArtistProfileCrudController extends AbstractCrudController
         yield AssociationField::new('category', 'Կատեգորիա')
             ->setHelp('Ընտրեք կատեգորիա (կառավարվում է Admin → Կատեգորիաներ)։');
 
+        $imageConstraints = [
+            // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)
+            new Image([
+                'maxSize' => '5M',
+                'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                'mimeTypesMessage' => 'Խնդրում ենք վերբեռնել ճիշտ նկար (JPG/PNG/WebP)։',
+            ]),
+        ];
+
         // Nkarneri Upload
         yield ImageField::new('photoUrl', 'Պրոֆիլի նկար')
             ->setBasePath('uploads/photos') // Vortexic karda browser-y
             ->setUploadDir('public/uploads/photos') // Vortex qci server-y
             ->setUploadedFileNamePattern('[randomhash].[extension]')
-            // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)
-            ->setFileConstraints([
-                new Image([
-                    'maxSize' => '5M',
-                    'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
-                    'mimeTypesMessage' => 'Խնդրում ենք վերբեռնել ճիշտ նկար (JPG/PNG/WebP)։',
-                ]),
-            ])
+            ->setFileConstraints($imageConstraints)
+            ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
+            ->setRequired(false);
+
+        yield ImageField::new('coverImageUrl', 'Վերին cover նկար (Artist էջ)')
+            ->setHelp('Artist էջի վերևի մեծ background նկարն է։ Եթե դատարկ է՝ կլինի default նկար։')
+            ->setBasePath('uploads/photos')
+            ->setUploadDir('public/uploads/photos')
+            ->setUploadedFileNamePattern('artist-cover-[randomhash].[extension]')
+            ->setFileConstraints($imageConstraints)
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
