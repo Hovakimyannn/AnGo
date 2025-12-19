@@ -27,14 +27,12 @@
     {% else %}
     <div class="ango-dashboard">
     {% if role == 'admin' %}
-        {% set usersUrl = ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('index') %}
-        {% set artistsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index') %}
-        {% set categoriesUrl = ea_url().setController('App\\Controller\\Admin\\ServiceCategoryCrudController').setAction('index') %}
-        {% set servicesUrl = ea_url().setController('App\\Controller\\Admin\\ServiceCrudController').setAction('index') %}
-        {% set appointmentsUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index') %}
-        {% set postsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index') %}
-        {% set commentsUrl = ea_url().setController('App\\Controller\\Admin\\PostCommentCrudController').setAction('index') %}
-        {% set ratingsUrl = ea_url().setController('App\\Controller\\Admin\\PostRatingCrudController').setAction('index') %}
+        {% set usersUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\UserCrudController').setAction('index').generateUrl() %}
+        {% set artistsUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index').generateUrl() %}
+        {% set categoriesUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ServiceCategoryCrudController').setAction('index').generateUrl() %}
+        {% set servicesUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ServiceCrudController').setAction('index').generateUrl() %}
+        {% set appointmentsUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index').generateUrl() %}
+        {% set postsUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index').generateUrl() %}
 
         <div class="row g-3">
             <div class="col-12 col-md-3">
@@ -42,7 +40,9 @@
                     <div class="card-body">
                         <div class="text-muted">Օգտատերեր</div>
                         <div class="h3 mb-0">{{ dashboard.counts.users|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a class="small" href="{{ usersUrl }}">Բացել</a>
+                        <a href="{{ usersUrl }}" class="stretched-link" aria-label="Բացել՝ Օգտատերեր">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -51,7 +51,9 @@
                     <div class="card-body">
                         <div class="text-muted">Վարպետներ</div>
                         <div class="h3 mb-0">{{ dashboard.counts.artists|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a class="small" href="{{ artistsUrl }}">Բացել</a>
+                        <a href="{{ artistsUrl }}" class="stretched-link" aria-label="Բացել՝ Վարպետներ">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -60,7 +62,9 @@
                     <div class="card-body">
                         <div class="text-muted">Կատեգորիաներ</div>
                         <div class="h3 mb-0">{{ dashboard.counts.serviceCategories|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a class="small" href="{{ categoriesUrl }}">Բացել</a>
+                        <a href="{{ categoriesUrl }}" class="stretched-link" aria-label="Բացել՝ Կատեգորիաներ">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -69,7 +73,9 @@
                     <div class="card-body">
                         <div class="text-muted">Ծառայություններ</div>
                         <div class="h3 mb-0">{{ dashboard.counts.services|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a class="small" href="{{ servicesUrl }}">Բացել</a>
+                        <a href="{{ servicesUrl }}" class="stretched-link" aria-label="Բացել՝ Ծառայություններ">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -87,7 +93,9 @@
                                     <span class="{{ meta.badgeClass }}">{{ k }}</span>
                                 </div>
                                 <div class="h3 mb-0">{{ dashboard.appointments.byStatus[k]|default(0)|number_format(0, '.', ' ') }}</div>
-                                <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                                <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — {{ meta.label }}">
+                                    <span class="visually-hidden">Բացել</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -97,7 +105,9 @@
                         <div class="card-body">
                             <div class="text-muted">Այսօր</div>
                             <div class="h3 mb-0">{{ dashboard.appointments.today|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — Այսօր">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -106,7 +116,9 @@
                         <div class="card-body">
                             <div class="text-muted">Հաջորդ 7 օր</div>
                             <div class="h3 mb-0">{{ dashboard.appointments.upcoming7|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — Հաջորդ 7 օր">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -115,7 +127,9 @@
                         <div class="card-body">
                             <div class="text-muted">Ընդհանուր</div>
                             <div class="h3 mb-0">{{ dashboard.appointments.total|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — Ընդհանուր">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -130,6 +144,9 @@
                         <div class="card-body">
                             <div class="text-muted">Այսօր (ավարտված)</div>
                             <div class="h3 mb-0">{{ dashboard.revenue.todayCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — Այսօր (ավարտված)">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -138,6 +155,9 @@
                         <div class="card-body">
                             <div class="text-muted">Այս ամիս (ավարտված)</div>
                             <div class="h3 mb-0">{{ dashboard.revenue.thisMonthCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Ամրագրումներ — Այս ամիս (ավարտված)">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -152,7 +172,9 @@
                         <div class="card-body">
                             <div class="text-muted">Published posts</div>
                             <div class="h3 mb-0">{{ dashboard.blog.publishedPosts|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Published posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -161,7 +183,9 @@
                         <div class="card-body">
                             <div class="text-muted">Draft posts</div>
                             <div class="h3 mb-0">{{ dashboard.blog.draftPosts|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Draft posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -170,7 +194,9 @@
                         <div class="card-body">
                             <div class="text-muted">Comments (7 օր)</div>
                             <div class="h3 mb-0">{{ dashboard.blog.commentsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ commentsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -179,7 +205,9 @@
                         <div class="card-body">
                             <div class="text-muted">Ratings (7 օր)</div>
                             <div class="h3 mb-0">{{ dashboard.blog.ratingsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ ratingsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -204,7 +232,7 @@
                         </thead>
                         <tbody>
                         {% for a in dashboard.appointments.upcomingList %}
-                            {% set editUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id) %}
+                            {% set editUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id).generateUrl() %}
                             <tr>
                                 <td><a href="{{ editUrl }}">{{ a.startDatetime|date('Y-m-d H:i') }}</a></td>
                                 <td>{{ a.clientName }}</td>
@@ -220,9 +248,9 @@
             {% endif %}
         </div>
     {% elseif role == 'artist' %}
-        {% set appointmentsUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index') %}
-        {% set myProfileUrl = ea_url().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index') %}
-        {% set postsUrl = ea_url().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index') %}
+        {% set appointmentsUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('index').generateUrl() %}
+        {% set myProfileUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ArtistProfileCrudController').setAction('index').generateUrl() %}
+        {% set postsUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\ArtistPostCrudController').setAction('index').generateUrl() %}
 
         <div class="row g-3">
             <div class="col-12 col-md-4">
@@ -233,7 +261,9 @@
                             {{ (dashboard.artist.ratingAvg|default(0))|number_format(2, '.', ' ') }}
                             <span class="text-muted small">({{ dashboard.artist.ratingCount|default(0)|number_format(0, '.', ' ') }})</span>
                         </div>
-                        <a class="small" href="{{ myProfileUrl }}">Իմ պրոֆիլը</a>
+                        <a href="{{ myProfileUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ պրոֆիլը">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -242,7 +272,9 @@
                     <div class="card-body">
                         <div class="text-muted">Իմ ամրագրումները</div>
                         <div class="h3 mb-0">{{ dashboard.appointments.total|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                        <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ ամրագրումները">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -251,6 +283,9 @@
                     <div class="card-body">
                         <div class="text-muted">Այս ամիս եկամուտ (ավարտված)</div>
                         <div class="h3 mb-0">{{ dashboard.revenue.thisMonthCompleted|default(0)|number_format(0, '.', ' ') }} AMD</div>
+                        <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ ամրագրումները — Այս ամիս եկամուտ (ավարտված)">
+                            <span class="visually-hidden">Բացել</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -268,7 +303,9 @@
                                     <span class="{{ meta.badgeClass }}">{{ k }}</span>
                                 </div>
                                 <div class="h3 mb-0">{{ dashboard.appointments.byStatus[k]|default(0)|number_format(0, '.', ' ') }}</div>
-                                <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                                <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ ամրագրումները — {{ meta.label }}">
+                                    <span class="visually-hidden">Բացել</span>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -278,7 +315,9 @@
                         <div class="card-body">
                             <div class="text-muted">Այսօր</div>
                             <div class="h3 mb-0">{{ dashboard.appointments.today|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ ամրագրումները — Այսօր">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -287,7 +326,9 @@
                         <div class="card-body">
                             <div class="text-muted">Հաջորդ 7 օր</div>
                             <div class="h3 mb-0">{{ dashboard.appointments.upcoming7|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ appointmentsUrl }}">Բացել</a>
+                            <a href="{{ appointmentsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ ամրագրումները — Հաջորդ 7 օր">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -302,7 +343,9 @@
                         <div class="card-body">
                             <div class="text-muted">Published posts</div>
                             <div class="h3 mb-0">{{ dashboard.blog.publishedPosts|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ posts — Published">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -311,7 +354,9 @@
                         <div class="card-body">
                             <div class="text-muted">Draft posts</div>
                             <div class="h3 mb-0">{{ dashboard.blog.draftPosts|default(0)|number_format(0, '.', ' ') }}</div>
-                            <a class="small" href="{{ postsUrl }}">Բացել</a>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Իմ posts — Draft">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -320,6 +365,9 @@
                         <div class="card-body">
                             <div class="text-muted">Comments (7 օր)</div>
                             <div class="h3 mb-0">{{ dashboard.blog.commentsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -328,6 +376,9 @@
                         <div class="card-body">
                             <div class="text-muted">Ratings (7 օր)</div>
                             <div class="h3 mb-0">{{ dashboard.blog.ratingsLast7Days|default(0)|number_format(0, '.', ' ') }}</div>
+                            <a href="{{ postsUrl }}" class="stretched-link" aria-label="Բացել՝ Posts">
+                                <span class="visually-hidden">Բացել</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -375,7 +426,7 @@
                         </thead>
                         <tbody>
                         {% for a in dashboard.appointments.upcomingList %}
-                            {% set editUrl = ea_url().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id) %}
+                            {% set editUrl = ea_url().unsetAll().setController('App\\Controller\\Admin\\AppointmentCrudController').setAction('edit').setEntityId(a.id).generateUrl() %}
                             <tr>
                                 <td><a href="{{ editUrl }}">{{ a.startDatetime|date('Y-m-d H:i') }}</a></td>
                                 <td>{{ a.clientName }}</td>
