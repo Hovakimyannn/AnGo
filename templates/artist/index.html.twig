@@ -27,6 +27,15 @@
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
     {% set __ango_site_url = absolute_url(path('app_home')) %}
+    {% set __catKey = app.request.query.get('category') %}
+    {% set __seo_keywords = '' %}
+    {% if __catKey == 'hair' %}
+        {% set __seo_keywords = 'varsahardar abovyanum, varsavir abovyan' %}
+    {% elseif __catKey == 'nails' %}
+        {% set __seo_keywords = 'matnahardar abovyanum, manikyur abovyan' %}
+    {% elseif __catKey == 'makeup' %}
+        {% set __seo_keywords = 'makeup artist abovyan, harsanekan dimahardarum' %}
+    {% endif %}
 
     {% set __artist_list = [] %}
     {% if artists is defined %}
@@ -54,11 +63,11 @@
         {{ {
             '@context': 'https://schema.org',
             '@graph': [
-                {
+                ({
                     '@type': 'ItemList',
                     'name': category,
                     'itemListElement': __artist_list
-                }
+                } | merge(__seo_keywords ? {'keywords': __seo_keywords} : {}))
             ]
         }|json_encode(__ango_json_opts)|raw }}
     </script>
@@ -74,17 +83,14 @@
             {% if __catKey == 'hair' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
                     Վարսահարդարներ / վարսավիրներ՝ Աբովյանում։ Տեսեք «վարսահարդարի աշխատանքները», ընտրեք վարպետին և ամրագրեք այցը։
-                    <span class="text-xs text-gray-400 block mt-2">Translit՝ <span class="font-semibold">varsahardar abovyanum</span>, <span class="font-semibold">varsavir abovyan</span>.</span>
                 </p>
             {% elseif __catKey == 'nails' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
                     Մատնահարդարներ՝ մանիկյուր/պեդիկյուր, շելլակ, գել լաք։ Ընտրեք վարպետին և ամրագրեք այցը։
-                    <span class="text-xs text-gray-400 block mt-2">Translit՝ <span class="font-semibold">matnahardar abovyanum</span>, <span class="font-semibold">manikyur abovyan</span>.</span>
                 </p>
             {% elseif __catKey == 'makeup' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
                     Դիմահարդարներ՝ հարսանեկան, երեկոյան և ամենօրյա make-up։ Տեսեք աշխատանքները և ամրագրեք այցը։
-                    <span class="text-xs text-gray-400 block mt-2">Translit՝ <span class="font-semibold">makeup artist abovyan</span>, <span class="font-semibold">harsanekan dimahardarum</span>.</span>
                 </p>
             {% else %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
