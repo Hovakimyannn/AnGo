@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ categoryLabel }} | AnGo{% endblock %}
+{% block title %}
+    {% if category %}
+        {{ categoryLabel }} Աբովյանում | AnGo
+    {% else %}
+        Ծառայություններ և գներ Աբովյանում | AnGo
+    {% endif %}
+{% endblock %}
 {% block meta_description %}
     {% if category %}
         AnGo {{ categoryLabel }} ծառայություններ և գներ Աբովյանում։ Տևողություն, գներ և վարպետներ՝ մեկ էջում։
@@ -158,6 +164,98 @@
                     {% endif %}
                 {% endfor %}
             {% endif %}
+
+            {# --- Semantic core / morphology helpers (visible, non-spammy) --- #}
+            <section class="mt-14 border-t pt-10">
+                {% if category == 'hair' %}
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Վարսահարդարում Աբովյանում (վարսավիր, մազերի խնամք)</h2>
+                    <p class="text-gray-600 mt-2">
+                        Այս բաժնում հավաքված են մեր <strong>վարսահարդարման</strong> ծառայությունները՝ կտրվածք, սանրվածք, մազերի ներկում և մազերի խնամք։
+                        Կարող եք տեսնել <strong>վարսահարդարման գները</strong> և անմիջապես կատարել <strong>առցանց ամրագրում</strong>։
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                        {% for q in [
+                            'Վարսահարդարում Աբովյանում',
+                            'Վարսավիր Աբովյանում',
+                            'Վարսավիրանոց Աբովյանում',
+                            'Վարսահարդարման գներ',
+                            'Կտրվածք / Սանրվածք',
+                            'Մազերի ներկում',
+                            'Մազերի խնամք',
+                            'Կերատինով ուղղում',
+                            'Մազերի բոտոքս'
+                        ] %}
+                            <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700">{{ q }}</span>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Translit որոնումներ՝ <span class="font-semibold">varsahardarum abovyanum</span>, <span class="font-semibold">varsavir abovyan</span>, <span class="font-semibold">mazeri xnamq</span>.
+                    </p>
+                {% elseif category == 'nails' %}
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Մատնահարդարում Աբովյանում (մանիկյուր, շելլակ, գել լաք)</h2>
+                    <p class="text-gray-600 mt-2">
+                        Մատնահարդարում / մանիկյուր՝ շելլակ (shellac), գել լաք, եղունգների ձևավորում։ Տեսեք <strong>գները</strong> և ընտրեք վարպետին՝ արագ ամրագրելու համար։
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                        {% for q in [
+                            'Մատնահարդարում Աբովյանում',
+                            'Մանիկյուր Աբովյանում',
+                            'Պեդիկյուր Աբովյանում',
+                            'Շելլակ (Shellac)',
+                            'Գել լաք (Gel lak)',
+                            'Եղունգների ձևավորում',
+                            'Եղունգների աճեցում',
+                            'Մատնահարդարման գներ'
+                        ] %}
+                            <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700">{{ q }}</span>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Translit որոնումներ՝ <span class="font-semibold">matnahardarum abovyanum</span>, <span class="font-semibold">manikyur abovyan</span>, <span class="font-semibold">shellac manikyur</span>.
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Ռուսերեն որոնումներ՝ <span class="font-semibold">маникюр Абовян</span>, <span class="font-semibold">шеллак</span>, <span class="font-semibold">гель лак</span>.
+                    </p>
+                {% elseif category == 'makeup' %}
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Դիմահարդարում Աբովյանում (հարսանեկան, երեկոյան, ամենօրյա)</h2>
+                    <p class="text-gray-600 mt-2">
+                        Դիմահարդարում (makeup / մեյքափ)՝ հարսանեկան, երեկոյան և ամենօրյա։ Տեսեք տարբերակները, գները և ամրագրեք այցը առցանց։
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                        {% for q in [
+                            'Դիմահարդարում Աբովյանում',
+                            'Հարսանեկան դիմահարդարում',
+                            'Երեկոյան դիմահարդարում',
+                            'Ամենօրյա դիմահարդարում',
+                            'Պրոֆեսիոնալ դիմահարդարում',
+                            'Makeup artist Abovyan',
+                            'Մեյքափ (make-up)'
+                        ] %}
+                            <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700">{{ q }}</span>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        Translit որոնումներ՝ <span class="font-semibold">dimahardarum abovyanum</span>, <span class="font-semibold">harsanekan dimahardarum</span>, <span class="font-semibold">makeup artist abovyan</span>.
+                    </p>
+                {% else %}
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-900">Գեղեցկության սրահ Աբովյանում — ծառայություններ, գներ և առցանց ամրագրում</h2>
+                    <p class="text-gray-600 mt-2">
+                        Տեսեք բոլոր ծառայությունները՝ ըստ կատեգորիայի (վարսահարդարում, մատնահարդարում, դիմահարդարում), համեմատեք գները և ամրագրեք այցը առցանց։
+                    </p>
+                    <div class="mt-4 flex flex-wrap gap-2 text-sm">
+                        {% for q in [
+                            'Գեղեցկության սրահ Աբովյանում',
+                            'Beauty salon Abovyan',
+                            'Աբովյանում վարսավիրանոց',
+                            'Աբովյանում մատնահարդարում',
+                            'Աբովյանում դիմահարդարում',
+                            'Ծառայությունների գնացուցակ'
+                        ] %}
+                            <span class="px-3 py-1 rounded-full bg-gray-50 border border-gray-200 text-gray-700">{{ q }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </section>
         </div>
     </div>
 {% endblock %}

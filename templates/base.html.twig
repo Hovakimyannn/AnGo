@@ -79,6 +79,11 @@
                         '@type': 'Organization',
                         '@id': __ango_site_url ~ '#organization',
                         'name': 'AnGo',
+                        'alternateName': [
+                            'AnGo Beauty',
+                            'Ango.beauty',
+                            'Անգո Բյութի'
+                        ],
                         'url': __ango_site_url,
                         'logo': {
                             '@type': 'ImageObject',
@@ -93,15 +98,28 @@
                         '@type': 'BeautySalon',
                         '@id': __ango_site_url ~ '#localbusiness',
                         'name': 'AnGo',
+                        'alternateName': [
+                            'AnGo Beauty',
+                            'Ango.beauty',
+                            'Անգո Բյութի',
+                            'AnGo Գեղեցկության սրահ'
+                        ],
                         'url': __ango_site_url,
                         'image': __ango_og_image,
                         'telephone': '+37494649924',
+                        'priceRange': '$$',
                         'address': {
                             '@type': 'PostalAddress',
                             'streetAddress': 'Սարալանջի 22',
                             'addressLocality': 'Աբովյան',
+                            'addressRegion': 'Կոտայք',
                             'addressCountry': 'AM'
                         },
+                        'areaServed': [
+                            { '@type': 'City', 'name': 'Աբովյան' },
+                            { '@type': 'AdministrativeArea', 'name': 'Կոտայք' },
+                            { '@type': 'Country', 'name': 'Armenia' }
+                        ],
                         'openingHoursSpecification': [
                             {
                                 '@type': 'OpeningHoursSpecification',

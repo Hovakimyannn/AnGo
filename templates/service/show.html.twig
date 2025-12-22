@@ -88,6 +88,68 @@
                             Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, վարպետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
                         </p>
                     </div>
+
+                    {# --- Semantic hints (morphology / tri-script) --- #}
+                    {% set __nameLower = (service.name|default('')|lower) %}
+                    {% set __qs = [] %}
+                    {% if categoryKey == 'hair' %}
+                        {% set __qs = [
+                            'Վարսահարդարում Աբովյանում',
+                            'Վարսահարդարման գներ',
+                            'Վարսավիր',
+                            'Մազերի խնամք',
+                            'Մազերի ներկում',
+                            'Կտրվածք / Սանրվածք'
+                        ] %}
+                        {% if ('կերատին' in __nameLower) or ('keratin' in __nameLower) %}
+                            {% set __qs = __qs|merge(['Կերատինով ուղղում', 'Keratin']) %}
+                        {% endif %}
+                        {% if ('բոտոքս' in __nameLower) or ('botox' in __nameLower) %}
+                            {% set __qs = __qs|merge(['Մազերի բոտոքս', 'Hair botox']) %}
+                        {% endif %}
+                        {% set __translit = 'varsahardarum abovyanum, varsavir abovyan, mazeri xnamq' %}
+                    {% elseif categoryKey == 'nails' %}
+                        {% set __qs = [
+                            'Մատնահարդարում Աբովյանում',
+                            'Մանիկյուր',
+                            'Պեդիկյուր',
+                            'Եղունգների ձևավորում'
+                        ] %}
+                        {% if ('շելլակ' in __nameLower) or ('shellac' in __nameLower) %}
+                            {% set __qs = __qs|merge(['Շելլակ (Shellac)']) %}
+                        {% endif %}
+                        {% if ('գել' in __nameLower) or ('gel' in __nameLower) %}
+                            {% set __qs = __qs|merge(['Գել լաք (Gel lak)']) %}
+                        {% endif %}
+                        {% set __translit = 'matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+                    {% elseif categoryKey == 'makeup' %}
+                        {% set __qs = [
+                            'Դիմահարդարում Աբովյանում',
+                            'Պրոֆեսիոնալ դիմահարդարում',
+                            'Երեկոյան դիմահարդարում',
+                            'Ամենօրյա դիմահարդարում'
+                        ] %}
+                        {% if 'հարսանեկան' in __nameLower %}
+                            {% set __qs = __qs|merge(['Հարսանեկան դիմահարդարում']) %}
+                        {% endif %}
+                        {% set __translit = 'dimahardarum abovyanum, harsanekan dimahardarum, makeup artist abovyan' %}
+                    {% else %}
+                        {% set __translit = '' %}
+                    {% endif %}
+
+                    {% if __qs is not empty %}
+                        <div class="mt-5 rounded-2xl border border-gray-100 bg-gray-50 p-5">
+                            <div class="text-sm font-bold text-gray-900">Հաճախ որոնում են նաև</div>
+                            <div class="mt-3 flex flex-wrap gap-2 text-sm">
+                                {% for q in __qs %}
+                                    <span class="px-3 py-1 rounded-full bg-white border border-gray-200 text-gray-700">{{ q }}</span>
+                                {% endfor %}
+                            </div>
+                            {% if __translit %}
+                                <div class="text-xs text-gray-500 mt-3">Translit՝ <span class="font-semibold">{{ __translit }}</span></div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
 
                 <div class="w-full lg:w-[360px]">

@@ -16,9 +16,9 @@
 {%- endfor -%}
 {%- if svcBits -%}
     {%- set svcTail = (artist.services|length > svcLimit) ? ' և այլն' : '' -%}
-    {{- fullName }} — {{ artist.specialization }}։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։
+    {{- fullName }} — {{ artist.specialization }} Աբովյանում (AnGo)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- else -%}
-    {{- fullName }} — {{ artist.specialization }}։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։
+    {{- fullName }} — {{ artist.specialization }} Աբովյանում։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- endif -%}
 {%- endblock %}
 
