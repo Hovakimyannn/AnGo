@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}AnGo — Գեղեցկության սրահ Աբովյանում{% endblock %}
-{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ վարպետներ, բարձրակարգ ծառայություններ և հարմարավետ միջավայր Աբովյանում։ Ամրագրեք այցը առցանց։{% endblock %}
+{% block title %}AnGo — Gexeccutyan srah Abovyanum | Varsahardarum, Matnahardarum, Dimahardarum{% endblock %}
+{% block meta_description %}Gexeccutyan srah Abovyanum՝ Varsahardarum, Matnahardarum, Dimahardarum։ Mazeri xnamq, manikyur, Shellac։ Amragrel ayc online՝ AnGo (Saralanji 22, Abovyan)։{% endblock %}
 {% block head_extra %}
     {# Help mobile LCP by preloading the first visible artist photo (if present) #}
     {% if artists is defined and artists|length > 0 and artists[0].photoUrl %}
@@ -160,6 +160,9 @@
                 {% set __services_title = (homeSettings is defined and homeSettings and homeSettings.servicesTitle) ? homeSettings.servicesTitle : 'Մեր Ծառայությունները' %}
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __services_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
+                <p class="text-gray-500 max-w-2xl mx-auto mt-4">
+                    Աբովյանում (Abovyanum) AnGo-ում՝ Varsahardarum, Matnahardarum և Dimahardarum․ նաև մազերի խնամք (Mazeri xnamq) ու մանիկյուր՝ Shellac-ով։
+                </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -191,7 +194,7 @@
                                     {{ path('app_image_photo', { filename: hair }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Վարսահարդարում"
+                                alt="Varsahardarum Abovyanum — haircut, coloring, Mazeri xnamq | AnGo"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -207,7 +210,7 @@
                                 https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Վարսահարդարում"
+                            alt="Varsahardarum Abovyanum — haircut, coloring, Mazeri xnamq | AnGo"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
@@ -248,7 +251,7 @@
                                     {{ path('app_image_photo', { filename: makeup }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Դիմահարդարում"
+                                alt="Harsanekan dimahardarum Abovyanum — professional makeup (meyqap) | AnGo"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -264,7 +267,7 @@
                                 https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Դիմահարդարում"
+                            alt="Harsanekan dimahardarum Abovyanum — professional makeup (meyqap) | AnGo"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
@@ -305,7 +308,7 @@
                                     {{ path('app_image_photo', { filename: nails }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Մատնահարդարում"
+                                alt="Matnahardarum Abovyanum — manikyur, Shellac, gel lak | AnGo"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -321,7 +324,7 @@
                                 https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Մատնահարդարում"
+                            alt="Matnahardarum Abovyanum — manikyur, Shellac, gel lak | AnGo"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
