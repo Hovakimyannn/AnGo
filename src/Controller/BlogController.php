@@ -54,11 +54,21 @@ class BlogController extends AbstractController
     #[Route('/blog/post/{id}-{slug}', name: 'app_blog_show', requirements: ['id' => '\d+'])]
     public function show(
         ArtistPost $post,
+        string $slug,
         PostCommentRepository $commentRepository,
         PostRatingRepository $ratingRepository,
     ): Response {
         if (!$post->isPublished()) {
             throw $this->createNotFoundException();
+        }
+
+        // Enforce canonical slug (prevents duplicate URLs like /blog/post/123-wrong-slug).
+        $canonicalSlug = (string) $post->getSlug();
+        if ($canonicalSlug !== '' && $slug !== $canonicalSlug) {
+            return $this->redirectToRoute('app_blog_show', [
+                'id' => $post->getId(),
+                'slug' => $canonicalSlug,
+            ], Response::HTTP_MOVED_PERMANENTLY);
         }
 
         $comments = $commentRepository->findApprovedForPost($post, 200);

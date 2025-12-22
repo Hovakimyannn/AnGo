@@ -120,6 +120,44 @@
             categorySelect.value = safeKeys.includes(String(currentValue || '')) ? String(currentValue || '') : '';
         }
 
+        function normalizeOpt(v) {
+            if (v === null || typeof v === 'undefined') return null;
+            const s = String(v).trim();
+            return s ? s : null;
+        }
+
+        async function prefillBookingSelection(options) {
+            const categorySelect = document.getElementById('categorySelect');
+            const serviceSelect = document.getElementById('serviceSelect');
+            if (!categorySelect || !serviceSelect) return;
+
+            const serviceId = normalizeOpt(options && options.serviceId);
+            let category = normalizeOpt(options && options.category);
+
+            if (!serviceId && !category) return;
+
+            // Ensure we have services available (from cache/API).
+            const services = await ensureCurrentServices();
+
+            // If category isn't provided, infer it from the serviceId.
+            if (!category && serviceId) {
+                const found = (Array.isArray(services) ? services : []).find(s => String(s && s.id) === String(serviceId));
+                if (found && found.category) {
+                    category = String(found.category);
+                }
+            }
+
+            if (category) {
+                categorySelect.value = category;
+                await onCategoryChange();
+            }
+
+            if (serviceId) {
+                serviceSelect.value = String(serviceId);
+                onServiceChange();
+            }
+        }
+
         function openBooking(options = {}) {
             const modal = document.getElementById('bookingModal');
             const content = document.getElementById('bookingContent');
@@ -133,6 +171,8 @@
             }, 10);
 
             const artistId = options && options.artistId ? String(options.artistId) : null;
+            const prefillServiceId = normalizeOpt(options && options.serviceId);
+            const prefillCategory = normalizeOpt(options && options.category);
             window.__bookingMode = artistId ? 'artist' : 'global';
             currentArtistId = artistId;
             currentServices = [];
@@ -144,10 +184,14 @@
             if (artistId) {
                 // Artist-specific booking: artist is locked, services are filtered by artist
                 setArtistLocked(artistId);
-                Promise.all([categoriesPromise, loadServicesForArtist(artistId)]).then(([, services]) => {
+                Promise.all([categoriesPromise, loadServicesForArtist(artistId)]).then(async ([, services]) => {
                     currentServices = services;
                     populateCategoryOptionsFromServices(services);
-                    autoSelectCategoryIfSingle(services);
+                    if (prefillServiceId || prefillCategory) {
+                        await prefillBookingSelection({ serviceId: prefillServiceId, category: prefillCategory });
+                    } else {
+                        autoSelectCategoryIfSingle(services);
+                    }
                 });
             } else {
                 // Update category list from DB-config (doesn't block UI)
@@ -163,6 +207,14 @@
                 ensureServicesCache().then((services) => {
                     currentServices = services;
                 });
+
+                // If we're coming from a service page, prefill category+service to reduce steps.
+                if (prefillServiceId || prefillCategory) {
+                    Promise.all([categoriesPromise, ensureServicesCache()]).then(async ([, services]) => {
+                        currentServices = services;
+                        await prefillBookingSelection({ serviceId: prefillServiceId, category: prefillCategory });
+                    });
+                }
             }
         }
 
@@ -626,11 +678,16 @@
             }
 
             const artistId = a.dataset.artistId ? String(a.dataset.artistId) : null;
-            if (artistId) {
-                window.openBooking({ artistId });
-            } else {
-                window.openBooking();
-            }
+            const serviceId = a.dataset.serviceId ? String(a.dataset.serviceId) : null;
+            const category = a.dataset.category ? String(a.dataset.category) : null;
+
+            /** @type {{artistId?:string,serviceId?:string,category?:string}} */
+            const opts = {};
+            if (artistId) opts.artistId = artistId;
+            if (serviceId) opts.serviceId = serviceId;
+            if (category) opts.category = category;
+
+            window.openBooking(opts);
         });
     })();
 

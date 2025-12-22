@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Repository\ArtistPostRepository;
 use App\Repository\ArtistProfileRepository;
+use App\Repository\ServiceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class SitemapController extends AbstractController
 {
@@ -15,6 +17,8 @@ final class SitemapController extends AbstractController
     public function sitemap(
         ArtistProfileRepository $artistProfileRepository,
         ArtistPostRepository $artistPostRepository,
+        ServiceRepository $serviceRepository,
+        SluggerInterface $slugger,
     ): Response {
         $urls = [];
 
@@ -42,6 +46,12 @@ final class SitemapController extends AbstractController
             $addUrl($this->generateUrl('app_blog_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
         }
 
+        // Services index + category pages
+        $addUrl($this->generateUrl('app_service_index', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
+        foreach (['hair', 'makeup', 'nails'] as $cat) {
+            $addUrl($this->generateUrl('app_service_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
+        }
+
         // --- Dynamic pages: artists + published posts ---
         try {
             foreach ($artistProfileRepository->findAll() as $artist) {
@@ -67,6 +77,32 @@ final class SitemapController extends AbstractController
                 $addUrl(
                     $this->generateUrl('app_blog_show', ['id' => $id, 'slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
                     $last,
+                    'monthly',
+                    0.6
+                );
+            }
+        } catch (\Throwable) {
+            // If DB is temporarily unavailable, keep sitemap functional with static URLs.
+        }
+
+        // Services (dynamic)
+        try {
+            foreach ($serviceRepository->findAll() as $service) {
+                $id = $service->getId();
+                $name = trim((string) $service->getName());
+                if (!$id || $name === '') {
+                    continue;
+                }
+
+                $slug = trim($slugger->slug($name)->lower()->toString(), '-');
+                if ($slug === '') {
+                    $cat = trim((string) $service->getCategory());
+                    $slug = $cat !== '' ? $cat . '-service' : 'service';
+                }
+
+                $addUrl(
+                    $this->generateUrl('app_service_show', ['id' => $id, 'slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
+                    null,
                     'monthly',
                     0.6
                 );

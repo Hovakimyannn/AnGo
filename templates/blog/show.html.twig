@@ -68,7 +68,7 @@
                     <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mt-3">{{ post.title }}</h1>
                     <div class="flex flex-wrap items-center gap-2 mt-4">
                         {% for s in post.services %}
-                            <a href="{{ path('app_blog_category', {category: s.category}) ~ '?service=' ~ s.id }}"
+                            <a href="{{ path('app_service_show_id', {id: s.id}) }}"
                                class="text-xs font-semibold bg-pink-50 text-pink-700 px-2 py-1 rounded-full border border-pink-100 hover:bg-pink-100 transition">
                                 {{ s.name }}
                             </a>

@@ -22,6 +22,10 @@ class ArtistController extends AbstractController
     public function index(Request $request, ArtistProfileRepository $artistRepository): Response
     {
         $category = $request->query->get('category');
+        if ($category && !in_array($category, ['hair', 'nails', 'makeup'], true)) {
+            $category = null;
+        }
+
         $categoryLabels = [
             'hair' => 'Վարսահարդարներ',
             'nails' => 'Մատնահարդարներ',

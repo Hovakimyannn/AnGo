@@ -1,0 +1,265 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ service.name }} — {{ categoryLabel }} | AnGo{% endblock %}
+{% block meta_description %}
+    {% set __price = service.price|number_format(0, '.', ' ') %}
+    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Աբովյան)։ Տևողություն՝ {{ service.durationMinutes }} րոպե, գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
+{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __ango_site_url = absolute_url(path('app_home')) %}
+    {% set __page_url = absolute_url(app.request.pathinfo) %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [
+                {
+                    '@type': 'BreadcrumbList',
+                    'itemListElement': [
+                        {
+                            '@type': 'ListItem',
+                            'position': 1,
+                            'name': 'Գլխավոր',
+                            'item': __ango_site_url
+                        },
+                        {
+                            '@type': 'ListItem',
+                            'position': 2,
+                            'name': 'Ծառայություններ',
+                            'item': absolute_url(path('app_service_index'))
+                        },
+                        {
+                            '@type': 'ListItem',
+                            'position': 3,
+                            'name': service.name,
+                            'item': __page_url
+                        }
+                    ]
+                },
+                {
+                    '@type': 'Service',
+                    '@id': __page_url ~ '#service',
+                    'name': service.name,
+                    'serviceType': categoryLabel,
+                    'provider': { '@id': __ango_site_url ~ '#localbusiness' },
+                    'offers': {
+                        '@type': 'Offer',
+                        'price': service.price,
+                        'priceCurrency': 'AMD'
+                    }
+                }
+            ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
+
+{% block body %}
+    <div class="bg-white">
+        <div class="container mx-auto px-4 py-12">
+            <nav class="text-sm text-gray-500 mb-6">
+                <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+                <span class="mx-2">/</span>
+                <a href="{{ path('app_service_index') }}" class="hover:text-pink-600 transition">Ծառայություններ</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-800 font-semibold">{{ service.name }}</span>
+            </nav>
+
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+                <div class="max-w-3xl">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">{{ service.name }}</h1>
+                    <div class="flex flex-wrap items-center gap-2 mt-4">
+                        <a href="{{ path('app_service_category', {category: categoryKey}) }}"
+                           class="text-xs font-semibold bg-pink-50 text-pink-700 px-3 py-1 rounded-full border border-pink-100 hover:bg-pink-100 transition">
+                            {{ categoryLabel }}
+                        </a>
+                        <span class="text-xs font-semibold bg-gray-50 text-gray-700 px-3 py-1 rounded-full border border-gray-200">
+                            {{ service.durationMinutes }} րոպե
+                        </span>
+                        <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full">
+                            {{ service.price|number_format(0, '.', ' ') }} ֏
+                        </span>
+                    </div>
+
+                    <div class="mt-6 text-gray-600 leading-relaxed">
+                        <p>
+                            Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, վարպետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
+                        </p>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-[360px]">
+                    <div class="rounded-2xl border bg-gray-50 p-6 lg:sticky lg:top-24">
+                        <div class="text-sm text-gray-500">Ամրագրում</div>
+                        <div class="text-lg font-bold text-gray-900 mt-1">Ամրագրեք այցը առցանց</div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            Կարող եք ընտրել վարպետին և հարմար ժամ։
+                        </p>
+                        <a href="#booking"
+                           data-category="{{ categoryKey }}"
+                           data-service-id="{{ service.id }}"
+                           class="mt-5 inline-flex w-full items-center justify-center bg-gray-900 text-white px-5 py-3 rounded-xl hover:bg-pink-600 transition font-semibold">
+                            Ամրագրել հիմա
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <div class="lg:col-span-2">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Օրինակ աշխատանքներ</h2>
+
+                    {% if posts is not empty %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for post in posts|slice(0, 8) %}
+                                <a href="{{ path('app_blog_show', {id: post.id, slug: post.slug}) }}"
+                                   class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
+                                    <div class="relative h-48 bg-gray-100 overflow-hidden">
+                                        {% if post.imageUrl %}
+                                            <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                                 alt="{{ post.title }}"
+                                                 loading="lazy"
+                                                 decoding="async"
+                                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                                                <i class="fas fa-image text-3xl"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="p-5 space-y-2">
+                                        <div class="text-xs text-gray-400">
+                                            {{ post.publishedAt ? post.publishedAt|date('Y-m-d') : post.createdAt|date('Y-m-d') }}
+                                        </div>
+                                        <h3 class="font-bold text-gray-900 group-hover:text-pink-600 transition">
+                                            {{ post.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600">
+                                            {{ post.excerpt(140) }}
+                                        </p>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+
+                        {% if posts|length > 8 %}
+                            <div class="mt-6">
+                                <a href="{{ path('app_blog_category', {category: categoryKey}) ~ '?service=' ~ service.id }}"
+                                   class="text-sm font-semibold text-pink-600 hover:underline">
+                                    Տեսնել բոլորը բլոգում →
+                                </a>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="rounded-2xl border bg-gray-50 p-6 text-gray-600">
+                            Այս ծառայության համար դեռ օրինակ աշխատանքներ չկան։
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Վարպետներ</h2>
+
+                    {% set artists = service.artistProfiles %}
+                    {% if artists is not empty %}
+                        <div class="space-y-4">
+                            {% for artist in artists %}
+                                <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition">
+                                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                                       class="flex items-center gap-4 min-w-0">
+                                        <div class="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
+                                            {% if artist.photoUrl %}
+                                                {% set __v = asset_version('uploads/photos/' ~ artist.photoUrl) %}
+                                                {% set __base = path('app_image_photo', { filename: artist.photoUrl }) %}
+                                                <picture>
+                                                    <source
+                                                        type="image/webp"
+                                                        srcset="
+                                                            {{ __base ~ '?w=56&fmt=webp&v=' ~ __v }} 56w,
+                                                            {{ __base ~ '?w=112&fmt=webp&v=' ~ __v }} 112w
+                                                        "
+                                                        sizes="56px"
+                                                    >
+                                                    <img
+                                                        src="{{ __base ~ '?w=112&fmt=jpg&v=' ~ __v }}"
+                                                        width="56"
+                                                        height="56"
+                                                        alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
+                                                        class="w-full h-full object-cover"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                    >
+                                                </picture>
+                                            {% else %}
+                                                <i class="fas fa-user text-gray-300 text-xl" aria-hidden="true"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-gray-900 truncate">
+                                                {{ artist.user.firstName }} {{ artist.user.lastName }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                {{ artist.specialization }}
+                                            </div>
+                                        </div>
+                                    </a>
+
+                                    <a href="#booking"
+                                       data-artist-id="{{ artist.id }}"
+                                       data-service-id="{{ service.id }}"
+                                       data-category="{{ categoryKey }}"
+                                       class="shrink-0 relative z-20 inline-flex items-center justify-center rounded-full bg-gray-900 text-white px-4 py-2 text-xs font-bold hover:bg-pink-600 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-200">
+                                        Ամրագրել
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="rounded-2xl border bg-gray-50 p-6 text-gray-600">
+                            Այս ծառայությունը դեռ կապված չէ որևէ վարպետի հետ։
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if relatedServiceCards is defined and relatedServiceCards|length %}
+                <div class="mt-14 border-t pt-10">
+                    <div class="flex items-center justify-between gap-4 mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Այլ ծառայություններ</h2>
+                        <a href="{{ path('app_service_category', {category: categoryKey}) }}" class="text-sm font-semibold text-pink-600 hover:underline">
+                            Տեսնել բոլորը →
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {% for card in relatedServiceCards %}
+                            {% set s = card.service %}
+                            <a href="{{ path('app_service_show', {id: s.id, slug: card.slug}) }}"
+                               class="group bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl transition p-6">
+                                <div class="text-lg font-bold text-gray-900 group-hover:text-pink-600 transition">
+                                    {{ s.name }}
+                                </div>
+                                <div class="mt-2 flex items-center justify-between text-sm text-gray-500">
+                                    <div class="inline-flex items-center gap-2">
+                                        <i class="far fa-clock text-gray-400" aria-hidden="true"></i>
+                                        <span>{{ s.durationMinutes }} րոպե</span>
+                                    </div>
+                                    <div class="font-extrabold text-gray-900">
+                                        {{ s.price|number_format(0, '.', ' ') }} ֏
+                                    </div>
+                                </div>
+                                <div class="mt-4 text-sm font-semibold text-gray-900 group-hover:text-pink-600 transition">
+                                    Տեսնել →
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+

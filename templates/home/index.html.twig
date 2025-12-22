@@ -166,7 +166,7 @@
                 <!-- Վարսահարդարում -->
                 {% set __hair_title = (homeSettings is defined and homeSettings and homeSettings.serviceHairTitle) ? homeSettings.serviceHairTitle : 'Վարսահարդարում' %}
                 {% set __hair_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceHairSubtitle) ? homeSettings.serviceHairSubtitle : 'Կտրվածքներ, ներկում և խնամք' %}
-                <a href="{{ path('app_blog_category', {category: 'hair'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
+                <a href="{{ path('app_service_category', {category: 'hair'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceHairImage %}
                         {% set hair = homeSettings.serviceHairImage %}
                         <picture>
@@ -223,7 +223,7 @@
                 <!-- Դիմահարդարում -->
                 {% set __makeup_title = (homeSettings is defined and homeSettings and homeSettings.serviceMakeupTitle) ? homeSettings.serviceMakeupTitle : 'Դիմահարդարում' %}
                 {% set __makeup_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceMakeupSubtitle) ? homeSettings.serviceMakeupSubtitle : 'Երեկոյան և ամենօրյա make-up' %}
-                <a href="{{ path('app_blog_category', {category: 'makeup'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
+                <a href="{{ path('app_service_category', {category: 'makeup'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceMakeupImage %}
                         {% set makeup = homeSettings.serviceMakeupImage %}
                         <picture>
@@ -280,7 +280,7 @@
                 <!-- Մատնահարդարում -->
                 {% set __nails_title = (homeSettings is defined and homeSettings and homeSettings.serviceNailsTitle) ? homeSettings.serviceNailsTitle : 'Մատնահարդարում' %}
                 {% set __nails_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceNailsSubtitle) ? homeSettings.serviceNailsSubtitle : 'Մանիկյուր և Պեդիկյուր' %}
-                <a href="{{ path('app_blog_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
+                <a href="{{ path('app_service_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceNailsImage %}
                         {% set nails = homeSettings.serviceNailsImage %}
                         <picture>

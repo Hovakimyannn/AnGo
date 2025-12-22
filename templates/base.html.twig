@@ -6,7 +6,9 @@
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
     <title>{% block title %}AnGo{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
-    <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
+    {% block canonical %}
+        <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
+    {% endblock %}
 
     {# Favicons (Google Search often falls back to /favicon.ico; include ICO + PNG sizes) #}
     <link rel="icon" href="{{ asset('favicon.ico') }}">
@@ -200,7 +202,7 @@
                 </div>
             </div>
 
-            <a href="{{ path('app_home') }}#our-services" class="hover:text-pink-600 transition">Ծառայություններ</a>
+            <a href="{{ path('app_service_index') }}" class="hover:text-pink-600 transition">Ծառայություններ</a>
             <a href="{{ path('app_home') }}#about" class="hover:text-pink-600 transition">Մեր մասին</a>
             <a href="{{ path('app_home') }}#contact" class="hover:text-pink-600 transition">Կապ</a>
             <a href="{{ path('app_blog_index') }}" class="hover:text-pink-600 transition">Բլոգ</a>
@@ -246,7 +248,7 @@
                 <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Դիմահարդարներ</a>
             </div>
         </div>
-        <a href="{{ path('app_home') }}#our-services" class="block px-6 py-3 border-b hover:bg-gray-50">Ծառայություններ</a>
+        <a href="{{ path('app_service_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Ծառայություններ</a>
         <a href="{{ path('app_home') }}#about" class="block px-6 py-3 border-b hover:bg-gray-50">Մեր մասին</a>
         <a href="{{ path('app_home') }}#contact" class="block px-6 py-3 border-b hover:bg-gray-50">Կապ</a>
         <a href="{{ path('app_blog_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Բլոգ</a>

@@ -3,6 +3,15 @@
 {% block title %}{{ category }} | AnGo{% endblock %}
 {% block meta_description %}AnGo վարպետներ՝ {{ category }}։ Տեսեք մեր վարպետներին և ամրագրեք այցը առցանց։{% endblock %}
 
+{% block canonical %}
+    {% set __cat = app.request.query.get('category') %}
+    {% if __cat in ['hair', 'nails', 'makeup'] %}
+        <link rel="canonical" href="{{ absolute_url(path('app_artists', {category: __cat})) }}">
+    {% else %}
+        {{ parent() }}
+    {% endif %}
+{% endblock %}
+
 {% block structured_data %}
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
