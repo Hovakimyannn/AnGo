@@ -8,7 +8,10 @@
     <meta name="description" content="{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
     <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
 
-    {# Favicons (Google Search often ignores SVG-only favicons; include PNG sizes too) #}
+    {# Favicons (Google Search often falls back to /favicon.ico; include ICO + PNG sizes) #}
+    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v={{ asset_version('favicon.svg') }}">
     <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}?v={{ asset_version('favicon-48x48.png') }}">
     <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}?v={{ asset_version('favicon-96x96.png') }}">
     <link rel="icon" type="image/png" sizes="144x144" href="{{ asset('favicon-144x144.png') }}?v={{ asset_version('favicon-144x144.png') }}">
