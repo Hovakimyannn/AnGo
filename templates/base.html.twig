@@ -10,15 +10,13 @@
         <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
     {% endblock %}
 
-    {# Favicons (Google Search often falls back to /favicon.ico; include ICO + PNG sizes) #}
-    {# Favicons (Առանց տարբերակման և կրկնության) #}
-    <link rel="icon" href="{{ absolute_url(asset('favicon-512x512.ico')) }}">
-    <link rel="shortcut icon" href="{{ absolute_url(asset('favicon-512x512.ico')) }}">
-    <link rel="icon" type="image/png" sizes="48x48" href="{{ absolute_url(asset('favicon-48x48.png')) }}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{{ absolute_url(asset('favicon-96x96.png')) }}">
-    <link rel="icon" type="image/png" sizes="144x144" href="{{ absolute_url(asset('favicon-144x144.png')) }}">
-    <link rel="icon" type="image/png" sizes="192x192" href="{{ absolute_url(asset('favicon-192x192.png')) }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ absolute_url(asset('apple-touch-icon.png')) }}">
+    {# Favicons + manifest (served from /public) #}
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="AnGo" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#111827">
 
     {# Open Graph / social previews #}
