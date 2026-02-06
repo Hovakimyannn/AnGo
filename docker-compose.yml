@@ -1,14 +1,17 @@
-version: '3.8'
-
 services:
-  # Web Server
+  # Web Server (domain: ango-beauty.am; HTTPS: add default-ssl.conf + /etc/letsencrypt after certbot)
   nginx:
     image: nginx:alpine
     ports:
-      - "8085:80"  # Փոխեցինք 8085, որպեսզի 8080-ի հետ խնդիր չլինի
+      - "80:80"
+      - "443:443"
     volumes:
       - ./public:/var/www/html/public
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot-webroot:/var/www/certbot:ro
+      # Uncomment after obtaining Let's Encrypt certs (certbot --webroot -w ./certbot-webroot -d ango-beauty.am -d www.ango-beauty.am):
+      # - ./nginx/default-ssl.conf:/etc/nginx/conf.d/default-ssl.conf:ro
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - php
     networks:
@@ -35,7 +38,7 @@ services:
       POSTGRES_PASSWORD: postgres_password
       POSTGRES_DB: salon_db
     ports:
-      - "5432:5432"
+      - "5433:5432"   # host 5433 to avoid conflict with existing service on 5432
     volumes:
       - db_data:/var/lib/postgresql/data
     networks:
