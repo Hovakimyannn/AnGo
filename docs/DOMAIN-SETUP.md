@@ -137,17 +137,23 @@ Caddy will request and renew certificates automatically.
 
 ---
 
-### Option C: Docker nginx (domain + SSL inside Docker)
+### Option C: Docker nginx (server nginx-ը մնում է, միայն proxy է)
 
-The project’s **Docker nginx** can serve **ango-beauty.am** on ports 80 and 443 directly (no host reverse proxy).
+AnGo-ն աշխատում է **Docker nginx**-ում (8080); **server nginx**-ը 80-ում մնում է և միայն ango.beauty-ն proxy է անում Docker-ին (80 → 127.0.0.1:8080). Այդպես certbot-ի challenge-ը էլ կհասնի Docker nginx-ին։
 
 **1. DNS**  
-Point `ango-beauty.am` and `www.ango-beauty.am` to your server IP (same as above).
+ango.beauty և www.ango.beauty → server IP.
 
-**2. Expose 80 and 443**  
-`docker-compose.yml` is set to map `80:80` and `443:443` for the nginx service. Ensure no other service on the host uses 80/443.
+**2. Server nginx-ում ավելացնել proxy**  
+Սերվերում ավելացրեք site (մի server block), որը ango.beauty-ն ուղարկում է Docker-ին:
 
-**3. Create certbot webroot and start stack**
+```bash
+sudo cp /root/app/AnGo/nginx/production-reverse-proxy.conf.example /etc/nginx/sites-available/ango.beauty
+sudo ln -s /etc/nginx/sites-available/ango.beauty /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+**3. Certbot webroot և stack**
 
 ```bash
 cd ~/app/AnGo
@@ -155,14 +161,13 @@ mkdir -p certbot-webroot
 docker compose up -d
 ```
 
-**4. Get Let’s Encrypt certs (on the host)**
+**4. Let’s Encrypt certs**
 
 ```bash
-sudo apt install -y certbot
-sudo certbot certonly --webroot -w /root/app/AnGo/certbot-webroot -d ango-beauty.am -d www.ango-beauty.am
+sudo certbot certonly --webroot -w /root/app/AnGo/certbot-webroot -d ango.beauty -d www.ango.beauty
 ```
 
-Certbot writes the challenge into `certbot-webroot`; Docker nginx serves `/.well-known/acme-challenge/` from that dir.
+Request-ը գնում է ango.beauty:80 → server nginx → 127.0.0.1:8080 (Docker nginx) → `/.well-known/acme-challenge/` from certbot-webroot.
 
 **5. Enable HTTPS in Docker nginx**
 

@@ -3,7 +3,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "8080:80"   # host 8080 (80 in use); use reverse proxy on host to forward 80/443 → 8080, or free port 80 and use "80:80" "443:443"
+      - "8080:80"   # host 8080; server nginx proxies ango.beauty:80 → 127.0.0.1:8080
       - "8443:443"
     volumes:
       - ./public:/var/www/html/public

@@ -1,17 +1,17 @@
-# Nginx reverse proxy for ango-beauty.am (host, not inside Docker).
-# Copy to server: /etc/nginx/sites-available/ango-beauty.am
-# Then: sudo ln -s /etc/nginx/sites-available/ango-beauty.am /etc/nginx/sites-enabled/
-#       sudo nginx -t && sudo systemctl reload nginx
-# Get SSL: sudo certbot --nginx -d ango-beauty.am -d www.ango-beauty.am
+# Server nginx: միայն proxy ango.beauty → Docker (Docker nginx-ը 8080-ում).
+# Server nginx-ը մնում է 80-ում; AnGo-ն աշխատում է Docker-ում, 80-ի request-ները
+# այս config-ով գնում են 127.0.0.1:8080 (certbot-ի challenge-ը էլ կաշխատի).
 #
-# Docker app is assumed to listen on 127.0.0.1:8085.
+# Սերվերում: sudo cp .../production-reverse-proxy.conf.example /etc/nginx/sites-available/ango.beauty
+#            sudo ln -s .../ango.beauty /etc/nginx/sites-enabled/
+#            sudo nginx -t && sudo systemctl reload nginx
 
 server {
     listen 80;
-    server_name ango-beauty.am www.ango-beauty.am;
+    server_name ango.beauty www.ango.beauty;
 
     location / {
-        proxy_pass http://127.0.0.1:8085;
+        proxy_pass http://127.0.0.1:8080;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
