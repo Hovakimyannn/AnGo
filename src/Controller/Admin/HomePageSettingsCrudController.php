@@ -58,6 +58,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setHeroPrimaryButtonLabel('Ամրագրել Այց')
             ->setHeroSecondaryButtonLabel('Տեսնել Վարպետներին')
             ->setServicesTitle('Մեր Ծառայությունները')
+            ->setServicesSubtitle('Աբովյանում (Abovyanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։')
             ->setServiceHairTitle('Վարսահարդարում')
             ->setServiceHairSubtitle('Կտրվածքներ, ներկում և խնամք')
             ->setServiceMakeupTitle('Դիմահարդարում')
@@ -129,6 +130,10 @@ final class HomePageSettingsCrudController extends AbstractCrudController
 
         yield FormField::addTab('Ծառայություններ');
         yield TextField::new('servicesTitle', 'Section վերնագիր')
+            ->setHelp('Օր. «Մեր Ծառայությունները»')
+            ->setRequired(false);
+        yield TextareaField::new('servicesSubtitle', 'Section նկարագրություն (պարագրաֆ վերնագրի տակ)')
+            ->setHelp('Կարճ տեքստ ծառայությունների ցանկի մասին, օր. Աբովյանում AnGo-ում՝ Վարսահարդարում, Մատնահարդարում...')
             ->setRequired(false);
 
         yield ImageField::new('serviceHairImage', 'Ծառայություն՝ Վարսահարդարում')

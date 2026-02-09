@@ -46,6 +46,9 @@ class HomePageSettings
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $servicesTitle = null;
 
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $servicesSubtitle = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $serviceHairTitle = null;
 
@@ -224,6 +227,18 @@ class HomePageSettings
     public function setServicesTitle(?string $servicesTitle): static
     {
         $this->servicesTitle = $servicesTitle;
+
+        return $this;
+    }
+
+    public function getServicesSubtitle(): ?string
+    {
+        return $this->servicesSubtitle;
+    }
+
+    public function setServicesSubtitle(?string $servicesSubtitle): static
+    {
+        $this->servicesSubtitle = $servicesSubtitle;
 
         return $this;
     }

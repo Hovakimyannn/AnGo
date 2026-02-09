@@ -158,11 +158,10 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 {% set __services_title = (homeSettings is defined and homeSettings and homeSettings.servicesTitle) ? homeSettings.servicesTitle : 'Մեր Ծառայությունները' %}
+                {% set __services_subtitle = (homeSettings is defined and homeSettings and homeSettings.servicesSubtitle is not empty) ? homeSettings.servicesSubtitle : 'Աբովյանում (Abovyanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։' %}
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __services_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
-                <p class="text-gray-500 max-w-2xl mx-auto mt-4">
-                    Աբովյանում (Abovyanum) AnGo-ում՝ Varsahardarum, Matnahardarum և Dimahardarum․ նաև մազերի խնամք (Mazeri xnamq) ու մանիկյուր՝ Shellac-ով։
-                </p>
+                <p class="text-gray-500 max-w-2xl mx-auto mt-4">{{ __services_subtitle }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
