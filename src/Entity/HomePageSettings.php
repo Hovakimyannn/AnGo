@@ -106,6 +106,19 @@ class HomePageSettings
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $contactHoursLine2 = null;
 
+    // --- FOOTER (same as contact + extra) ---
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $footerTagline = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $contactInstagramUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $contactFacebookUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $contactCopyrightText = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -455,6 +468,54 @@ class HomePageSettings
     public function setContactHoursLine2(?string $contactHoursLine2): static
     {
         $this->contactHoursLine2 = $contactHoursLine2;
+
+        return $this;
+    }
+
+    public function getFooterTagline(): ?string
+    {
+        return $this->footerTagline;
+    }
+
+    public function setFooterTagline(?string $footerTagline): static
+    {
+        $this->footerTagline = $footerTagline;
+
+        return $this;
+    }
+
+    public function getContactInstagramUrl(): ?string
+    {
+        return $this->contactInstagramUrl;
+    }
+
+    public function setContactInstagramUrl(?string $contactInstagramUrl): static
+    {
+        $this->contactInstagramUrl = $contactInstagramUrl;
+
+        return $this;
+    }
+
+    public function getContactFacebookUrl(): ?string
+    {
+        return $this->contactFacebookUrl;
+    }
+
+    public function setContactFacebookUrl(?string $contactFacebookUrl): static
+    {
+        $this->contactFacebookUrl = $contactFacebookUrl;
+
+        return $this;
+    }
+
+    public function getContactCopyrightText(): ?string
+    {
+        return $this->contactCopyrightText;
+    }
+
+    public function setContactCopyrightText(?string $contactCopyrightText): static
+    {
+        $this->contactCopyrightText = $contactCopyrightText;
 
         return $this;
     }

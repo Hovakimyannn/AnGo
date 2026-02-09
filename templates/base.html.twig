@@ -289,37 +289,45 @@
     {% block body %}{% endblock %}
 </main>
 
-{# --- FOOTER --- #}
+{# --- FOOTER (admin: Home էջի կարգավորումներ → Կապ / Footer) --- #}
+{% set _footer_tagline = (home_settings is defined and home_settings and home_settings.footerTagline is not empty) ? home_settings.footerTagline : "Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Աբովյանում։" %}
+{% set _footer_address = (home_settings is defined and home_settings and home_settings.contactAddress is not empty) ? home_settings.contactAddress : 'Ք.Աբովյան, Սարալանջի 22' %}
+{% set _footer_phone = (home_settings is defined and home_settings and home_settings.contactPhone is not empty) ? home_settings.contactPhone : '+374 94 64 99 24' %}
+{% set _footer_hours1 = (home_settings is defined and home_settings and home_settings.contactHoursLine1 is not empty) ? home_settings.contactHoursLine1 : 'Երկ - Շաբ: 10:00 - 20:00' %}
+{% set _footer_hours2 = (home_settings is defined and home_settings and home_settings.contactHoursLine2 is not empty) ? home_settings.contactHoursLine2 : 'Կիր: 11:00 - 18:00' %}
+{% set _footer_instagram = (home_settings is defined and home_settings and home_settings.contactInstagramUrl is not empty) ? home_settings.contactInstagramUrl : 'https://www.instagram.com/angobeauty__/' %}
+{% set _footer_facebook = (home_settings is defined and home_settings and home_settings.contactFacebookUrl is not empty) ? home_settings.contactFacebookUrl : 'https://www.facebook.com/profile.php?id=61580633960341' %}
+{% set _footer_copyright = (home_settings is defined and home_settings and home_settings.contactCopyrightText is not empty) ? home_settings.contactCopyrightText : 'Բոլոր իրավունքները պաշտպանված են։' %}
 <footer class="bg-gray-900 text-white py-12">
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
             <h3 class="text-xl font-bold mb-4 text-pink-500">AnGo</h3>
-            <p class="text-gray-400 text-sm">Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։ Լավագույն մասնագետները Աբովյանում։</p>
+            <p class="text-gray-400 text-sm">{{ _footer_tagline|nl2br }}</p>
         </div>
         <div>
             <h4 class="font-bold mb-4">Հասցե</h4>
-            <p class="text-gray-400 text-sm"><i class="fas fa-map-marker-alt mr-2"></i> Ք.Աբովյան, Սարալանջի 22</p>
-            <p class="text-gray-400 text-sm mt-2"><i class="fas fa-phone mr-2"></i> +374 94 64 99 24</p>
+            <p class="text-gray-400 text-sm"><i class="fas fa-map-marker-alt mr-2"></i> {{ _footer_address }}</p>
+            <p class="text-gray-400 text-sm mt-2"><i class="fas fa-phone mr-2"></i> {{ _footer_phone }}</p>
         </div>
         <div>
             <h4 class="font-bold mb-4">Աշխատանքային ժամեր</h4>
-            <p class="text-gray-400 text-sm">Երկ - Շաբ: 10:00 - 20:00</p>
-            <p class="text-gray-400 text-sm">Կիր: 11:00 - 18:00</p>
+            <p class="text-gray-400 text-sm">{{ _footer_hours1 }}</p>
+            <p class="text-gray-400 text-sm">{{ _footer_hours2 }}</p>
         </div>
         <div>
             <h4 class="font-bold mb-4">Սոցիալական</h4>
             <div class="flex space-x-4">
-                <a href="https://www.instagram.com/angobeauty__/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" class="hover:text-pink-500 transition">
+                <a href="{{ _footer_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" class="hover:text-pink-500 transition">
                     <i class="fab fa-instagram text-2xl" aria-hidden="true"></i>
                 </a>
-                <a href="https://www.facebook.com/profile.php?id=61580633960341" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" class="hover:text-pink-500 transition">
+                <a href="{{ _footer_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" class="hover:text-pink-500 transition">
                     <i class="fab fa-facebook text-2xl" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
     </div>
     <div class="text-center mt-12 pt-8 border-t border-gray-800 text-xs text-gray-300">
-        &copy; {{ "now"|date("Y") }} AnGo. Բոլոր իրավունքները պաշտպանված են։
+        &copy; {{ "now"|date("Y") }} AnGo. {{ _footer_copyright }}
     </div>
 </footer>
 

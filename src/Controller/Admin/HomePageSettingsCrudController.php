@@ -76,7 +76,11 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setContactAddress('Ք.Աբովյան, Սարալանջի 22')
             ->setContactPhone('+374 94 64 99 24')
             ->setContactHoursLine1('Երկ - Շաբ: 10:00 - 20:00')
-            ->setContactHoursLine2('Կիր: 11:00 - 18:00');
+            ->setContactHoursLine2('Կիր: 11:00 - 18:00')
+            ->setFooterTagline("Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Աբովյանում։")
+            ->setContactInstagramUrl('https://www.instagram.com/angobeauty__/')
+            ->setContactFacebookUrl('https://www.facebook.com/profile.php?id=61580633960341')
+            ->setContactCopyrightText('Բոլոր իրավունքները պաշտպանված են։');
 
         return $settings;
     }
@@ -186,12 +190,20 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setHelp('Յուրաքանչյուր տողը կդառնա մեկ կետ (օր՝ Պրոֆեսիոնալ վարպետներ)')
             ->setRequired(false);
 
-        yield FormField::addTab('Կապ');
+        yield FormField::addTab('Կապ / Footer');
         yield TextField::new('contactTitle', 'Section վերնագիր')->setRequired(false);
         yield TextField::new('contactAddress', 'Հասցե')->setRequired(false);
         yield TextField::new('contactPhone', 'Հեռախոս')->setRequired(false);
         yield TextField::new('contactHoursLine1', 'Աշխատանքային ժամեր (տող 1)')->setRequired(false);
         yield TextField::new('contactHoursLine2', 'Աշխատանքային ժամեր (տող 2)')->setRequired(false);
+        yield TextareaField::new('footerTagline', 'Footer՝ AnGo բլոկի տեքստ')
+            ->setHelp('Կարճ նկարագրություն footer-ի առաջին սյունակում (AnGo)')
+            ->setRequired(false);
+        yield TextField::new('contactInstagramUrl', 'Instagram URL')->setRequired(false);
+        yield TextField::new('contactFacebookUrl', 'Facebook URL')->setRequired(false);
+        yield TextField::new('contactCopyrightText', 'Footer copyright տեքստ')
+            ->setHelp('Օր. «Բոլոր իրավունքները պաշտպանված են։» Տարին ավտոմատ ավելանում է։')
+            ->setRequired(false);
     }
 }
 
