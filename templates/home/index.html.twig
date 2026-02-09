@@ -78,8 +78,8 @@
 {% endblock %}
 
 {% block body %}
-    {# --- HERO SECTION --- #}
-    <div class="relative h-[600px] flex items-center justify-center overflow-hidden">
+    {# --- HERO SECTION (‑mt‑16 so it starts under header, no gray band above) --- #}
+    <div class="relative h-[600px] flex items-center justify-center overflow-hidden -mt-16">
         {# Background Image with Overlay #}
         <div class="absolute inset-0 z-0">
             {% if homeSettings is defined and homeSettings and homeSettings.heroImage %}
