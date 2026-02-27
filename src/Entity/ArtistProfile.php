@@ -14,6 +14,7 @@ class ArtistProfile
         'hair' => 'Վարսահարդարում',
         'makeup' => 'Դիմահարդարում',
         'nails' => 'Մատնահարդարում',
+        'pedicure' => 'Ոտնահարդարում',
     ];
 
     #[ORM\Id]
@@ -91,7 +92,7 @@ class ArtistProfile
             return '';
         }
 
-        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3, 'pedicure' => 4];
         $best = array_key_first($keys);
         foreach (array_keys($keys) as $k) {
             if (($order[$k] ?? 99) < ($order[$best] ?? 99)) {

@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class BlogController extends AbstractController
 {
     #[Route('/blog', name: 'app_blog_index')]
-    #[Route('/blog/{category}', name: 'app_blog_category', requirements: ['category' => 'hair|nails|makeup'], defaults: ['category' => null])]
+    #[Route('/blog/{category}', name: 'app_blog_category', requirements: ['category' => 'hair|nails|pedicure|makeup'], defaults: ['category' => null])]
     public function index(
         ?string $category,
         Request $request,
@@ -39,6 +39,7 @@ class BlogController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 

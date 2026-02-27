@@ -22,13 +22,14 @@ class ArtistController extends AbstractController
     public function index(Request $request, ArtistProfileRepository $artistRepository): Response
     {
         $category = $request->query->get('category');
-        if ($category && !in_array($category, ['hair', 'nails', 'makeup'], true)) {
+        if ($category && !in_array($category, ['hair', 'nails', 'pedicure', 'makeup'], true)) {
             $category = null;
         }
 
         $categoryLabels = [
             'hair' => 'Վարսահարդարներ',
             'nails' => 'Մատնահարդարներ',
+            'pedicure' => 'Ոտնահարդարներ',
             'makeup' => 'Դիմահարդարներ',
         ];
 
@@ -59,6 +60,7 @@ class ArtistController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 
@@ -70,7 +72,7 @@ class ArtistController extends AbstractController
                 $availableCategories[] = $cat;
             }
         }
-        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3, 'pedicure' => 4];
         usort($availableCategories, static fn (string $a, string $b) => ($order[$a] ?? 99) <=> ($order[$b] ?? 99));
 
         if ($category && !in_array($category, $availableCategories, true)) {

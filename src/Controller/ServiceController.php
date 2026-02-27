@@ -13,7 +13,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class ServiceController extends AbstractController
 {
     #[Route('/services', name: 'app_service_index', defaults: ['category' => null], methods: ['GET'])]
-    #[Route('/services/{category}', name: 'app_service_category', requirements: ['category' => 'hair|nails|makeup'], methods: ['GET'])]
+    #[Route('/services/{category}', name: 'app_service_category', requirements: ['category' => 'hair|nails|pedicure|makeup'], methods: ['GET'])]
     public function index(
         ?string $category = null,
         ServiceRepository $serviceRepository,
@@ -22,6 +22,7 @@ final class ServiceController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 
@@ -43,7 +44,7 @@ final class ServiceController extends AbstractController
             $grouped[$k][] = $card;
         }
 
-        $categoryOrder = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $categoryOrder = ['hair' => 1, 'makeup' => 2, 'nails' => 3, 'pedicure' => 4];
         uksort($grouped, static fn (string $a, string $b) => ($categoryOrder[$a] ?? 99) <=> ($categoryOrder[$b] ?? 99));
 
         return $this->render('service/index.html.twig', [
@@ -109,6 +110,7 @@ final class ServiceController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 

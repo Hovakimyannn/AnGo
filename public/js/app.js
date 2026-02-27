@@ -35,6 +35,7 @@
             { key: 'hair', label: 'Վարսահարդարում', order: 1 },
             { key: 'makeup', label: 'Դիմահարդարում', order: 2 },
             { key: 'nails', label: 'Մատնահարդարում', order: 3 },
+            { key: 'pedicure', label: 'Ոտնահարդարում', order: 4 },
         ];
 
         /** @type {Array<{key:string,label:string,order?:number}>} */

@@ -85,6 +85,7 @@ class ServiceCrudController extends AbstractCrudController
                 'Վարսահարդարում (hair)' => 'hair',
                 'Դիմահարդարում (makeup)' => 'makeup',
                 'Մատնահարդարում (nails)' => 'nails',
+                'Ոտնահարդարում (pedicure)' => 'pedicure',
             ];
         }
 

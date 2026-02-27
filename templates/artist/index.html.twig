@@ -6,7 +6,9 @@
     {% if __catKey == 'hair' %}
         ANGO վարսահարդարներ (վարսավիր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'nails' %}
-        ANGO մատնահարդարներ (մանիկյուր/պեդիկյուր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO մատնահարդարներ (մանիկյուր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+    {% elseif __catKey == 'pedicure' %}
+        ANGO ոտնահարդարներ (pedicure) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'makeup' %}
         ANGO դիմահարդարներ (makeup artist) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% else %}
@@ -16,7 +18,7 @@
 
 {% block canonical %}
     {% set __cat = app.request.query.get('category') %}
-    {% if __cat in ['hair', 'nails', 'makeup'] %}
+    {% if __cat in ['hair', 'nails', 'pedicure', 'makeup'] %}
         <link rel="canonical" href="{{ absolute_url(path('app_artists', {category: __cat})) }}">
     {% else %}
         {{ parent() }}
@@ -33,6 +35,8 @@
         {% set __seo_keywords = 'varsahardar abovyanum, varsavir abovyan' %}
     {% elseif __catKey == 'nails' %}
         {% set __seo_keywords = 'matnahardar abovyanum, manikyur abovyan' %}
+    {% elseif __catKey == 'pedicure' %}
+        {% set __seo_keywords = 'otnahardar abovyanum, pedicure abovyan' %}
     {% elseif __catKey == 'makeup' %}
         {% set __seo_keywords = 'makeup artist abovyan, harsanekan dimahardarum' %}
     {% endif %}
@@ -86,7 +90,11 @@
                 </p>
             {% elseif __catKey == 'nails' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Մատնահարդարներ՝ մանիկյուր/պեդիկյուր, շելլակ, գել լաք։ Ընտրեք վարպետին և ամրագրեք այցը։
+                    Մատնահարդարներ՝ մանիկյուր, շելլակ, գել լաք։ Ընտրեք վարպետին և ամրագրեք այցը։
+                </p>
+            {% elseif __catKey == 'pedicure' %}
+                <p class="text-gray-500 max-w-3xl mx-auto">
+                    Ոտնահարդարներ՝ pedicure, խնամք և բուժական մոտեցում։ Ընտրեք վարպետին և ամրագրեք այցը։
                 </p>
             {% elseif __catKey == 'makeup' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
@@ -94,7 +102,7 @@
                 </p>
             {% else %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Մեր վարպետները՝ վարսահարդարում, մատնահարդարում և դիմահարդարում։ Ընտրեք մասնագետին և ամրագրեք այցը առցանց։
+                    Մեր վարպետները՝ վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure) և դիմահարդարում։ Ընտրեք մասնագետին և ամրագրեք այցը առցանց։
                 </p>
             {% endif %}
             <div class="w-24 h-1 bg-gray-200 mx-auto rounded-full"></div>

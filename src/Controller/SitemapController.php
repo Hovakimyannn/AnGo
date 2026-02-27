@@ -36,19 +36,19 @@ final class SitemapController extends AbstractController
 
         // Artists list (with optional category filters)
         $addUrl($this->generateUrl('app_artists', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
-        foreach (['hair', 'makeup', 'nails'] as $cat) {
+        foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
             $addUrl($this->generateUrl('app_artists', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
         }
 
         // Blog index + category pages
         $addUrl($this->generateUrl('app_blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
-        foreach (['hair', 'makeup', 'nails'] as $cat) {
+        foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
             $addUrl($this->generateUrl('app_blog_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
         }
 
         // Services index + category pages
         $addUrl($this->generateUrl('app_service_index', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
-        foreach (['hair', 'makeup', 'nails'] as $cat) {
+        foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
             $addUrl($this->generateUrl('app_service_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
         }
 

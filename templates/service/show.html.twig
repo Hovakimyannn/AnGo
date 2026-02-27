@@ -34,7 +34,6 @@
         {% set __seo_kw_list = [
             'Մատնահարդարում Աբովյանում',
             'Մանիկյուր',
-            'Պեդիկյուր',
             'Եղունգների ձևավորում'
         ] %}
         {% if ('շելլակ' in __nameLower) or ('shellac' in __nameLower) %}
@@ -44,6 +43,14 @@
             {% set __seo_kw_list = __seo_kw_list|merge(['Գել լաք (Gel lak)']) %}
         {% endif %}
         {% set __translit = 'matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+    {% elseif categoryKey == 'pedicure' %}
+        {% set __seo_kw_list = [
+            'Ոտնահարդարում Աբովյանում',
+            'Pedicure',
+            'Պեդիկյուր',
+            'Ոտքերի խնամք'
+        ] %}
+        {% set __translit = 'otnahardarum abovyanum, pedicure abovyan' %}
     {% elseif categoryKey == 'makeup' %}
         {% set __seo_kw_list = [
             'Դիմահարդարում Աբովյանում',

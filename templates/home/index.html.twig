@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ANGO — Gexeckutyan srah Abovyanum | Varsahardarum, Matnahardarum, Dimahardarum{% endblock %}
-{% block meta_description %}Gexeckutyan srah Abovyanum՝ Varsahardarum, Matnahardarum, Dimahardarum։ Mazeri xnamq, manikyur, Shellac։ Amragrel ayc online՝ ANGO (Saralanji 22, Abovyan)։{% endblock %}
+{% block title %}ANGO — Gexeckutyan srah Abovyanum | Varsahardarum, Matnahardarum, Otnahardarum, Dimahardarum{% endblock %}
+{% block meta_description %}Gexeckutyan srah Abovyanum՝ Varsahardarum, Matnahardarum, Otnahardarum (pedicure), Dimahardarum։ Mazeri xnamq, manikyur, Shellac։ Amragrel ayc online՝ ANGO (Saralanji 22, Abovyan)։{% endblock %}
 {% block head_extra %}
     {# Help mobile LCP by preloading the first visible artist photo (if present) #}
     {% if artists is defined and artists|length > 0 and artists[0].photoUrl %}
@@ -14,7 +14,7 @@
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
     {% set __ango_site_url = absolute_url(path('app_home')) %}
-    {% set __cat_labels = {'hair': 'Վարսահարդարում', 'nails': 'Մատնահարդարում', 'makeup': 'Դիմահարդարում'} %}
+    {% set __cat_labels = {'hair': 'Վարսահարդարում', 'nails': 'Մատնահարդարում', 'pedicure': 'Ոտնահարդարում', 'makeup': 'Դիմահարդարում'} %}
 
     {% set __offers = [] %}
     {% if services is defined %}
@@ -158,13 +158,13 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 {% set __services_title = (homeSettings is defined and homeSettings and homeSettings.servicesTitle) ? homeSettings.servicesTitle : 'Մեր Ծառայությունները' %}
-                {% set __services_subtitle = (homeSettings is defined and homeSettings and homeSettings.servicesSubtitle is not empty) ? homeSettings.servicesSubtitle : 'Աբովյանում (Abovyanum) ANGO-ում՝ Վարսահարդարում, Մատնահարդարում և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։' %}
+                {% set __services_subtitle = (homeSettings is defined and homeSettings and homeSettings.servicesSubtitle is not empty) ? homeSettings.servicesSubtitle : 'Աբովյանում (Abovyanum) ANGO-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։' %}
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __services_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
                 <p class="text-gray-500 max-w-2xl mx-auto mt-4">{{ __services_subtitle }}</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Վարսահարդարում -->
                 {% set __hair_title = (homeSettings is defined and homeSettings and homeSettings.serviceHairTitle) ? homeSettings.serviceHairTitle : 'Վարսահարդարում' %}
                 {% set __hair_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceHairSubtitle) ? homeSettings.serviceHairSubtitle : 'Կտրվածքներ, ներկում և խնամք' %}
@@ -281,7 +281,7 @@
                 </a>
                 <!-- Մատնահարդարում -->
                 {% set __nails_title = (homeSettings is defined and homeSettings and homeSettings.serviceNailsTitle) ? homeSettings.serviceNailsTitle : 'Մատնահարդարում' %}
-                {% set __nails_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceNailsSubtitle) ? homeSettings.serviceNailsSubtitle : 'Մանիկյուր և Պեդիկյուր' %}
+                {% set __nails_subtitle = (homeSettings is defined and homeSettings and homeSettings.serviceNailsSubtitle) ? homeSettings.serviceNailsSubtitle : 'Մանիկյուր, շելլակ, գել լաք' %}
                 <a href="{{ path('app_service_category', {category: 'nails'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
                     {% if homeSettings is defined and homeSettings and homeSettings.serviceNailsImage %}
                         {% set nails = homeSettings.serviceNailsImage %}
@@ -333,6 +333,32 @@
                         <h3 class="text-2xl font-bold text-white">{{ __nails_title }}</h3>
                         <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
                             {{ __nails_subtitle }}
+                        </p>
+                    </div>
+                </a>
+                <!-- Ոտնահարդարում -->
+                {% set __pedicure_title = 'Ոտնահարդարում' %}
+                {% set __pedicure_subtitle = 'Pedicure, խնամք և առողջացում' %}
+                <a href="{{ path('app_service_category', {category: 'pedicure'}) }}" class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer h-80 block">
+                    <img
+                        src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=360&q=60"
+                        srcset="
+                            https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=240&q=60 240w,
+                            https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=320&q=60 320w,
+                            https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=360&q=60 360w,
+                            https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=480&q=60 480w,
+                            https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=640&q=60 640w
+                        "
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        alt="Otnahardarum Abovyanum — pedicure, foot care | ANGO"
+                        class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+                        loading="lazy"
+                    >
+                    <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center p-6 text-center transition group-hover:bg-black/40">
+                        <i class="fas fa-shoe-prints text-4xl text-white mb-3"></i>
+                        <h3 class="text-2xl font-bold text-white">{{ __pedicure_title }}</h3>
+                        <p class="text-white/80 mt-2 opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">
+                            {{ __pedicure_subtitle }}
                         </p>
                     </div>
                 </a>

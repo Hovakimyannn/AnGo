@@ -23,11 +23,13 @@
     {% if category == 'hair' %}
         {% set __seo_keywords = 'Վարսահարդարում Աբովյանում, վարսավիր, մազերի խնամք, Վարսահարդարման գներ, varsahardarum abovyanum, varsavir abovyan, mazeri xnamq' %}
     {% elseif category == 'nails' %}
-        {% set __seo_keywords = 'Մատնահարդարում Աբովյանում, մանիկյուր, պեդիկյուր, շելլակ, գել լաք, маникюр Абовян, шеллак, гель лак, matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+        {% set __seo_keywords = 'Մատնահարդարում Աբովյանում, մանիկյուր, շելլակ, գել լաք, маникюр Абовян, шеллак, гель лак, matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+    {% elseif category == 'pedicure' %}
+        {% set __seo_keywords = 'Ոտնահարդարում Աբովյանում, pedicure, պեդիկյուր, педикюр Абовян, otnahardarum abovyanum, pedicure abovyan' %}
     {% elseif category == 'makeup' %}
         {% set __seo_keywords = 'Դիմահարդարում Աբովյանում, հարսանեկան դիմահարդարում, makeup artist, dimahardarum abovyanum, harsanekan dimahardarum, makeup artist abovyan' %}
     {% else %}
-        {% set __seo_keywords = 'Գեղեցկության սրահ Աբովյանում, Beauty salon Abovyan, ծառայություններ, գներ, առցանց ամրագրում, վարսահարդարում, մատնահարդարում, դիմահարդարում' %}
+        {% set __seo_keywords = 'Գեղեցկության սրահ Աբովյանում, Beauty salon Abovyan, ծառայություններ, գներ, առցանց ամրագրում, վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure), դիմահարդարում' %}
     {% endif %}
 
     {% set __pos = 0 %}
@@ -90,7 +92,8 @@
                                 { key: null, label: 'Բոլորը', href: path('app_service_index') },
                                 { key: 'hair', label: 'Վարսահարդարում', href: path('app_service_category', {category: 'hair'}) },
                                 { key: 'makeup', label: 'Դիմահարդարում', href: path('app_service_category', {category: 'makeup'}) },
-                                { key: 'nails', label: 'Մատնահարդարում', href: path('app_service_category', {category: 'nails'}) }
+                                { key: 'nails', label: 'Մատնահարդարում', href: path('app_service_category', {category: 'nails'}) },
+                                { key: 'pedicure', label: 'Ոտնահարդարում', href: path('app_service_category', {category: 'pedicure'}) }
                             ] %}
                             {% for t in tabs %}
                                 {% set isActive = (category is same as(t.key)) %}
