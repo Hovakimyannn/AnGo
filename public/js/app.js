@@ -788,6 +788,17 @@
             angoSwap(window.location.href, state.selector, false);
         });
     })();
+
+    // ---------------------------------------------------------------------
+    // Blog service filter dropdown (works after AJAX swaps)
+    // ---------------------------------------------------------------------
+    document.addEventListener('change', function (e) {
+        const select = e.target && e.target.id === 'blogServiceSelect' ? e.target : null;
+        if (!select) return;
+        if (select.value) {
+            window.location.href = select.value;
+        }
+    });
 })();
 
 
