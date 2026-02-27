@@ -58,7 +58,7 @@ final class UserMailer
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('Բարի գալուստ AnGo')
+            ->subject('Բարի գալուստ ANGO')
             ->text($this->buildWelcomeText($user, $loginUrl))
             ->html($this->buildWelcomeHtml($user, $loginUrl, $logoUrl));
 
@@ -99,7 +99,7 @@ final class UserMailer
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('Սահմանեք ձեր գաղտնաբառը (AnGo)')
+            ->subject('Սահմանեք ձեր գաղտնաբառը (ANGO)')
             ->text($this->buildAccountSetupText($user, $resetUrl))
             ->html($this->buildAccountSetupHtml($user, $resetUrl, $logoUrl))
         ;
@@ -141,7 +141,7 @@ final class UserMailer
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('Գաղտնաբառի վերականգնում (AnGo)')
+            ->subject('Գաղտնաբառի վերականգնում (ANGO)')
             ->text($this->buildPasswordResetText($user, $resetUrl))
             ->html($this->buildPasswordResetHtml($user, $resetUrl, $logoUrl))
         ;
@@ -218,12 +218,12 @@ final class UserMailer
         return trim(<<<TEXT
 Բարև {$name}։
 
-Ձեր հաշիվը ստեղծվել է AnGo համակարգում։
+Ձեր հաշիվը ստեղծվել է ANGO համակարգում։
 
 Մուտք գործելու համար բացեք՝ {$loginUrl}
 
 Շնորհակալություն,
-AnGo
+ANGO
 TEXT);
     }
 
@@ -235,9 +235,9 @@ TEXT);
         }
 
         return $this->buildButtonEmailHtml(
-            title: 'Բարի գալուստ AnGo',
+            title: 'Բարի գալուստ ANGO',
             name: $name,
-            bodyText: "Ձեր հաշիվը ստեղծվել է AnGo համակարգում։\n\nՄուտք գործելու համար սեղմեք կոճակը՝",
+            bodyText: "Ձեր հաշիվը ստեղծվել է ANGO համակարգում։\n\nՄուտք գործելու համար սեղմեք կոճակը՝",
             buttonText: 'Մուտք գործել',
             buttonUrl: $loginUrl,
             noteText: 'Եթե դուք չեք ստեղծել այս հաշիվը, դիմեք ադմինին։',

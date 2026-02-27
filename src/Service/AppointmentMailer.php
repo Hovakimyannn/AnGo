@@ -99,7 +99,7 @@ final class AppointmentMailer
 Տևողություն: {$duration}
 
 Շնորհակալություն,
-AnGo
+ANGO
 TEXT);
     }
 
@@ -128,7 +128,7 @@ TEXT);
 Տևողություն: {$duration}
 
 Շնորհակալություն,
-AnGo
+ANGO
 TEXT);
     }
 

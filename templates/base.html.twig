@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
-    <title>{% block title %}AnGo{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
+    <title>{% block title %}ANGO{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
     {% block canonical %}
         <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
     {% endblock %}
@@ -15,7 +15,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="AnGo" />
+    <meta name="apple-mobile-web-app-title" content="ANGO" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#111827">
 
@@ -24,9 +24,9 @@
     {% set __ango_page_desc = block('meta_description')|striptags|trim %}
     {% set __ango_page_url = absolute_url(app.request.pathinfo) %}
     {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png') ~ '?v=' ~ asset_version('uploads/photos/ango-logo.png')) %}
-    {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'AnGo' %}
+    {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'ANGO' %}
     {% set __ango_og_type = (__ango_og_type is defined and __ango_og_type) ? __ango_og_type : 'website' %}
-    <meta property="og:site_name" content="AnGo">
+    <meta property="og:site_name" content="ANGO">
     <meta property="og:title" content="{{ __ango_page_title }}">
     <meta property="og:description" content="{{ __ango_page_desc }}">
     <meta property="og:type" content="{{ __ango_og_type }}">
@@ -70,15 +70,15 @@
                         '@type': 'WebSite',
                         '@id': __ango_site_url ~ '#website',
                         'url': __ango_site_url,
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'inLanguage': 'hy-AM'
                     },
                     {
                         '@type': 'Organization',
                         '@id': __ango_site_url ~ '#organization',
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'alternateName': [
-                            'AnGo Beauty',
+                            'ANGO Beauty',
                             'Ango.beauty',
                             'Անգո Բյութի'
                         ],
@@ -95,14 +95,14 @@
                     {
                         '@type': 'BeautySalon',
                         '@id': __ango_site_url ~ '#localbusiness',
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'alternateName': [
-                            'AnGo Beauty',
+                            'ANGO Beauty',
                             'Ango.beauty',
                             'Անգո Բյութի',
-                            'AnGo Գեղեցկության սրահ',
-                            'AnGo beauty salon Abovyan',
-                            'AnGo gexeckutyan srah Abovyanum'
+                            'ANGO Գեղեցկության սրահ',
+                            'ANGO beauty salon Abovyan',
+                            'ANGO gexeckutyan srah Abovyanum'
                         ],
                         'description': 'Gexeckutyan srah Abovyanum (Saralanji 22, Abovyan) — Varsahardarum (varsavir), Matnahardarum (matnahardar), Dimahardarum (makeup / meyqap). Online booking: amragrel ayc.',
                         'url': __ango_site_url,
@@ -188,7 +188,7 @@
                         sizes="96px"
                         width="96"
                         height="56"
-                        alt="AnGo"
+                        alt="ANGO"
                         class="w-auto object-contain h-14 max-w-[220px]"
                         loading="eager"
                         decoding="async"
@@ -301,7 +301,7 @@
 <footer class="bg-gray-900 text-white py-12">
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
-            <h3 class="text-xl font-bold mb-4 text-pink-500">AnGo</h3>
+            <h3 class="text-xl font-bold mb-4 text-pink-500">ANGO</h3>
             <p class="text-gray-400 text-sm">{{ _footer_tagline|nl2br }}</p>
         </div>
         <div>
@@ -327,7 +327,7 @@
         </div>
     </div>
     <div class="text-center mt-12 pt-8 border-t border-gray-800 text-xs text-gray-300">
-        &copy; {{ "now"|date("Y") }} AnGo. {{ _footer_copyright }}
+        &copy; {{ "now"|date("Y") }} ANGO. {{ _footer_copyright }}
     </div>
 </footer>
 

@@ -6,7 +6,7 @@
     {% set __ango_og_image_alt = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
 {% endif %}
 
-{% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | AnGo{% endblock %}
+{% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | ANGO{% endblock %}
 {% block meta_description -%}
 {%- set fullName = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim -%}
 {%- set svcLimit = 4 -%}
@@ -16,9 +16,9 @@
 {%- endfor -%}
 {%- if svcBits -%}
     {%- set svcTail = (artist.services|length > svcLimit) ? ' և այլն' : '' -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում (AnGo)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Աբովյանում (ANGO)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- else -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Աբովյանում։ Ծառայություններ և գներ ANGO գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- endif -%}
 {%- endblock %}
 

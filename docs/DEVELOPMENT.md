@@ -26,14 +26,14 @@ Recommended (SendGrid **API transport** — avoids SMTP port blocks/timeouts):
 
 ```bash
 MAILER_DSN="sendgrid+api://YOUR_SENDGRID_API_KEY@default"
-MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+MAILER_FROM="ANGO <verified-sender@yourdomain.com>"
 ```
 
 SMTP fallback (if your network/provider allows outbound SMTP):
 
 ```bash
 MAILER_DSN="smtp://apikey:YOUR_SENDGRID_API_KEY@smtp.sendgrid.net:587"
-MAILER_FROM="AnGo <verified-sender@yourdomain.com>"
+MAILER_FROM="ANGO <verified-sender@yourdomain.com>"
 ```
 
 Then test:
