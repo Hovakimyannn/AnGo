@@ -56,7 +56,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setHeroTitleHighlight('Կատարելությունը')
             ->setHeroSubtitle('Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։')
             ->setHeroPrimaryButtonLabel('Ամրագրել Այց')
-            ->setHeroSecondaryButtonLabel('Տեսնել Վարպետներին')
+            ->setHeroSecondaryButtonLabel('Տեսնել Մասնագետներին')
             ->setServicesTitle('Մեր Ծառայությունները')
             ->setServicesSubtitle('Աբովյանում (Abovyanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։')
             ->setServiceHairTitle('Վարսահարդարում')
@@ -65,13 +65,13 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setServiceMakeupSubtitle('Երեկոյան և ամենօրյա make-up')
             ->setServiceNailsTitle('Մատնահարդարում')
             ->setServiceNailsSubtitle('Մանիկյուր, շելլակ, գել լաք')
-            ->setArtistsTitle('Թոփ Վարպետներ')
+            ->setArtistsTitle('Թոփ Մասնագետներ')
             ->setArtistsSubtitle('Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ')
             ->setAboutTitle('Մեր մասին')
             ->setAboutText1('AnGo-ը ստեղծվել է՝ մեկ նպատակով․ առաջարկել բարձրակարգ ծառայություններ, պրոֆեսիոնալ մոտեցում և հարմարավետ միջավայր՝ յուրաքանչյուր այցը դարձնելով հաճելի փորձ։')
             ->setAboutText2('Մեր թիմը մշտապես հետևում է նորաձևության թրենդներին և աշխատում է որակյալ նյութերով՝ ապահովելով լավագույն արդյունքը։')
             ->setWhyUsTitle('Ինչու՞ մենք')
-            ->setWhyUsItems("Պրոֆեսիոնալ վարպետներ\nԱնհատական մոտեցում\nՈրակյալ նյութեր\nՀարմարավետ միջավայր")
+            ->setWhyUsItems("Պրոֆեսիոնալ մասնագետներ\nԱնհատական մոտեցում\nՈրակյալ նյութեր\nՀարմարավետ միջավայր")
             ->setContactTitle('Կապ')
             ->setContactAddress('Ք.Աբովյան, Սարալանջի 22')
             ->setContactPhone('+374 94 64 99 24')
@@ -103,7 +103,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             yield ImageField::new('serviceMakeupImage', 'Makeup')->setBasePath('uploads/photos');
             yield ImageField::new('serviceNailsImage', 'Nails')->setBasePath('uploads/photos');
             yield TextField::new('servicesTitle', 'Ծառայություններ');
-            yield TextField::new('artistsTitle', 'Վարպետներ');
+            yield TextField::new('artistsTitle', 'մասնագետներ');
             yield TextField::new('contactPhone', 'Հեռախոս');
             return;
         }
@@ -173,7 +173,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
         yield TextField::new('serviceNailsTitle', 'Մատնահարդարում՝ վերնագիր')->setRequired(false);
         yield TextField::new('serviceNailsSubtitle', 'Մատնահարդարում՝ ենթավերնագիր')->setRequired(false);
 
-        yield FormField::addTab('Վարպետներ');
+        yield FormField::addTab('մասնագետներ');
         yield TextField::new('artistsTitle', 'Section վերնագիր')->setRequired(false);
         yield TextField::new('artistsSubtitle', 'Section նկարագրություն')->setRequired(false);
 
@@ -187,7 +187,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setRequired(false);
         yield TextField::new('whyUsTitle', '«Ինչու՞ մենք» վերնագիր')->setRequired(false);
         yield TextareaField::new('whyUsItems', '«Ինչու՞ մենք» ցանկ')
-            ->setHelp('Յուրաքանչյուր տողը կդառնա մեկ կետ (օր՝ Պրոֆեսիոնալ վարպետներ)')
+            ->setHelp('Յուրաքանչյուր տողը կդառնա մեկ կետ (օր՝ Պրոֆեսիոնալ մասնագետներ)')
             ->setRequired(false);
 
         yield FormField::addTab('Կապ / Footer');

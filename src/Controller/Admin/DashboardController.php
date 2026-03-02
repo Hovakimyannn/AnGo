@@ -113,7 +113,7 @@ class DashboardController extends AbstractDashboardController
         if ($this->isGranted('ROLE_ADMIN')) {
             yield MenuItem::section('Կառավարում');
             yield MenuItem::linkToCrud('Օգտատերեր', 'fas fa-users', User::class);
-            yield MenuItem::linkToCrud('Վարպետներ', 'fas fa-paint-brush', ArtistProfile::class);
+            yield MenuItem::linkToCrud('Մասնագետներ', 'fas fa-paint-brush', ArtistProfile::class);
             yield MenuItem::linkToCrud('Կատեգորիաներ', 'fas fa-layer-group', ServiceCategory::class);
             yield MenuItem::linkToCrud('Ծառայություններ', 'fas fa-cut', Service::class);
             yield MenuItem::linkToCrud('Աշխատանքային գրաֆիկ', 'fas fa-clock', Availability::class);

@@ -46,7 +46,7 @@ class ArtistController extends AbstractController
 
         return $this->render('artist/index.html.twig', [
             'artists' => $artists,
-            'category' => $categoryLabels[$category] ?? 'Մեր վարպետները',
+            'category' => $categoryLabels[$category] ?? 'Մեր մասնագետները',
             'services' => $this->serviceRepository->findAll(), // <--- FIX: Uxarkum enq carayutyunnery
         ]);
     }

@@ -39,7 +39,7 @@ class ArtistProfileCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         yield AssociationField::new('user', 'Կապված օգտատեր')
-            ->setHelp('Ընտրեք այն օգտատիրոջը, ով հանդիսանում է տվյալ վարպետը։')
+            ->setHelp('Ընտրեք այն օգտատիրոջը, ով հանդիսանում է տվյալ մասնագետը։')
             ->setPermission('ROLE_ADMIN');
 
         yield AssociationField::new('category', 'Կատեգորիա')

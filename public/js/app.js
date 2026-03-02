@@ -24,6 +24,17 @@
             const expanded = !menu.classList.contains('hidden');
             button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         });
+
+        window.angoCloseMobileMenu = function () {
+            menu.classList.add('hidden');
+            button.setAttribute('aria-expanded', 'false');
+        };
+
+        menu.addEventListener('click', function (e) {
+            if (e.target.closest('a[href]') && typeof window.angoCloseMobileMenu === 'function') {
+                window.angoCloseMobileMenu();
+            }
+        });
     });
 
     // ---------------------------------------------------------------------
@@ -726,7 +737,8 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'
                     },
-                    credentials: 'same-origin'
+                    credentials: 'same-origin',
+                    cache: 'no-store'
                 });
 
                 if (!resp.ok) throw new Error('Bad response');
@@ -772,6 +784,10 @@
             if (url.origin !== window.location.origin) return;
 
             e.preventDefault();
+
+            if (typeof window.angoCloseMobileMenu === 'function') {
+                window.angoCloseMobileMenu();
+            }
 
             // Mark current page state so browser Back restores the correct filtered content
             const currentState = history.state || {};

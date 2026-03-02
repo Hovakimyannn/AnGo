@@ -135,7 +135,7 @@
                         <span class="text-xs font-semibold bg-gray-50 text-gray-700 px-3 py-1 rounded-full border border-gray-200">
                             {{ service.durationMinutes }} րոպե
                         </span>
-                        <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full">
+                        <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full whitespace-nowrap">
                             {{ service.price|number_format(0, '.', ' ') }} ֏
                         </span>
                     </div>
@@ -303,7 +303,7 @@
                                         <i class="far fa-clock text-gray-400" aria-hidden="true"></i>
                                         <span>{{ s.durationMinutes }} րոպե</span>
                                     </div>
-                                    <div class="font-extrabold text-gray-900">
+                                    <div class="font-extrabold text-gray-900 whitespace-nowrap">
                                         {{ s.price|number_format(0, '.', ' ') }} ֏
                                     </div>
                                 </div>
