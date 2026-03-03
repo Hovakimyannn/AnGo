@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 class BlogController extends AbstractController
 {
@@ -29,8 +30,15 @@ class BlogController extends AbstractController
         ServiceRepository $serviceRepository,
     ): Response {
         $serviceId = $request->query->getInt('service') ?: null;
-
-        $posts = $postRepository->findPublishedByCategory($category, $serviceId);
+        $page = max(1, $request->query->getInt('page', 1));
+        $perPage = 9;
+        $allPosts = $postRepository->findPublishedByCategory($category, $serviceId);
+        $totalPosts = count($allPosts);
+        $totalPages = max(1, (int) ceil($totalPosts / $perPage));
+        if ($totalPosts > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+        $posts = array_slice($allPosts, ($page - 1) * $perPage, $perPage);
 
         $services = $category
             ? $serviceRepository->findBy(['category' => $category], ['name' => 'ASC'])
@@ -49,6 +57,10 @@ class BlogController extends AbstractController
             'categoryLabel' => $category ? ($categoryLabels[$category] ?? $category) : 'Բոլորը',
             'services' => $services,
             'selectedServiceId' => $serviceId,
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalPosts' => $totalPosts,
+            'totalPages' => $totalPages,
         ]);
     }
 
@@ -58,6 +70,7 @@ class BlogController extends AbstractController
         string $slug,
         PostCommentRepository $commentRepository,
         PostRatingRepository $ratingRepository,
+        SluggerInterface $slugger,
     ): Response {
         if (!$post->isPublished()) {
             throw $this->createNotFoundException();
@@ -74,6 +87,16 @@ class BlogController extends AbstractController
 
         $comments = $commentRepository->findApprovedForPost($post, 200);
         $ratingStats = $ratingRepository->getStatsForPost($post);
+        $serviceSlugs = [];
+        foreach ($post->getServices() as $service) {
+            $name = trim((string) $service->getName());
+            $serviceSlug = trim($slugger->slug($name)->lower()->toString(), '-');
+            if ($serviceSlug === '') {
+                $category = trim((string) $service->getCategory());
+                $serviceSlug = $category !== '' ? $category.'-service' : 'service';
+            }
+            $serviceSlugs[(int) $service->getId()] = $serviceSlug;
+        }
 
         $myRating = null;
         $user = $this->getUser();
@@ -87,6 +110,7 @@ class BlogController extends AbstractController
             'comments' => $comments,
             'ratingStats' => $ratingStats,
             'myRating' => $myRating,
+            'serviceSlugs' => $serviceSlugs,
         ]);
     }
 

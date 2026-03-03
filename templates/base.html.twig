@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
     <title>{% block title %}ANGO{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
+    <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Երևանում։{% endblock %}">
+    {% block canonical_url %}{{ absolute_url(app.request.pathinfo) }}{% endblock %}
+    {% set __ango_canonical_url = block('canonical_url')|trim %}
+    {% if __ango_canonical_url is empty %}
+        {% set __ango_canonical_url = absolute_url(app.request.pathinfo) %}
+    {% endif %}
     {% block canonical %}
-        <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
+        <link rel="canonical" href="{{ __ango_canonical_url }}">
     {% endblock %}
 
     {# Favicons + manifest (served from /public) #}
@@ -22,21 +27,23 @@
     {# Open Graph / social previews #}
     {% set __ango_page_title = block('title')|striptags|trim %}
     {% set __ango_page_desc = block('meta_description')|striptags|trim %}
-    {% set __ango_page_url = absolute_url(app.request.pathinfo) %}
+    {% set __ango_page_url = __ango_canonical_url %}
+    {% set __ango_og_title_final = (__ango_og_title is defined and __ango_og_title) ? __ango_og_title : __ango_page_title %}
+    {% set __ango_og_desc_final = (__ango_og_description is defined and __ango_og_description) ? __ango_og_description : __ango_page_desc %}
     {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png') ~ '?v=' ~ asset_version('uploads/photos/ango-logo.png')) %}
     {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'ANGO' %}
     {% set __ango_og_type = (__ango_og_type is defined and __ango_og_type) ? __ango_og_type : 'website' %}
     <meta property="og:site_name" content="ANGO">
-    <meta property="og:title" content="{{ __ango_page_title }}">
-    <meta property="og:description" content="{{ __ango_page_desc }}">
+    <meta property="og:title" content="{{ __ango_og_title_final }}">
+    <meta property="og:description" content="{{ __ango_og_desc_final }}">
     <meta property="og:type" content="{{ __ango_og_type }}">
     <meta property="og:url" content="{{ __ango_page_url }}">
     <meta property="og:image" content="{{ __ango_og_image }}">
     <meta property="og:image:alt" content="{{ __ango_og_image_alt }}">
     <meta property="og:locale" content="hy_AM">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __ango_page_title }}">
-    <meta name="twitter:description" content="{{ __ango_page_desc }}">
+    <meta name="twitter:title" content="{{ __ango_og_title_final }}">
+    <meta name="twitter:description" content="{{ __ango_og_desc_final }}">
     <meta name="twitter:image" content="{{ __ango_og_image }}">
     <meta name="twitter:image:alt" content="{{ __ango_og_image_alt }}">
 
@@ -80,7 +87,9 @@
                         'alternateName': [
                             'ANGO Beauty',
                             'Ango.beauty',
-                            'Անգո Բյութի'
+                            'Անգո Բյութի',
+                            'ANGO beauty salon Yerevan',
+                            'ANGO gexeckutyan srah Yerevanum'
                         ],
                         'url': __ango_site_url,
                         'logo': {
@@ -100,25 +109,24 @@
                             'ANGO Beauty',
                             'Ango.beauty',
                             'Անգո Բյութի',
-                            'ANGO Գեղեցկության սրահ',
-                            'ANGO beauty salon Abovyan',
-                            'ANGO gexeckutyan srah Abovyanum'
+                            'ANGO Գեղեցկության սրահ Երևանում',
+                            'ANGO beauty salon Yerevan',
+                            'ANGO gexeckutyan srah Yerevanum'
                         ],
-                        'description': 'Gexeckutyan srah Abovyanum (Saralanji 22, Abovyan) — Varsahardarum (varsavir), Matnahardarum (matnahardar), Otnahardarum (pedicure), Dimahardarum (makeup / meyqap). Online booking: amragrel ayc.',
+                        'description': 'Gexeckutyan srah Yerevanum (Rostovyan 34/1, Yerevan) — Varsahardarum (varsavir), Matnahardarum (matnahardar), Otnahardarum (pedicure), Dimahardarum (makeup / meyqap). Online booking: amragrel ayc.',
                         'url': __ango_site_url,
                         'image': __ango_og_image,
                         'telephone': '+37494649924',
                         'priceRange': '$$',
                         'address': {
                             '@type': 'PostalAddress',
-                            'streetAddress': 'Saralanji 22',
-                            'addressLocality': 'Abovyan',
-                            'addressRegion': 'Kotayk',
+                            'streetAddress': 'Rostovyan 34/1',
+                            'addressLocality': 'Yerevan',
+                            'addressRegion': 'Yerevan',
                             'addressCountry': 'AM'
                         },
                         'areaServed': [
-                            { '@type': 'City', 'name': 'Abovyan', 'alternateName': 'Աբովյան' },
-                            { '@type': 'AdministrativeArea', 'name': 'Kotayk', 'alternateName': 'Կոտայք' },
+                            { '@type': 'City', 'name': 'Yerevan', 'alternateName': 'Երևան' },
                             { '@type': 'Country', 'name': 'Armenia', 'alternateName': 'Հայաստան' }
                         ],
                         'openingHoursSpecification': [
@@ -292,8 +300,8 @@
 </main>
 
 {# --- FOOTER (admin: Home էջի կարգավորումներ → Կապ / Footer) --- #}
-{% set _footer_tagline = (home_settings is defined and home_settings and home_settings.footerTagline is not empty) ? home_settings.footerTagline : "Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Աբովյանում։" %}
-{% set _footer_address = (home_settings is defined and home_settings and home_settings.contactAddress is not empty) ? home_settings.contactAddress : 'Ք.Աբովյան, Սարալանջի 22' %}
+{% set _footer_tagline = (home_settings is defined and home_settings and home_settings.footerTagline is not empty) ? home_settings.footerTagline : "Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Երևանում։" %}
+{% set _footer_address = (home_settings is defined and home_settings and home_settings.contactAddress is not empty) ? home_settings.contactAddress : 'Ք. Երևան, Ռոստովյան 34/1' %}
 {% set _footer_phone = (home_settings is defined and home_settings and home_settings.contactPhone is not empty) ? home_settings.contactPhone : '+374 94 64 99 24' %}
 {% set _footer_hours1 = (home_settings is defined and home_settings and home_settings.contactHoursLine1 is not empty) ? home_settings.contactHoursLine1 : 'Երկ - Շաբ: 10:00 - 20:00' %}
 {% set _footer_hours2 = (home_settings is defined and home_settings and home_settings.contactHoursLine2 is not empty) ? home_settings.contactHoursLine2 : 'Կիր: 11:00 - 18:00' %}

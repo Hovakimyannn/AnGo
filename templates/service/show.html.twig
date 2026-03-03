@@ -3,7 +3,7 @@
 {% block title %}{{ service.name }} — {{ categoryLabel }} | AnGo{% endblock %}
 {% block meta_description %}
     {% set __price = service.price|number_format(0, '.', ' ') %}
-    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Աբովյան)։ Տևողություն՝ {{ service.durationMinutes }} րոպե, գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
+    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Տևողություն՝ {{ service.durationMinutes }} րոպե, գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
 {% endblock %}
 
 {% block structured_data %}
@@ -16,7 +16,7 @@
     {% set __translit = '' %}
     {% if categoryKey == 'hair' %}
         {% set __seo_kw_list = [
-            'Վարսահարդարում Աբովյանում',
+            'Վարսահարդարում Երևանում',
             'Վարսահարդարման գներ',
             'Վարսավիր',
             'Մազերի խնամք',
@@ -29,10 +29,10 @@
         {% if ('բոտոքս' in __nameLower) or ('botox' in __nameLower) %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Մազերի բոտոքս', 'Hair botox']) %}
         {% endif %}
-        {% set __translit = 'varsahardarum abovyanum, varsavir abovyan, mazeri xnamq' %}
+        {% set __translit = 'varsahardarum yerevanum, varsavir yerevan, mazeri xnamq' %}
     {% elseif categoryKey == 'nails' %}
         {% set __seo_kw_list = [
-            'Մատնահարդարում Աբովյանում',
+            'Մատնահարդարում Երևանում',
             'Մանիկյուր',
             'Եղունգների ձևավորում'
         ] %}
@@ -42,18 +42,18 @@
         {% if ('գել' in __nameLower) or ('gel' in __nameLower) %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Գել լաք (Gel lak)']) %}
         {% endif %}
-        {% set __translit = 'matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+        {% set __translit = 'matnahardarum yerevanum, manikyur yerevan, shellac manikyur' %}
     {% elseif categoryKey == 'pedicure' %}
         {% set __seo_kw_list = [
-            'Ոտնահարդարում Աբովյանում',
+            'Ոտնահարդարում Երևանում',
             'Pedicure',
             'Պեդիկյուր',
             'Ոտքերի խնամք'
         ] %}
-        {% set __translit = 'otnahardarum abovyanum, pedicure abovyan' %}
+        {% set __translit = 'otnahardarum yerevanum, pedicure yerevan' %}
     {% elseif categoryKey == 'makeup' %}
         {% set __seo_kw_list = [
-            'Դիմահարդարում Աբովյանում',
+            'Դիմահարդարում Երևանում',
             'Պրոֆեսիոնալ դիմահարդարում',
             'Երեկոյան դիմահարդարում',
             'Ամենօրյա դիմահարդարում'
@@ -61,7 +61,7 @@
         {% if 'հարսանեկան' in __nameLower %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Հարսանեկան դիմահարդարում']) %}
         {% endif %}
-        {% set __translit = 'dimahardarum abovyanum, harsanekan dimahardarum, makeup artist abovyan' %}
+        {% set __translit = 'dimahardarum yerevanum, harsanekan dimahardarum, makeup artist yerevan' %}
     {% endif %}
 
     {% set __seo_keywords = __seo_kw_list|join(', ') %}

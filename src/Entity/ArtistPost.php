@@ -35,6 +35,30 @@ class ArtistPost
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $metaDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $canonicalUrl = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $robotsDirective = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $ogDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogImageUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogImageAlt = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $isPublished = false;
 
@@ -141,6 +165,105 @@ class ArtistPost
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): static
+    {
+        $this->seoTitle = $seoTitle !== null ? trim($seoTitle) : null;
+
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription !== null ? trim($metaDescription) : null;
+
+        return $this;
+    }
+
+    public function getCanonicalUrl(): ?string
+    {
+        return $this->canonicalUrl;
+    }
+
+    public function setCanonicalUrl(?string $canonicalUrl): static
+    {
+        $canonicalUrl = $canonicalUrl !== null ? trim($canonicalUrl) : null;
+        $this->canonicalUrl = $canonicalUrl !== '' ? $canonicalUrl : null;
+
+        return $this;
+    }
+
+    public function getRobotsDirective(): ?string
+    {
+        return $this->robotsDirective;
+    }
+
+    public function setRobotsDirective(?string $robotsDirective): static
+    {
+        $robotsDirective = $robotsDirective !== null ? trim($robotsDirective) : null;
+        $this->robotsDirective = $robotsDirective !== '' ? $robotsDirective : null;
+
+        return $this;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): static
+    {
+        $this->ogTitle = $ogTitle !== null ? trim($ogTitle) : null;
+
+        return $this;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): static
+    {
+        $this->ogDescription = $ogDescription !== null ? trim($ogDescription) : null;
+
+        return $this;
+    }
+
+    public function getOgImageUrl(): ?string
+    {
+        return $this->ogImageUrl;
+    }
+
+    public function setOgImageUrl(?string $ogImageUrl): static
+    {
+        $ogImageUrl = $ogImageUrl !== null ? trim($ogImageUrl) : null;
+        $this->ogImageUrl = $ogImageUrl !== '' ? $ogImageUrl : null;
+
+        return $this;
+    }
+
+    public function getOgImageAlt(): ?string
+    {
+        return $this->ogImageAlt;
+    }
+
+    public function setOgImageAlt(?string $ogImageAlt): static
+    {
+        $this->ogImageAlt = $ogImageAlt !== null ? trim($ogImageAlt) : null;
 
         return $this;
     }

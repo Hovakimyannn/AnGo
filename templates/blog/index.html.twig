@@ -2,10 +2,24 @@
 
 {% block title %}{{ categoryLabel }} | ANGO{% endblock %}
 {% block meta_description %}ANGO բլոգ՝ {{ categoryLabel }}։ Տեսեք վարպետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։{% endblock %}
+{% block canonical_url %}
+    {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
+    {% set __params = category ? {category: category} : {} %}
+    {% set __url = absolute_url(path(__route, __params)) %}
+    {% set __query = [] %}
+    {% if selectedServiceId %}
+        {% set __query = __query|merge(['service=' ~ selectedServiceId]) %}
+    {% endif %}
+    {% if (page|default(1)) > 1 %}
+        {% set __query = __query|merge(['page=' ~ page]) %}
+    {% endif %}
+    {{ __query ? (__url ~ '?' ~ __query|join('&')) : __url }}
+{% endblock %}
 
 {% block structured_data %}
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __position_offset = ((page|default(1) - 1) * (perPage|default(9))) %}
 
     {% set __posts = [] %}
     {% if posts is defined %}
@@ -26,7 +40,7 @@
             {% endif %}
             {% set __posts = __posts|merge([{
                 '@type': 'ListItem',
-                'position': loop.index,
+                'position': __position_offset + loop.index,
                 'item': __item
             }]) %}
         {% endfor %}
@@ -39,7 +53,7 @@
                 {
                     '@type': 'CollectionPage',
                     'name': categoryLabel,
-                    'url': absolute_url(app.request.pathinfo)
+                    'url': block('canonical_url')|trim
                 },
                 {
                     '@type': 'ItemList',
@@ -155,6 +169,47 @@
                     </div>
                 {% endfor %}
             </div>
+
+            {% if totalPages|default(1) > 1 %}
+                {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
+                {% set __params = category ? {category: category} : {} %}
+                {% set __base = path(__route, __params) %}
+                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                    {% set __prev_page = page - 1 %}
+                    {% set __prev_query = [] %}
+                    {% if selectedServiceId %}
+                        {% set __prev_query = __prev_query|merge(['service=' ~ selectedServiceId]) %}
+                    {% endif %}
+                    {% if __prev_page > 1 %}
+                        {% set __prev_query = __prev_query|merge(['page=' ~ __prev_page]) %}
+                    {% endif %}
+                    {% set __prev_href = __prev_query ? (__base ~ '?' ~ __prev_query|join('&')) : __base %}
+                    <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+
+                    {% for p in 1..totalPages %}
+                        {% set __query = [] %}
+                        {% if selectedServiceId %}
+                            {% set __query = __query|merge(['service=' ~ selectedServiceId]) %}
+                        {% endif %}
+                        {% if p > 1 %}
+                            {% set __query = __query|merge(['page=' ~ p]) %}
+                        {% endif %}
+                        {% set __href = __query ? (__base ~ '?' ~ __query|join('&')) : __base %}
+                        <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                    {% endfor %}
+
+                    {% set __next_page = page + 1 %}
+                    {% set __next_query = [] %}
+                    {% if selectedServiceId %}
+                        {% set __next_query = __next_query|merge(['service=' ~ selectedServiceId]) %}
+                    {% endif %}
+                    {% if __next_page > 1 %}
+                        {% set __next_query = __next_query|merge(['page=' ~ __next_page]) %}
+                    {% endif %}
+                    {% set __next_href = __next_query ? (__base ~ '?' ~ __next_query|join('&')) : __base %}
+                    <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+                </nav>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}ANGO — Gexeckutyan srah Abovyanum | Varsahardarum, Matnahardarum, Otnahardarum, Dimahardarum{% endblock %}
-{% block meta_description %}Gexeckutyan srah Abovyanum՝ Varsahardarum, Matnahardarum, Otnahardarum (pedicure), Dimahardarum։ Mazeri xnamq, manikyur, Shellac։ Amragrel ayc online՝ ANGO (Saralanji 22, Abovyan)։{% endblock %}
+{% block title %}ANGO — Gexeckutyan srah Yerevanum | Varsahardarum, Matnahardarum, Otnahardarum, Dimahardarum{% endblock %}
+{% block meta_description %}Gexeckutyan srah Yerevanum՝ Varsahardarum, Matnahardarum, Otnahardarum (pedicure), Dimahardarum։ Mazeri xnamq, manikyur, Shellac։ Amragrel ayc online՝ ANGO (Rostovyan 34/1, Yerevan)։{% endblock %}
 {% block head_extra %}
     {# Help mobile LCP by preloading the first visible artist photo (if present) #}
     {% if artists is defined and artists|length > 0 and artists[0].photoUrl %}
@@ -134,7 +134,7 @@
         <div class="relative z-10 text-center px-4 max-w-4xl mx-auto mt-16">
             {% set __hero_title_pre = (homeSettings is defined and homeSettings and homeSettings.heroTitlePre) ? homeSettings.heroTitlePre : 'Բացահայտեք Ձեր' %}
             {% set __hero_title_highlight = (homeSettings is defined and homeSettings and homeSettings.heroTitleHighlight) ? homeSettings.heroTitleHighlight : 'Կատարելությունը' %}
-            {% set __hero_subtitle = (homeSettings is defined and homeSettings and homeSettings.heroSubtitle) ? homeSettings.heroSubtitle : 'Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։' %}
+            {% set __hero_subtitle = (homeSettings is defined and homeSettings and homeSettings.heroSubtitle) ? homeSettings.heroSubtitle : 'Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Երևանի սրտում։' %}
             {% set __hero_btn_primary = (homeSettings is defined and homeSettings and homeSettings.heroPrimaryButtonLabel) ? homeSettings.heroPrimaryButtonLabel : 'Ամրագրել Այց' %}
             {% set __hero_btn_secondary = (homeSettings is defined and homeSettings and homeSettings.heroSecondaryButtonLabel) ? homeSettings.heroSecondaryButtonLabel : 'Տեսնել Վարպետներին' %}
 
@@ -158,7 +158,7 @@
         <div class="container mx-auto px-4">
             <div class="text-center mb-16">
                 {% set __services_title = (homeSettings is defined and homeSettings and homeSettings.servicesTitle) ? homeSettings.servicesTitle : 'Մեր Ծառայությունները' %}
-                {% set __services_subtitle = (homeSettings is defined and homeSettings and homeSettings.servicesSubtitle is not empty) ? homeSettings.servicesSubtitle : 'Աբովյանում (Abovyanum) ANGO-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։' %}
+                {% set __services_subtitle = (homeSettings is defined and homeSettings and homeSettings.servicesSubtitle is not empty) ? homeSettings.servicesSubtitle : 'Երևանում (Yerevanum) ANGO-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։' %}
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __services_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
                 <p class="text-gray-500 max-w-2xl mx-auto mt-4">{{ __services_subtitle }}</p>
@@ -193,7 +193,7 @@
                                     {{ path('app_image_photo', { filename: hair }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Varsahardarum Abovyanum — haircut, coloring, Mazeri xnamq | ANGO"
+                                alt="Varsahardarum Yerevanum — haircut, coloring, Mazeri xnamq | ANGO"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -209,7 +209,7 @@
                                 https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Varsahardarum Abovyanum — haircut, coloring, Mazeri xnamq | ANGO"
+                            alt="Varsahardarum Yerevanum — haircut, coloring, Mazeri xnamq | ANGO"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
@@ -250,7 +250,7 @@
                                     {{ path('app_image_photo', { filename: makeup }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Harsanekan dimahardarum Abovyanum — professional makeup (meyqap) | ANGO"
+                                alt="Harsanekan dimahardarum Yerevanum — professional makeup (meyqap) | ANGO"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -266,7 +266,7 @@
                                 https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Harsanekan dimahardarum Abovyanum — professional makeup (meyqap) | ANGO"
+                            alt="Harsanekan dimahardarum Yerevanum — professional makeup (meyqap) | ANGO"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
@@ -307,7 +307,7 @@
                                     {{ path('app_image_photo', { filename: nails }) ~ '?w=640&fmt=jpg' }} 640w
                                 "
                                 sizes="(min-width: 768px) 33vw, 100vw"
-                                alt="Matnahardarum Abovyanum — manikyur, Shellac, gel lak | ANGO"
+                                alt="Matnahardarum Yerevanum — manikyur, Shellac, gel lak | ANGO"
                                 class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                                 loading="lazy"
                             >
@@ -323,7 +323,7 @@
                                 https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=640&q=60 640w
                             "
                             sizes="(min-width: 768px) 33vw, 100vw"
-                            alt="Matnahardarum Abovyanum — manikyur, Shellac, gel lak | ANGO"
+                            alt="Matnahardarum Yerevanum — manikyur, Shellac, gel lak | ANGO"
                             class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                             loading="lazy"
                         >
@@ -350,7 +350,7 @@
                             https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=640&q=60 640w
                         "
                         sizes="(min-width: 768px) 33vw, 100vw"
-                        alt="Otnahardarum Abovyanum — pedicure, foot care | ANGO"
+                        alt="Otnahardarum Yerevanum — pedicure, foot care | ANGO"
                         class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
                         loading="lazy"
                     >
@@ -499,7 +499,7 @@
             <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div class="font-bold text-gray-900 mb-2"><i class="fas fa-map-marker-alt mr-2 text-pink-600"></i> Հասցե</div>
-                    {% set __contact_address = (homeSettings is defined and homeSettings and homeSettings.contactAddress) ? homeSettings.contactAddress : 'Ք.Աբովյան, Սարալանջի 22' %}
+                    {% set __contact_address = (homeSettings is defined and homeSettings and homeSettings.contactAddress) ? homeSettings.contactAddress : 'Ք. Երևան, Ռոստովյան 34/1' %}
                     <div class="text-gray-600 text-sm">{{ __contact_address }}</div>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">

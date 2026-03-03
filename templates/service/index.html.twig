@@ -2,37 +2,47 @@
 
 {% block title %}
     {% if category %}
-        {{ categoryLabel }} Աբովյանում | AnGo
+        {{ categoryLabel }} Երևանում | AnGo
     {% else %}
-        Ծառայություններ և գներ Աբովյանում | AnGo
+        Ծառայություններ և գներ Երևանում | AnGo
     {% endif %}
 {% endblock %}
 {% block meta_description %}
     {% if category %}
-        AnGo {{ categoryLabel }} ծառայություններ և գներ Աբովյանում։ Տևողություն, գներ և վարպետներ՝ մեկ էջում։
+        AnGo {{ categoryLabel }} ծառայություններ և գներ Երևանում։ Տևողություն, գներ և վարպետներ՝ մեկ էջում։
     {% else %}
-        AnGo ծառայություններ և գներ Աբովյանում։ Տեսեք բոլոր ծառայությունները՝ կատեգորիաներով, գներով և տևողությամբ։
+        AnGo ծառայություններ և գներ Երևանում։ Տեսեք բոլոր ծառայությունները՝ կատեգորիաներով, գներով և տևողությամբ։
+    {% endif %}
+{% endblock %}
+{% block canonical_url %}
+    {% set __route = category ? 'app_service_category' : 'app_service_index' %}
+    {% set __params = category ? {category: category} : {} %}
+    {% set __url = absolute_url(path(__route, __params)) %}
+    {% if (page|default(1)) > 1 %}
+        {{ __url ~ '?page=' ~ page }}
+    {% else %}
+        {{ __url }}
     {% endif %}
 {% endblock %}
 
 {% block structured_data %}
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
-    {% set __page_url = absolute_url(app.request.pathinfo) %}
+    {% set __page_url = block('canonical_url')|trim %}
     {% set __seo_keywords = '' %}
     {% if category == 'hair' %}
-        {% set __seo_keywords = 'Վարսահարդարում Աբովյանում, վարսավիր, մազերի խնամք, Վարսահարդարման գներ, varsahardarum abovyanum, varsavir abovyan, mazeri xnamq' %}
+        {% set __seo_keywords = 'Վարսահարդարում Երևանում, վարսավիր, մազերի խնամք, Վարսահարդարման գներ, varsahardarum yerevanum, varsavir yerevan, mazeri xnamq' %}
     {% elseif category == 'nails' %}
-        {% set __seo_keywords = 'Մատնահարդարում Աբովյանում, մանիկյուր, շելլակ, գել լաք, маникюр Абовян, шеллак, гель лак, matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+        {% set __seo_keywords = 'Մատնահարդարում Երևանում, մանիկյուր, շելլակ, գել լաք, маникюр Ереван, шеллак, гель лак, matnahardarum yerevanum, manikyur yerevan, shellac manikyur' %}
     {% elseif category == 'pedicure' %}
-        {% set __seo_keywords = 'Ոտնահարդարում Աբովյանում, pedicure, պեդիկյուր, педикюр Абовян, otnahardarum abovyanum, pedicure abovyan' %}
+        {% set __seo_keywords = 'Ոտնահարդարում Երևանում, pedicure, պեդիկյուր, педикюр Ереван, otnahardarum yerevanum, pedicure yerevan' %}
     {% elseif category == 'makeup' %}
-        {% set __seo_keywords = 'Դիմահարդարում Աբովյանում, հարսանեկան դիմահարդարում, makeup artist, dimahardarum abovyanum, harsanekan dimahardarum, makeup artist abovyan' %}
+        {% set __seo_keywords = 'Դիմահարդարում Երևանում, հարսանեկան դիմահարդարում, makeup artist, dimahardarum yerevanum, harsanekan dimahardarum, makeup artist yerevan' %}
     {% else %}
-        {% set __seo_keywords = 'Գեղեցկության սրահ Աբովյանում, Beauty salon Abovyan, ծառայություններ, գներ, առցանց ամրագրում, վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure), դիմահարդարում' %}
+        {% set __seo_keywords = 'Գեղեցկության սրահ Երևանում, Beauty salon Yerevan, ծառայություններ, գներ, առցանց ամրագրում, վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure), դիմահարդարում' %}
     {% endif %}
 
-    {% set __pos = 0 %}
+    {% set __pos = ((page|default(1) - 1) * (perPage|default(12))) %}
     {% set __items = [] %}
     {% for _cat, cards in groupedServices %}
         {% for card in cards %}
@@ -167,7 +177,7 @@
                                             </div>
                                         </div>
 
-                                        <a href="{{ path('app_service_show', {id: s.id, slug: card.slug}) }}"
+                                <a href="{{ path('app_service_show', {id: s.id, slug: card.slug}) }}"
                                            class="absolute inset-0 z-10 rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-200"
                                            aria-label="{{ s.name }} ծառայություն"></a>
                                     </div>
@@ -176,6 +186,26 @@
                         </section>
                     {% endif %}
                 {% endfor %}
+            {% endif %}
+
+            {% if totalPages|default(1) > 1 %}
+                {% set __route = category ? 'app_service_category' : 'app_service_index' %}
+                {% set __params = category ? {category: category} : {} %}
+                {% set __base = path(__route, __params) %}
+                <nav class="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                    {% set __prev_page = page - 1 %}
+                    {% set __prev_href = __prev_page > 1 ? (__base ~ '?page=' ~ __prev_page) : __base %}
+                    <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+
+                    {% for p in 1..totalPages %}
+                        {% set __href = p > 1 ? (__base ~ '?page=' ~ p) : __base %}
+                        <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                    {% endfor %}
+
+                    {% set __next_page = page + 1 %}
+                    {% set __next_href = __base ~ '?page=' ~ __next_page %}
+                    <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+                </nav>
             {% endif %}
 
         </div>

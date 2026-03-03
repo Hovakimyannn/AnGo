@@ -1,27 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ category }} Աբովյանում | ANGO{% endblock %}
+{% block title %}{{ category }} Երևանում | ANGO{% endblock %}
 {% block meta_description %}
     {% set __catKey = app.request.query.get('category') %}
     {% if __catKey == 'hair' %}
-        ANGO վարսահարդարներ (վարսավիր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO վարսահարդարներ (վարսավիր) Երևանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'nails' %}
-        ANGO մատնահարդարներ (մանիկյուր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO մատնահարդարներ (մանիկյուր) Երևանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'pedicure' %}
-        ANGO ոտնահարդարներ (pedicure) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO ոտնահարդարներ (pedicure) Երևանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'makeup' %}
-        ANGO դիմահարդարներ (makeup artist) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO դիմահարդարներ (makeup artist) Երևանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% else %}
-        ANGO վարպետներ Աբովյանում։ Տեսեք մեր վարպետներին և ամրագրեք այցը առցանց։
+        ANGO վարպետներ Երևանում։ Տեսեք մեր վարպետներին և ամրագրեք այցը առցանց։
     {% endif %}
 {% endblock %}
 
-{% block canonical %}
+{% block canonical_url %}
     {% set __cat = app.request.query.get('category') %}
+    {% set __page = page|default(1) %}
     {% if __cat in ['hair', 'nails', 'pedicure', 'makeup'] %}
-        <link rel="canonical" href="{{ absolute_url(path('app_artists', {category: __cat})) }}">
+        {% set __url = absolute_url(path('app_artists', {category: __cat})) %}
     {% else %}
-        {{ parent() }}
+        {% set __url = absolute_url(path('app_artists')) %}
+    {% endif %}
+    {% if __page > 1 %}
+        {{ __url ~ (('?' in __url) ? '&' : '?') ~ 'page=' ~ __page }}
+    {% else %}
+        {{ __url }}
     {% endif %}
 {% endblock %}
 
@@ -32,16 +38,17 @@
     {% set __catKey = app.request.query.get('category') %}
     {% set __seo_keywords = '' %}
     {% if __catKey == 'hair' %}
-        {% set __seo_keywords = 'varsahardar abovyanum, varsavir abovyan' %}
+        {% set __seo_keywords = 'varsahardar yerevanum, varsavir yerevan' %}
     {% elseif __catKey == 'nails' %}
-        {% set __seo_keywords = 'matnahardar abovyanum, manikyur abovyan' %}
+        {% set __seo_keywords = 'matnahardar yerevanum, manikyur yerevan' %}
     {% elseif __catKey == 'pedicure' %}
-        {% set __seo_keywords = 'otnahardar abovyanum, pedicure abovyan' %}
+        {% set __seo_keywords = 'otnahardar yerevanum, pedicure yerevan' %}
     {% elseif __catKey == 'makeup' %}
-        {% set __seo_keywords = 'makeup artist abovyan, harsanekan dimahardarum' %}
+        {% set __seo_keywords = 'makeup artist yerevan, harsanekan dimahardarum' %}
     {% endif %}
 
     {% set __artist_list = [] %}
+    {% set __position_offset = ((page|default(1) - 1) * (perPage|default(12))) %}
     {% if artists is defined %}
         {% for a in artists %}
             {% set __full_name = (a.user.firstName ~ ' ' ~ a.user.lastName)|trim %}
@@ -57,7 +64,7 @@
             {% endif %}
             {% set __artist_list = __artist_list|merge([{
                 '@type': 'ListItem',
-                'position': loop.index,
+                'position': __position_offset + loop.index,
                 'item': __person
             }]) %}
         {% endfor %}
@@ -86,7 +93,7 @@
             {% set __catKey = app.request.query.get('category') %}
             {% if __catKey == 'hair' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Վարսահարդարներ / վարսավիրներ՝ Աբովյանում։ Տեսեք «վարսահարդարի աշխատանքները», ընտրեք վարպետին և ամրագրեք այցը։
+                    Վարսահարդարներ / վարսավիրներ՝ Երևանում։ Տեսեք «վարսահարդարի աշխատանքները», ընտրեք վարպետին և ամրագրեք այցը։
                 </p>
             {% elseif __catKey == 'nails' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
@@ -144,5 +151,24 @@
                 </div>
             {% endfor %}
         </div>
+
+        {% if totalPages|default(1) > 1 %}
+            {% set __cat = app.request.query.get('category') %}
+            {% set __base = __cat in ['hair', 'nails', 'pedicure', 'makeup'] ? (path('app_artists', {category: __cat})) : path('app_artists') %}
+            <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                {% set __prev_page = page - 1 %}
+                {% set __prev_href = __prev_page > 1 ? (__base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ __prev_page) : __base %}
+                <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+
+                {% for p in 1..totalPages %}
+                    {% set __href = p > 1 ? (__base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ p) : __base %}
+                    <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                {% endfor %}
+
+                {% set __next_page = page + 1 %}
+                {% set __next_href = __base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ __next_page %}
+                <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+            </nav>
+        {% endif %}
     </div>
 {% endblock %}

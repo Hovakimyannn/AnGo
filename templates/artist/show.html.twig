@@ -16,9 +16,9 @@
 {%- endfor -%}
 {%- if svcBits -%}
     {%- set svcTail = (artist.services|length > svcLimit) ? ' և այլն' : '' -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում (ANGO)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Երևանում (ANGO)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- else -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում։ Ծառայություններ և գներ ANGO գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Երևանում։ Ծառայություններ և գներ ANGO գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- endif -%}
 {%- endblock %}
 
@@ -29,6 +29,7 @@
     {% set __page_url = absolute_url(app.request.pathinfo) %}
     {% set __full_name = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
     {% set __bio = (artist.bio ? artist.bio|striptags|replace({'&nbsp;': ' '})|trim : '') %}
+    {% set __artist_list_url = absolute_url(path('app_artists')) %}
 
     {% set __offers = [] %}
     {% for s in artist.services %}
@@ -77,11 +78,35 @@
     {% if artist.photoUrl %}
         {% set __person = __person|merge({'image': absolute_url(asset('uploads/photos/' ~ artist.photoUrl))}) %}
     {% endif %}
+    {% set __breadcrumbs = {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Գլխավոր',
+                'item': __ango_site_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Մասնագետներ',
+                'item': __artist_list_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 3,
+                'name': __full_name,
+                'item': __page_url
+            }
+        ]
+    } %}
 
     <script type="application/ld+json">
         {{ {
             '@context': 'https://schema.org',
             '@graph': [
+                __breadcrumbs,
                 __person,
                 {
                     '@type': 'ItemList',
@@ -132,6 +157,13 @@
         </div>
 
         <div class="container mx-auto px-4 py-12">
+            <nav class="text-sm text-gray-500 mb-6">
+                <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+                <span class="mx-2">/</span>
+                <a href="{{ path('app_artists') }}" class="hover:text-pink-600 transition">Մասնագետներ</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-800 font-semibold">{{ artist.user.firstName }} {{ artist.user.lastName }}</span>
+            </nav>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
 
                 <!-- Left: Photo -->

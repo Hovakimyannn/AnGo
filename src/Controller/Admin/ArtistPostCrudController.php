@@ -22,6 +22,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistPostCrudController extends AbstractCrudController
@@ -42,7 +43,7 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Post')
             ->setEntityLabelInPlural('Posts')
             ->setDefaultSort(['createdAt' => 'DESC'])
-            ->setSearchFields(['id', 'title', 'slug']);
+            ->setSearchFields(['id', 'title', 'slug', 'seoTitle']);
     }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
@@ -111,6 +112,26 @@ class ArtistPostCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Title');
         yield SlugField::new('slug')->setTargetFieldName('title')->hideOnIndex();
+        yield TextField::new('seoTitle', 'SEO title')->hideOnIndex()->setRequired(false);
+        yield TextareaField::new('metaDescription', 'Meta description')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Recommended: up to ~160 characters.');
+        yield TextField::new('canonicalUrl', 'Canonical URL')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Optional absolute URL override for canonical tag.');
+        yield TextField::new('robotsDirective', 'Robots directive')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Example: index,follow or noindex,nofollow.');
+        yield TextField::new('ogTitle', 'OG title')->hideOnIndex()->setRequired(false);
+        yield TextareaField::new('ogDescription', 'OG description')->hideOnIndex()->setRequired(false);
+        yield TextField::new('ogImageUrl', 'OG image URL/path')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Absolute URL or filename from uploads/posts.');
+        yield TextField::new('ogImageAlt', 'OG image alt')->hideOnIndex()->setRequired(false);
 
         yield ImageField::new('imageUrl', 'Image')
             ->setBasePath('uploads/posts')

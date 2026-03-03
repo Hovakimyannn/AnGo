@@ -54,11 +54,11 @@ final class HomePageSettingsCrudController extends AbstractCrudController
         $settings
             ->setHeroTitlePre('Բացահայտեք Ձեր')
             ->setHeroTitleHighlight('Կատարելությունը')
-            ->setHeroSubtitle('Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։')
+            ->setHeroSubtitle('Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Երևանի սրտում։')
             ->setHeroPrimaryButtonLabel('Ամրագրել Այց')
             ->setHeroSecondaryButtonLabel('Տեսնել Մասնագետներին')
             ->setServicesTitle('Մեր Ծառայությունները')
-            ->setServicesSubtitle('Աբովյանում (Abovyanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։')
+            ->setServicesSubtitle('Երևանում (Yerevanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։')
             ->setServiceHairTitle('Վարսահարդարում')
             ->setServiceHairSubtitle('Կտրվածքներ, ներկում և խնամք')
             ->setServiceMakeupTitle('Դիմահարդարում')
@@ -73,11 +73,11 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setWhyUsTitle('Ինչու՞ մենք')
             ->setWhyUsItems("Պրոֆեսիոնալ մասնագետներ\nԱնհատական մոտեցում\nՈրակյալ նյութեր\nՀարմարավետ միջավայր")
             ->setContactTitle('Կապ')
-            ->setContactAddress('Ք.Աբովյան, Սարալանջի 22')
+            ->setContactAddress('Ք. Երևան, Ռոստովյան 34/1')
             ->setContactPhone('+374 94 64 99 24')
             ->setContactHoursLine1('Երկ - Շաբ: 10:00 - 20:00')
             ->setContactHoursLine2('Կիր: 11:00 - 18:00')
-            ->setFooterTagline("Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Աբովյանում։")
+            ->setFooterTagline("Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Երևանում։")
             ->setContactInstagramUrl('https://www.instagram.com/angobeauty__/')
             ->setContactFacebookUrl('https://www.facebook.com/profile.php?id=61580633960341')
             ->setContactCopyrightText('Բոլոր իրավունքները պաշտպանված են։');
@@ -137,7 +137,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setHelp('Օր. «Մեր Ծառայությունները»')
             ->setRequired(false);
         yield TextareaField::new('servicesSubtitle', 'Section նկարագրություն (պարագրաֆ վերնագրի տակ)')
-            ->setHelp('Կարճ տեքստ ծառայությունների ցանկի մասին, օր. Աբովյանում AnGo-ում՝ Վարսահարդարում, Մատնահարդարում...')
+            ->setHelp('Կարճ տեքստ ծառայությունների ցանկի մասին, օր. Երևանում AnGo-ում՝ Վարսահարդարում, Մատնահարդարում...')
             ->setRequired(false);
 
         yield ImageField::new('serviceHairImage', 'Ծառայություն՝ Վարսահարդարում')

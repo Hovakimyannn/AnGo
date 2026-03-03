@@ -44,10 +44,24 @@ class ArtistController extends AbstractController
             $artists = $artistRepository->findAll();
         }
 
+        $page = max(1, $request->query->getInt('page', 1));
+        $perPage = 12;
+        $totalArtists = count($artists);
+        $totalPages = max(1, (int) ceil($totalArtists / $perPage));
+        if ($totalArtists > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+        $artists = array_slice($artists, ($page - 1) * $perPage, $perPage);
+
         return $this->render('artist/index.html.twig', [
             'artists' => $artists,
             'category' => $categoryLabels[$category] ?? 'Մեր մասնագետները',
+            'categoryKey' => $category,
             'services' => $this->serviceRepository->findAll(), // <--- FIX: Uxarkum enq carayutyunnery
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalArtists' => $totalArtists,
+            'totalPages' => $totalPages,
         ]);
     }
 
