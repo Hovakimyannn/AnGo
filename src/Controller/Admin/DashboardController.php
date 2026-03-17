@@ -6,6 +6,9 @@ use App\Entity\Appointment;
 use App\Entity\ArtistPost;
 use App\Entity\ArtistProfile;
 use App\Entity\Availability;
+use App\Entity\DidYouKnowComment;
+use App\Entity\DidYouKnowPost;
+use App\Entity\DidYouKnowRating;
 use App\Entity\HomePageSettings;
 use App\Entity\PostComment;
 use App\Entity\PostRating;
@@ -123,8 +126,11 @@ class DashboardController extends AbstractDashboardController
 
             yield MenuItem::section('Բլոգ');
             yield MenuItem::linkToCrud('Posts', 'fas fa-pen', ArtistPost::class);
+            yield MenuItem::linkToCrud('DYK Posts', 'fas fa-lightbulb', DidYouKnowPost::class);
             yield MenuItem::linkToCrud('Comments', 'fas fa-comments', PostComment::class);
+            yield MenuItem::linkToCrud('DYK Comments', 'fas fa-comments', DidYouKnowComment::class);
             yield MenuItem::linkToCrud('Ratings', 'fas fa-star', PostRating::class);
+            yield MenuItem::linkToCrud('DYK Ratings', 'fas fa-star', DidYouKnowRating::class);
 
             yield MenuItem::section('Կայք');
             yield MenuItem::linkToRoute('Գլխավոր էջի կարգավորումներ', 'fas fa-image', 'admin_home_images');
