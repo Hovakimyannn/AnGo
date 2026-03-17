@@ -35,7 +35,6 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('ALTER TABLE did_you_know_rating ADD CONSTRAINT FK_676B40F9A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364FCC65D1B FOREIGN KEY (artist_post_id) REFERENCES artist_post (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364ED5CA9E6 FOREIGN KEY (service_id) REFERENCES service (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE artist_profile ADD CONSTRAINT FK_3618F438A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE');
         $this->addSql('ALTER TABLE artist_profile ADD CONSTRAINT FK_3618F43812469DE2 FOREIGN KEY (category_id) REFERENCES service_category (id) ON DELETE SET NULL NOT DEFERRABLE');
         $this->addSql('ALTER TABLE artist_profile_service ADD CONSTRAINT FK_9228E07D2F85CDC1 FOREIGN KEY (artist_profile_id) REFERENCES artist_profile (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_profile_service ADD CONSTRAINT FK_9228E07DED5CA9E6 FOREIGN KEY (service_id) REFERENCES service (id) ON DELETE CASCADE');
@@ -56,7 +55,6 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('ALTER TABLE appointment DROP CONSTRAINT FK_FE38F844B7970CF8');
         $this->addSql('ALTER TABLE artist_post_service DROP CONSTRAINT FK_34E4C364FCC65D1B');
         $this->addSql('ALTER TABLE artist_post_service DROP CONSTRAINT FK_34E4C364ED5CA9E6');
-        $this->addSql('ALTER TABLE artist_profile DROP CONSTRAINT FK_3618F438A76ED395');
         $this->addSql('ALTER TABLE artist_profile DROP CONSTRAINT FK_3618F43812469DE2');
         $this->addSql('ALTER TABLE artist_profile_service DROP CONSTRAINT FK_9228E07D2F85CDC1');
         $this->addSql('ALTER TABLE artist_profile_service DROP CONSTRAINT FK_9228E07DED5CA9E6');
