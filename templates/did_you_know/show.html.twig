@@ -14,7 +14,10 @@
         {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ __og_image_raw)) %}
     {% endif %}
 {% elseif post.imageUrl %}
-    {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ post.imageUrl)) %}
+    {% set __og_ext = post.imageUrl|split('.')|last|lower %}
+    {% if __og_ext in ['jpg', 'jpeg', 'png', 'webp'] %}
+        {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ post.imageUrl)) %}
+    {% endif %}
 {% endif %}
 {% set __ango_og_image_alt = (post.ogImageAlt ?: post.title)|trim %}
 
