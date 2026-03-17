@@ -55,7 +55,6 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('DROP TABLE did_you_know_post');
         $this->addSql('DROP TABLE did_you_know_rating');
         $this->addSql('ALTER TABLE appointment DROP CONSTRAINT FK_FE38F844B7970CF8');
-        $this->addSql('ALTER TABLE artist_post ADD is_admin_corner BOOLEAN DEFAULT false NOT NULL');
         $this->addSql('ALTER TABLE artist_post_service DROP CONSTRAINT FK_34E4C364FCC65D1B');
         $this->addSql('ALTER TABLE artist_post_service DROP CONSTRAINT FK_34E4C364ED5CA9E6');
         $this->addSql('ALTER TABLE artist_profile DROP CONSTRAINT FK_3618F438A76ED395');
