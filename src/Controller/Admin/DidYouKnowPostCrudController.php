@@ -68,6 +68,31 @@ class DidYouKnowPostCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Title');
         yield SlugField::new('slug')->setTargetFieldName('title')->hideOnIndex();
+
+        yield TextField::new('seoTitle', 'SEO title')->hideOnIndex()->setRequired(false);
+        yield TextareaField::new('metaDescription', 'Meta description')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Recommended: up to ~160 characters.');
+
+        yield TextField::new('canonicalUrl', 'Canonical URL')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Optional absolute URL override for canonical tag.');
+
+        yield TextField::new('robotsDirective', 'Robots directive')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Example: index,follow or noindex,nofollow.');
+
+        yield TextField::new('ogTitle', 'OG title')->hideOnIndex()->setRequired(false);
+        yield TextareaField::new('ogDescription', 'OG description')->hideOnIndex()->setRequired(false);
+        yield TextField::new('ogImageUrl', 'OG image URL/path')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setHelp('Absolute URL or filename from uploads/posts.');
+        yield TextField::new('ogImageAlt', 'OG image alt')->hideOnIndex()->setRequired(false);
+
         yield TextEditorField::new('content', 'Content');
 
         yield BooleanField::new('isPublished', 'Published');
@@ -88,9 +113,6 @@ class DidYouKnowPostCrudController extends AbstractCrudController
             ])
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp,video/mp4,video/webm,video/ogg'])
             ->setRequired(false);
-
-        yield TextField::new('seoTitle', 'SEO title')->hideOnIndex()->setRequired(false);
-        yield TextareaField::new('metaDescription', 'Meta description')->hideOnIndex()->setRequired(false);
 
         yield DateTimeField::new('createdAt', 'Created')->hideOnForm();
         yield DateTimeField::new('updatedAt', 'Updated')->hideOnForm();

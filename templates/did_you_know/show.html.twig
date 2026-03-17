@@ -6,12 +6,95 @@
 {% set __ango_og_title = (post.ogTitle ?: __ango_seo_title)|trim %}
 {% set __ango_og_description = (post.ogDescription ?: __ango_meta_desc)|trim %}
 
-{% if post.imageUrl %}
+{% if post.ogImageUrl %}
+    {% set __og_image_raw = post.ogImageUrl|trim %}
+    {% if __og_image_raw starts with 'http://' or __og_image_raw starts with 'https://' %}
+        {% set __ango_og_image = __og_image_raw %}
+    {% else %}
+        {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ __og_image_raw)) %}
+    {% endif %}
+{% elseif post.imageUrl %}
     {% set __ango_og_image = absolute_url(asset('uploads/posts/' ~ post.imageUrl)) %}
 {% endif %}
+{% set __ango_og_image_alt = (post.ogImageAlt ?: post.title)|trim %}
 
 {% block title %}{{ __ango_seo_title }} | ANGO{% endblock %}
 {% block meta_description %}{{ __ango_meta_desc }}{% endblock %}
+
+{% block canonical_url %}
+    {% if post.canonicalUrl %}
+        {{ post.canonicalUrl }}
+    {% else %}
+        {{ absolute_url(path('app_did_you_know_show', {id: post.id, slug: post.slug})) }}
+    {% endif %}
+{% endblock %}
+
+{% block head_extra %}
+    {% if post.robotsDirective %}
+        <meta name="robots" content="{{ post.robotsDirective|trim }}">
+    {% endif %}
+    <meta property="article:published_time" content="{{ (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')) }}">
+    <meta property="article:modified_time" content="{{ (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c'))) }}">
+{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __ango_site_url = absolute_url(path('app_home')) %}
+    {% set __page_url = block('canonical_url')|trim %}
+    {% set __blog_index_url = absolute_url(path('app_did_you_know_index')) %}
+
+    {% set __breadcrumbs = {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Գլխավոր',
+                'item': __ango_site_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Իսկ դուք գիտեի՞ք...',
+                'item': __blog_index_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 3,
+                'name': post.title,
+                'item': __page_url
+            }
+        ]
+    } %}
+
+    {% set __blog_post = {
+        '@type': 'BlogPosting',
+        '@id': __page_url ~ '#blogposting',
+        'headline': post.title,
+        'description': __ango_og_description,
+        'url': __page_url,
+        'mainEntityOfPage': __page_url,
+        'inLanguage': 'hy-AM',
+        'author': {
+            '@type': 'Organization',
+            'name': 'ANGO'
+        },
+        'publisher': { '@id': __ango_site_url ~ '#organization' },
+        'datePublished': (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')),
+        'dateModified': (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')))
+    } %}
+    {% if post.imageUrl %}
+        {% set __blog_post = __blog_post|merge({'image': absolute_url(asset('uploads/posts/' ~ post.imageUrl))}) %}
+    {% endif %}
+
+    <script type="application/ld+json">
+        {{ {
+            '@context': 'https://schema.org',
+            '@graph': [ __breadcrumbs, __blog_post ]
+        }|json_encode(__ango_json_opts)|raw }}
+    </script>
+{% endblock %}
 
 {% block body %}
     <div class="bg-white">
