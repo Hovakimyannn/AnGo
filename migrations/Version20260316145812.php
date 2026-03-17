@@ -36,8 +36,6 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364FCC65D1B FOREIGN KEY (artist_post_id) REFERENCES artist_post (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364ED5CA9E6 FOREIGN KEY (service_id) REFERENCES service (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_profile ADD CONSTRAINT FK_3618F43812469DE2 FOREIGN KEY (category_id) REFERENCES service_category (id) ON DELETE SET NULL NOT DEFERRABLE');
-        $this->addSql('CREATE INDEX IDX_9228E07D2F85CDC1 ON artist_profile_service (artist_profile_id)');
-        $this->addSql('CREATE INDEX IDX_9228E07DED5CA9E6 ON artist_profile_service (service_id)');
     }
 
     public function down(Schema $schema): void
@@ -55,7 +53,5 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('ALTER TABLE artist_post_service DROP CONSTRAINT FK_34E4C364ED5CA9E6');
         $this->addSql('ALTER TABLE artist_profile DROP CONSTRAINT FK_3618F43812469DE2');
         $this->addSql('ALTER TABLE artist_profile_service DROP CONSTRAINT FK_9228E07D2F85CDC1');
-        $this->addSql('DROP INDEX IDX_9228E07D2F85CDC1');
-        $this->addSql('DROP INDEX IDX_9228E07DED5CA9E6');
     }
 }
