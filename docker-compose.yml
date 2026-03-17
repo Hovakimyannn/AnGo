@@ -23,6 +23,7 @@ services:
     # image: php:8.2-fpm  <--- ԱՅՍ ՏՈՂԸ ՊԵՏՔ Է ՋՆՋՎԱԾ ԼԻՆԻ
     volumes:
       - ./:/var/www/html
+      - ./docker/php-uploads.ini:/usr/local/etc/php/conf.d/zzz-uploads.ini:ro
     environment:
       # Խմբագրվում է .env-ից, որպեսզի browser-ում debug error տեսնես (APP_DEBUG=1, APP_ENV=dev)
       APP_ENV: ${APP_ENV:-prod}

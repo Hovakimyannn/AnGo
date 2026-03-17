@@ -3,8 +3,8 @@ server {
     server_name _;
     root /var/www/html/public;
 
-    # Allow reasonable request sizes for admin image uploads
-    client_max_body_size 12m;
+    # Allow reasonable request sizes for admin image/video uploads
+    client_max_body_size 64m;
 
     # Text compression (Lighthouse: Enable text compression)
     gzip on;
