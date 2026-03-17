@@ -33,7 +33,6 @@ final class Version20260316145812 extends AbstractMigration
         $this->addSql('ALTER TABLE did_you_know_comment ADD CONSTRAINT FK_85CABB56A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE did_you_know_rating ADD CONSTRAINT FK_676B40F94B89032C FOREIGN KEY (post_id) REFERENCES did_you_know_post (id) ON DELETE CASCADE NOT DEFERRABLE');
         $this->addSql('ALTER TABLE did_you_know_rating ADD CONSTRAINT FK_676B40F9A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) ON DELETE CASCADE NOT DEFERRABLE');
-        $this->addSql('ALTER TABLE artist_post DROP is_admin_corner');
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364FCC65D1B FOREIGN KEY (artist_post_id) REFERENCES artist_post (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_post_service ADD CONSTRAINT FK_34E4C364ED5CA9E6 FOREIGN KEY (service_id) REFERENCES service (id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE artist_profile ADD CONSTRAINT FK_3618F438A76ED395 FOREIGN KEY (user_id) REFERENCES "user" (id) NOT DEFERRABLE');
