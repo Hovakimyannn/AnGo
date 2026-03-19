@@ -2,7 +2,7 @@
 
 {% block title %}{{ service.name }} — {{ categoryLabel }} | AnGo{% endblock %}
 {% block meta_description %}
-    {% set __price = service.price|number_format(0, '.', ' ') %}
+    {% set __price = service.price %}
     {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Տևողություն՝ {{ service.durationMinutes }} րոպե, գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
 {% endblock %}
 
@@ -136,7 +136,7 @@
                             {{ service.durationMinutes }} րոպե
                         </span>
                         <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full whitespace-nowrap">
-                            {{ service.price|number_format(0, '.', ' ') }} ֏
+                            {{ service.price }} ֏
                         </span>
                     </div>
 
@@ -304,7 +304,7 @@
                                         <span>{{ s.durationMinutes }} րոպե</span>
                                     </div>
                                     <div class="font-extrabold text-gray-900 whitespace-nowrap">
-                                        {{ s.price|number_format(0, '.', ' ') }} ֏
+                                        {{ s.price }} ֏
                                     </div>
                                 </div>
                                 <div class="mt-4 text-sm font-semibold text-gray-900 group-hover:text-pink-600 transition">
