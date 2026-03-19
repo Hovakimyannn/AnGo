@@ -27,7 +27,7 @@
                     '@type': 'Service',
                     'name': s.name,
                     'serviceType': __cat_labels[s.category]|default(s.category),
-                    'timeRequired': 'PT' ~ s.durationMinutes ~ 'M'
+                    'timeRequired': 'PT' ~ (s.durationMinutes ?: 60) ~ 'M'
                 }
             }]) %}
         {% endfor %}

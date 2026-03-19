@@ -37,7 +37,6 @@ class ServiceCrudController extends AbstractCrudController
         yield ChoiceField::new('category', 'Կատեգորիա')
             ->setChoices($choices);
 
-        yield IntegerField::new('durationMinutes', 'Տևողություն (րոպե)');
 
         yield TextField::new('price', 'Գին');
     }

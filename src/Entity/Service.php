@@ -22,7 +22,7 @@ class Service
     private ?string $category = null;
 
     // Tevoxutyuny ropeov (orinak` 60)
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $durationMinutes = null;
 
     #[ORM\Column(length: 255, nullable: true)]
