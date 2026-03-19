@@ -25,8 +25,8 @@ class Service
     #[ORM\Column]
     private ?int $durationMinutes = null;
 
-    #[ORM\Column]
-    private ?float $price = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $price = null;
 
     /**
      * @var Collection<int, ArtistProfile>
@@ -80,12 +80,12 @@ class Service
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): static
+    public function setPrice(?string $price): static
     {
         $this->price = $price;
 

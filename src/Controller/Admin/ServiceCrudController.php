@@ -9,7 +9,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class ServiceCrudController extends AbstractCrudController
@@ -40,9 +39,7 @@ class ServiceCrudController extends AbstractCrudController
 
         yield IntegerField::new('durationMinutes', 'Տևողություն (րոպե)');
 
-        yield MoneyField::new('price', 'Գին')
-            ->setCurrency('AMD')
-            ->setStoredAsCents(false); // Ete uzum eq pahi tchisht tivy (orinak 5000), voch te lumanerov
+        yield TextField::new('price', 'Գին');
     }
 
     /**
