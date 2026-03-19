@@ -365,13 +365,13 @@
                 if (!category) return;
 
                 const rawLabel = (opt.textContent || '').trim();
-                const name = opt.dataset.name ? String(opt.dataset.name) : rawLabel.replace(/\s*\(\s*[\d.]+\s*AMD\s*\)\s*$/, '').trim();
+                const name = opt.dataset.name ? String(opt.dataset.name) : rawLabel.replace(/\s*\(\s*[\d.-]+\s*(?:AMD|֏)\s*\)\s*$/, '').trim();
                 let price = undefined;
                 if (opt.dataset.price) {
                     const p = Number(opt.dataset.price);
                     price = Number.isFinite(p) ? p : undefined;
                 } else {
-                    const m = rawLabel.match(/\(\s*([\d.]+)\s*AMD\s*\)/);
+                    const m = rawLabel.match(/\(\s*([\d.-]+)\s*(?:AMD|֏)\s*\)/);
                     if (m && m[1]) {
                         const p = Number(m[1]);
                         price = Number.isFinite(p) ? p : undefined;
@@ -465,7 +465,7 @@
             filtered.forEach((service) => {
                 const name = String(service.name || '').trim();
                 const price = service.price;
-                const label = name + ((price !== undefined && price !== null && price !== '') ? ` (${price} AMD)` : '');
+                const label = name + ((price !== undefined && price !== null && price !== '') ? ` (${price} ֏)` : '');
                 serviceSelect.innerHTML += `<option value="${service.id}">${label}</option>`;
             });
 

@@ -136,7 +136,7 @@ class AppointmentRepository extends ServiceEntityRepository
         $results = $qb->getQuery()->getScalarResult();
         $total = 0.0;
         foreach ($results as $row) {
-            $priceStr = (string) ($row['servicePriceAtBooking'] ?? '');
+            $priceStr = str_replace([' ', ','], '', (string) ($row['servicePriceAtBooking'] ?? ''));
             if (preg_match('/^([0-9.]+)/', $priceStr, $matches)) {
                 $total += (float) $matches[1];
             }
