@@ -22,7 +22,7 @@
 {% block main %}
     {% if role == 'artist' and dashboard.missingProfile|default(false) %}
         <div class="alert alert-warning">
-            Ձեր վարպետի պրոֆիլը դեռ չկա։ Խնդրում ենք կապ հաստատել ադմինի հետ, որ ստեղծեն `ArtistProfile`։
+            Ձեր մասնագետի պրոֆիլը դեռ չկա։ Խնդրում ենք կապ հաստատել ադմինի հետ, որ ստեղծեն `ArtistProfile`։
         </div>
     {% else %}
     <div class="ango-dashboard">
@@ -49,9 +49,9 @@
             <div class="col-12 col-md-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted">Վարպետներ</div>
+                        <div class="text-muted">Մասնագետներ</div>
                         <div class="h3 mb-0">{{ dashboard.counts.artists|default(0)|number_format(0, '.', ' ') }}</div>
-                        <a href="{{ artistsUrl }}" class="stretched-link" aria-label="Բացել՝ Վարպետներ">
+                        <a href="{{ artistsUrl }}" class="stretched-link" aria-label="Բացել՝ Մասնագետներ">
                             <span class="visually-hidden">Բացել</span>
                         </a>
                     </div>
@@ -226,7 +226,7 @@
                             <th>Ամսաթիվ</th>
                             <th>Հաճախորդ</th>
                             <th>Ծառայություն</th>
-                            <th>Վարպետ</th>
+                            <th>Մասնագետ</th>
                             <th>Status</th>
                         </tr>
                         </thead>

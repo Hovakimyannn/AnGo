@@ -3,7 +3,7 @@
 {% block title %}{{ service.name }} — {{ categoryLabel }} | AnGo{% endblock %}
 {% block meta_description %}
     {% set __price = service.price %}
-    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
+    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Գին՝ {{ __price }} ֏։ Տեսեք մասնագետներին և օրինակ աշխատանքները։
 {% endblock %}
 
 {% block structured_data %}
@@ -139,7 +139,7 @@
 
                     <div class="mt-6 text-gray-600 leading-relaxed">
                         <p>
-                            Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, վարպետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
+                            Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, մասնագետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
                         </p>
                     </div>
                 </div>
@@ -149,7 +149,7 @@
                         <div class="text-sm text-gray-500">Ամրագրում</div>
                         <div class="text-lg font-bold text-gray-900 mt-1">Ամրագրեք այցը առցանց</div>
                         <p class="text-sm text-gray-600 mt-2">
-                            Կարող եք ընտրել վարպետին և հարմար ժամ։
+                            Կարող եք ընտրել մասնագետին և հարմար ժամ։
                         </p>
                         <a href="#booking"
                            data-category="{{ categoryKey }}"
@@ -214,7 +214,7 @@
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Վարպետներ</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Մասնագետներ</h2>
 
                     {% set artists = service.artistProfiles %}
                     {% if artists is not empty %}
@@ -272,7 +272,7 @@
                         </div>
                     {% else %}
                         <div class="rounded-2xl border bg-gray-50 p-6 text-gray-600">
-                            Այս ծառայությունը դեռ կապված չէ որևէ վարպետի հետ։
+                            Այս ծառայությունը դեռ կապված չէ որևէ մասնագետի հետ։
                         </div>
                     {% endif %}
                 </div>

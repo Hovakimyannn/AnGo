@@ -495,7 +495,7 @@
                 stepArtist.classList.remove('opacity-50', 'pointer-events-none');
             } catch (e) {
                 console.error('Error:', e);
-                artistSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել վարպետներին</option>';
+                artistSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել մասնագետներին</option>';
             }
         }
 
