@@ -132,6 +132,28 @@
                         ← {{ post.artist.user.firstName }} {{ post.artist.user.lastName }}
                     </a>
                     <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mt-3">{{ post.title }}</h1>
+
+                    {# Social Share Buttons #}
+                    <div class="flex items-center gap-3 mt-5 pb-6 border-b border-gray-100">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Կիսվել՝</span>
+                        {% set __share_url = absolute_url(app.request.requestUri)|url_encode %}
+                        {% set __share_title = post.title|url_encode %}
+
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ __share_url }}" target="_blank" rel="noopener" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white hover:opacity-80 transition" title="Կիսվել Facebook-ում">
+                            <i class="fab fa-facebook-f text-sm"></i>
+                        </a>
+                        <a href="https://t.me/share/url?url={{ __share_url }}&text={{ __share_title }}" target="_blank" rel="noopener" class="w-8 h-8 flex items-center justify-center rounded-full bg-sky-500 text-white hover:opacity-80 transition" title="Կիսվել Telegram-ում">
+                            <i class="fab fa-telegram-plane text-sm"></i>
+                        </a>
+                        <a href="viber://forward?text={{ __share_title }}%20{{ __share_url }}" class="w-8 h-8 flex items-center justify-center rounded-full bg-violet-600 text-white hover:opacity-80 transition sm:hidden" title="Կիսվել Viber-ում">
+                            <i class="fab fa-viber text-sm"></i>
+                        </a>
+                        {# Desktop Viber fallback via web #}
+                        <a href="https://www.addtoany.com/add_to/viber?linkurl={{ __share_url }}&linkname={{ __share_title }}" target="_blank" rel="noopener" class="w-8 h-8 hidden sm:flex items-center justify-center rounded-full bg-violet-600 text-white hover:opacity-80 transition" title="Կիսվել Viber-ում">
+                            <i class="fab fa-viber text-sm"></i>
+                        </a>
+                    </div>
+
                     <div class="flex flex-wrap items-center gap-2 mt-4">
                         {% for s in post.services %}
                             {% set __service_slug = serviceSlugs[s.id]|default('service') %}
@@ -145,7 +167,9 @@
 
                 {% if post.imageUrl %}
                     <div class="rounded-2xl overflow-hidden border bg-gray-100 mb-8">
-                        <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}" alt="{{ post.title }}" class="w-full h-auto">
+                        <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                             alt="{{ post.title }} — {{ post.artist.user.firstName }} {{ post.artist.user.lastName }} | ANGO Beauty Yerevan"
+                             class="w-full h-auto">
                     </div>
                 {% endif %}
 

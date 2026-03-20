@@ -1,7 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ categoryLabel }} | ANGO{% endblock %}
-{% block meta_description %}ANGO բլոգ՝ {{ categoryLabel }}։ Տեսեք մասնագետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։{% endblock %}
+{% block title %}{{ category ? (categoryLabel ~ ' — Բլոգ') : 'Գեղեցկության բլոգ — Խորհուրդներ և աշխատանքներ' }} | ANGO{% endblock %}
+{% block meta_description %}
+    {%- if category -%}
+        ANGO բլոգ՝ {{ categoryLabel }}։ Տեսեք մասնագետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։
+    {%- else -%}
+        Բացահայտեք գեղեցկության աշխարհը ANGO բլոգում։ Օգտակար խորհուրդներ, մասնագետների փորձը և իրական աշխատանքների օրինակներ (վարսահարդարում, մատնահարդարում, դիմահարդարում)։
+    {%- endif -%}
+{% endblock %}
 {% block canonical_url %}
     {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
     {% set __params = category ? {category: category} : {} %}
@@ -31,7 +37,7 @@
                 'author': {
                     '@type': 'Person',
                     'name': (p.artist.user.firstName ~ ' ' ~ p.artist.user.lastName)|trim,
-                    'url': absolute_url(path('app_artist_show', {id: p.artist.id}))
+                    'url': absolute_url(path('app_artist_show', {slug: p.artist.slug}))
                 },
                 'datePublished': (p.publishedAt ? p.publishedAt|date('c') : p.createdAt|date('c'))
             } %}
@@ -52,7 +58,7 @@
             '@graph': [
                 {
                     '@type': 'CollectionPage',
-                    'name': categoryLabel,
+                    'name': category ? (categoryLabel ~ ' — Բլոգ') : 'Գեղեցկության բլոգ — Խորհուրդներ և աշխատանքներ',
                     'url': block('canonical_url')|trim
                 },
                 {
@@ -71,10 +77,10 @@
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
-                        {{ categoryLabel }}
+                        {{ category ? categoryLabel : 'Գեղեցկության բլոգ' }}
                     </h1>
                     <p class="text-gray-500 mt-2">
-                        Տեսեք այս բաժնի բոլոր հոդվածները
+                        {{ category ? ('Տեսեք ' ~ categoryLabel ~ ' բաժնի բոլոր հոդվածները') : 'Օգտակար խորհուրդներ, մասնագետների փորձը և աշխատանքների օրինակներ' }}
                     </p>
                 </div>
 

@@ -6,6 +6,18 @@
     {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Գին՝ {{ __price }} ֏։ Տեսեք մասնագետներին և օրինակ աշխատանքները։
 {% endblock %}
 
+{% block canonical_url %}{{ absolute_url(path('app_service_show', {id: service.id, slug: canonicalSlug})) }}{% endblock %}
+
+{% block head_extra %}
+    {% set __og_title = (service.name ~ ' — ANGO Yerevan')|trim %}
+    {% set __og_desc = (service.name ~ ' ' ~ categoryLabel ~ ' ծառայություն Երևանում (ANGO)։ Գին՝ ' ~ service.price ~ ' ֏։ Տեսեք մասնագետներին և ամրագրեք այցը առցանց։')|trim %}
+    <meta property="og:title" content="{{ __og_title }}">
+    <meta property="og:description" content="{{ __og_desc }}">
+    {% if posts|length > 0 and posts[0].imageUrl %}
+        <meta property="og:image" content="{{ absolute_url(asset('uploads/posts/' ~ posts[0].imageUrl)) }}">
+    {% endif %}
+{% endblock %}
+
 {% block structured_data %}
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
