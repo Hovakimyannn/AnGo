@@ -7,11 +7,10 @@
     <title>{% block title %}ANGO{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Երևանում։{% endblock %}">
     <meta name="keywords" content="{% block meta_keywords %}ANGO, գեղեցկության սրահ, Երևան, varsavir, matnahardar, makeup{% endblock %}">
-    {% block canonical_url %}{{ absolute_url(app.request.pathinfo) }}{% endblock %}
-    {% set __ango_canonical_url = block('canonical_url')|trim %}
-    {% if __ango_canonical_url is empty %}
-        {% set __ango_canonical_url = absolute_url(app.request.pathinfo) %}
-    {% endif %}
+    {# Capture the canonical URL from the child or use the current request path #}
+    {% set __ango_canonical_url_raw %}{% block canonical_url %}{% endblock %}{% endset %}
+    {% set __ango_canonical_url = __ango_canonical_url_raw|trim ?: absolute_url(app.request.pathinfo) %}
+
     {% block canonical %}
         <link rel="canonical" href="{{ __ango_canonical_url }}">
     {% endblock %}

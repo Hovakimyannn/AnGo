@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\ArtistPostRepository;
 use App\Repository\ArtistProfileRepository;
 use App\Repository\ServiceRepository;
+use App\Repository\DidYouKnowPostRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,7 +19,8 @@ final class SitemapController extends AbstractController
         ArtistProfileRepository $artistProfileRepository,
         ArtistPostRepository $artistPostRepository,
         ServiceRepository $serviceRepository,
-        SluggerInterface $slugger,
+        DidYouKnowPostRepository $didYouKnowPostRepository,
+        SluggerInterface $slugger
     ): Response {
         $urls = [];
 
@@ -108,7 +110,28 @@ final class SitemapController extends AbstractController
                 );
             }
         } catch (\Throwable) {
-            // If DB is temporarily unavailable, keep sitemap functional with static URLs.
+            // If DB is temporarily unavailable, keep sitemap functional.
+        }
+
+        // Did You Know posts (dynamic)
+        try {
+            foreach ($didYouKnowPostRepository->findPublished() as $post) {
+                $id = $post->getId();
+                $slug = $post->getSlug();
+                if (!$id || !$slug) {
+                    continue;
+                }
+
+                $last = $post->getUpdatedAt() ?? $post->getPublishedAt() ?? $post->getCreatedAt();
+                $addUrl(
+                    $this->generateUrl('app_did_you_know_show', ['id' => $id, 'slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL),
+                    $last,
+                    'monthly',
+                    0.6
+                );
+            }
+        } catch (\Throwable) {
+            // If DB is temporarily unavailable, keep sitemap functional.
         }
 
         $xml = $this->buildSitemapXml(array_values($urls));
