@@ -17,9 +17,12 @@ use Symfony\Component\Validator\Constraints\Image;
 
 final class HomePageSettingsCrudController extends AbstractCrudController
 {
-    public function __construct(
-        private readonly HomePageSettingsRepository $homePageSettingsRepository,
-    ) {}
+    private $homePageSettingsRepository;
+
+    public function __construct(HomePageSettingsRepository $homePageSettingsRepository)
+    {
+        $this->homePageSettingsRepository = $homePageSettingsRepository;
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -80,7 +83,14 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setFooterTagline("Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Երևանում։")
             ->setContactInstagramUrl('https://www.instagram.com/angobeauty__/')
             ->setContactFacebookUrl('https://www.facebook.com/profile.php?id=61580633960341')
-            ->setContactCopyrightText('Բոլոր իրավունքները պաշտպանված են։');
+            ->setContactCopyrightText('Բոլոր իրավունքները պաշտպանված են։')
+            ->setFaqTitle('Հաճախ տրվող հարցեր')
+            ->setFaqItem1Question('Ունե՞ք առցանց ամրագրում')
+            ->setFaqItem1Answer('Այո, մեր կայքում կարող եք ընդամենը մի քանի վայրկյանում ընտրել մասնագետին և ամրագրել այցը առցանց՝ Ձեզ հարմար ժամի:')
+            ->setFaqItem2Question('Որտե՞ղ է գտնվում ANGO սրահը')
+            ->setFaqItem2Answer('Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում (Էրեբունի համայնք)։ Հարմար է թե՛ ավտոմեքենայով, թե՛ հասարակական տրանսպորտով մոտենալու համար:')
+            ->setFaqItem3Question('Ի՞նչ ծառայություններ եք առաջարկում')
+            ->setFaqItem3Answer('Մենք առաջարկում ենք ծառայությունների լայն տեսականի՝ վարսահարդարում (կտրվածք, ներկում, խնամք), մատնահարդարում (մանիկյուր, շելլակ, գել լաք), ոտնահարդարում (pedicure) և պրոֆեսիոնալ դիմահարդարում (makeup artist):');
 
         return $settings;
     }
@@ -204,6 +214,21 @@ final class HomePageSettingsCrudController extends AbstractCrudController
         yield TextField::new('contactCopyrightText', 'Footer copyright տեքստ')
             ->setHelp('Օր. «Բոլոր իրավունքները պաշտպանված են։» Տարին ավտոմատ ավելանում է։')
             ->setRequired(false);
+
+        yield FormField::addTab('FAQ');
+        yield TextField::new('faqTitle', 'Section վերնագիր')->setRequired(false);
+        
+        yield FormField::addPanel('Հարց 1');
+        yield TextField::new('faqItem1Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem1Answer', 'Պատասխան')->setRequired(false);
+
+        yield FormField::addPanel('Հարց 2');
+        yield TextField::new('faqItem2Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem2Answer', 'Պատասխան')->setRequired(false);
+
+        yield FormField::addPanel('Հարց 3');
+        yield TextField::new('faqItem3Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem3Answer', 'Պատասխան')->setRequired(false);
     }
 }
 

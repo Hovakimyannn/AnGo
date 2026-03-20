@@ -518,34 +518,46 @@
     </section>
 
     {# --- FAQ SECTION --- #}
+    {% set __faq_title = (homeSettings is defined and homeSettings and homeSettings.faqTitle) ? homeSettings.faqTitle : 'Հաճախ տրվող հարցեր' %}
     <section class="py-24 bg-gray-50/50">
-        <div class="container mx-auto px-4 max-w-4xl">
+        <div class="container mx-auto px-4 max-w-5xl">
             <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Հաճախ տրվող հարցեր</h2>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{{ __faq_title }}</h2>
                 <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                        <i class="fas fa-calendar-check text-pink-600"></i>
-                         Ունե՞ք առցանց ամրագրում
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+                {# FAQ Item 1 #}
+                {% set __faq1_q = (homeSettings is defined and homeSettings and homeSettings.faqItem1Question) ? homeSettings.faqItem1Question : 'Ունե՞ք առցանց ամրագրում' %}
+                {% set __faq1_a = (homeSettings is defined and homeSettings and homeSettings.faqItem1Answer) ? homeSettings.faqItem1Answer : 'Այո, մեր կայքում կարող եք ընդամենը մի քանի վայրկյանում ընտրել մասնագետին և ամրագրել այցը առցանց՝ Ձեզ հարմար ժամի:' %}
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full">
+                    <h3 class="font-bold text-lg text-gray-900 mb-4 flex items-start gap-3">
+                        <i class="fas fa-calendar-check text-pink-600 mt-1 shrink-0"></i>
+                        <span>{{ __faq1_q }}</span>
                     </h3>
-                    <p class="text-gray-600 leading-relaxed text-sm">Այո, մեր կայքում կարող եք ընդամենը մի քանի վայրկյանում ընտրել մասնագետին և ամրագրել այցը առցանց՝ Ձեզ հարմար ժամի:</p>
+                    <p class="text-gray-600 leading-relaxed text-sm mt-auto">{{ __faq1_a|e|nl2br }}</p>
                 </div>
-                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition">
-                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                        <i class="fas fa-map-marked-alt text-pink-600"></i>
-                        Որտե՞ղ է գտնվում ANGO սրահը
+
+                {# FAQ Item 2 #}
+                {% set __faq2_q = (homeSettings is defined and homeSettings and homeSettings.faqItem2Question) ? homeSettings.faqItem2Question : 'Որտե՞ղ է գտնվում ANGO սրահը' %}
+                {% set __faq2_a = (homeSettings is defined and homeSettings and homeSettings.faqItem2Answer) ? homeSettings.faqItem2Answer : 'Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում (Էրեբունի համայնք)։ Հարմար է թե՛ ավտոմեքենայով, թե՛ հասարակական տրանսպորտով մոտենալու համար:' %}
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full">
+                    <h3 class="font-bold text-lg text-gray-900 mb-4 flex items-start gap-3">
+                        <i class="fas fa-map-marked-alt text-pink-600 mt-1 shrink-0"></i>
+                        <span>{{ __faq2_q }}</span>
                     </h3>
-                    <p class="text-gray-600 leading-relaxed text-sm">Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում (Էրեբունի համայնք)։ Հարմար է թե՛ ավտոմեքենայով, թե՛ հասարակական տրանսպորտով մոտենալու համար:</p>
+                    <p class="text-gray-600 leading-relaxed text-sm mt-auto">{{ __faq2_a|e|nl2br }}</p>
                 </div>
-                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition md:col-span-2">
-                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                        <i class="fas fa-sparkles text-pink-600"></i>
-                        Ի՞նչ ծառայություններ եք առաջարկում
+
+                {# FAQ Item 3 #}
+                {% set __faq3_q = (homeSettings is defined and homeSettings and homeSettings.faqItem3Question) ? homeSettings.faqItem3Question : 'Ի՞նչ ծառայություններ եք առաջարկում' %}
+                {% set __faq3_a = (homeSettings is defined and homeSettings and homeSettings.faqItem3Answer) ? homeSettings.faqItem3Answer : 'Մենք առաջարկում ենք վարսահարդարում (կտրվածք, ներկում, խնամք), մատնահարդարում (մանիկյուր, շելլակ, գել լաք), ոտնահարդարում (pedicure) և պրոֆեսիոնալ դիմահարդարում (makeup artist):' %}
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition flex flex-col h-full">
+                    <h3 class="font-bold text-lg text-gray-900 mb-4 flex items-start gap-3">
+                        <i class="fas fa-sparkles text-pink-600 mt-1 shrink-0"></i>
+                        <span>{{ __faq3_q }}</span>
                     </h3>
-                    <p class="text-gray-600 leading-relaxed text-sm">Մենք առաջարկում ենք ծառայությունների լայն տեսականի՝ վարսահարդարում (կտրվածք, ներկում, խնամք), մատնահարդարում (մանիկյուր, շելլակ, գել լաք), ոտնահարդարում (pedicure) և պրոֆեսիոնալ դիմահարդարում (makeup artist):</p>
+                    <p class="text-gray-600 leading-relaxed text-sm mt-auto">{{ __faq3_a|e|nl2br }}</p>
                 </div>
             </div>
         </div>
