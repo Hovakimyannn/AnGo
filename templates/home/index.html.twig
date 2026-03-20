@@ -42,7 +42,7 @@
                 '@type': 'Person',
                 'name': __full_name,
                 'jobTitle': a.specialization,
-                'url': absolute_url(path('app_artist_show', {id: a.id})),
+                'url': absolute_url(path('app_artist_show', {slug: a.slug})),
                 'worksFor': { '@id': __ango_site_url ~ '#localbusiness' }
             } %}
             {% if a.photoUrl %}
@@ -72,6 +72,35 @@
                     '@id': __ango_site_url ~ '#artists',
                     'name': 'Մասնագետներ',
                     'itemListElement': __artist_list
+                },
+                {
+                    '@type': 'FAQPage',
+                    'mainEntity': [
+                        {
+                            '@type': 'Question',
+                            'name': 'Ունե՞ք առցանց ամրագրում',
+                            'acceptedAnswer': {
+                                '@type': 'Answer',
+                                'text': 'Այո, մեր կայքում կարող եք ընտրել մասնագետին և ամրագրել այցը առցանց՝ հարմար ժամի:'
+                            }
+                        },
+                        {
+                            '@type': 'Question',
+                            'name': 'Որտե՞ղ է գտնվում ANGO սրահը',
+                            'acceptedAnswer': {
+                                '@type': 'Answer',
+                                'text': 'Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում:'
+                            }
+                        },
+                        {
+                            '@type': 'Question',
+                            'name': 'Ի՞նչ ծառայություններ եք առաջարկում',
+                            'acceptedAnswer': {
+                                '@type': 'Answer',
+                                'text': 'Մենք առաջարկում ենք վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure) և դիմահարդարում:'
+                            }
+                        }
+                    ]
                 }
             ]
         }|json_encode(__ango_json_opts)|raw }}
@@ -429,7 +458,7 @@
                         </div>
 
                         {# Make whole card clickable (except booking button which stays above via z-20) #}
-                        <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                        <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                            class="absolute inset-0 z-10"
                            aria-label="{{ artist.user.firstName }} {{ artist.user.lastName }} էջ"></a>
                     </div>
@@ -483,6 +512,40 @@
                             <li>{{ item }}</li>
                         {% endfor %}
                     </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# --- FAQ SECTION --- #}
+    <section class="py-24 bg-gray-50/50">
+        <div class="container mx-auto px-4 max-w-4xl">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Հաճախ տրվող հարցեր</h2>
+                <div class="w-24 h-1 bg-pink-500 mx-auto rounded-full"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fas fa-calendar-check text-pink-600"></i>
+                         Ունե՞ք առցանց ամրագրում
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">Այո, մեր կայքում կարող եք ընդամենը մի քանի վայրկյանում ընտրել մասնագետին և ամրագրել այցը առցանց՝ Ձեզ հարմար ժամի:</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition">
+                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fas fa-map-marked-alt text-pink-600"></i>
+                        Որտե՞ղ է գտնվում ANGO սրահը
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում (Էրեբունի համայնք)։ Հարմար է թե՛ ավտոմեքենայով, թե՛ հասարակական տրանսպորտով մոտենալու համար:</p>
+                </div>
+                <div class="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition md:col-span-2">
+                    <h3 class="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fas fa-sparkles text-pink-600"></i>
+                        Ի՞նչ ծառայություններ եք առաջարկում
+                    </h3>
+                    <p class="text-gray-600 leading-relaxed text-sm">Մենք առաջարկում ենք ծառայությունների լայն տեսականի՝ վարսահարդարում (կտրվածք, ներկում, խնամք), մատնահարդարում (մանիկյուր, շելլակ, գել լաք), ոտնահարդարում (pedicure) և պրոֆեսիոնալ դիմահարդարում (makeup artist):</p>
                 </div>
             </div>
         </div>

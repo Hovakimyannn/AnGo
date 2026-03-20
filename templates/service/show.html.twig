@@ -221,7 +221,7 @@
                         <div class="space-y-4">
                             {% for artist in artists %}
                                 <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition">
-                                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                                    <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                                        class="flex items-center gap-4 min-w-0">
                                         <div class="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                                             {% if artist.photoUrl %}

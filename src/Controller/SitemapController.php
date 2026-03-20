@@ -54,17 +54,16 @@ final class SitemapController extends AbstractController
             $addUrl($this->generateUrl('app_service_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
         }
 
-        // --- Dynamic pages: artists + published posts ---
         try {
             foreach ($artistProfileRepository->findAll() as $artist) {
-                $id = $artist->getId();
-                if (!$id) {
+                $slug = $artist->getSlug();
+                if (!$slug) {
                     continue;
                 }
-                $addUrl($this->generateUrl('app_artist_show', ['id' => $id], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.6);
+                $addUrl($this->generateUrl('app_artist_show', ['slug' => $slug], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.6);
             }
-        } catch (\Throwable) {
-            // If DB is temporarily unavailable, keep sitemap functional with static URLs.
+        } catch (\Throwable $e) {
+            // Keep sitemap functional if DB is unavailable.
         }
 
         try {
@@ -83,7 +82,7 @@ final class SitemapController extends AbstractController
                     0.6
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // If DB is temporarily unavailable, keep sitemap functional with static URLs.
         }
 
@@ -109,7 +108,7 @@ final class SitemapController extends AbstractController
                     0.6
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // If DB is temporarily unavailable, keep sitemap functional.
         }
 
@@ -130,7 +129,7 @@ final class SitemapController extends AbstractController
                     0.6
                 );
             }
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             // If DB is temporarily unavailable, keep sitemap functional.
         }
 
@@ -150,7 +149,9 @@ final class SitemapController extends AbstractController
      */
     private function buildSitemapXml(array $urls): string
     {
-        $esc = static fn (string $s) => htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE | ENT_XML1, 'UTF-8');
+        $esc = function (string $s): string {
+            return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE | ENT_XML1, 'UTF-8');
+        };
 
         $out = [];
         $out[] = '<?xml version="1.0" encoding="UTF-8"?>';

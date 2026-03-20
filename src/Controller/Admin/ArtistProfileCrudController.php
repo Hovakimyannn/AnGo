@@ -9,6 +9,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -44,6 +46,9 @@ class ArtistProfileCrudController extends AbstractCrudController
 
         yield AssociationField::new('category', 'Կատեգորիա')
             ->setHelp('Ընտրեք կատեգորիա (կառավարվում է Admin → Կատեգորիաներ)։');
+
+        yield TextField::new('slug', 'URL Slug (levon-martirosyan)')
+            ->setHelp('SEO-friendly URL-ի վերջավորությունը։ Եթե դատարկ թողնեք՝ կգեներացվի անուն-ազգունից։');
 
         $imageConstraints = [
             // Server-side validation: only allow real images (prevents uploading HTML/JS into /uploads)

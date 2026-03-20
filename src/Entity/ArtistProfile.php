@@ -7,7 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Component\String\Slugger\AsciiSlugger;
+use Symfony\Component\String\Slugger\SluggerInterface;
+
 #[ORM\Entity]
+#[ORM\HasLifecycleCallbacks]
 class ArtistProfile
 {
     private const FALLBACK_CATEGORY_LABELS = [
@@ -40,6 +44,9 @@ class ArtistProfile
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $coverImageUrl = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $slug = null;
+
     #[ORM\ManyToMany(targetEntity: Service::class, inversedBy: 'artistProfiles')]
     private Collection $services;
 
@@ -66,7 +73,7 @@ class ArtistProfile
         return $this->user;
     }
 
-    public function setUser(User $user): static
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
@@ -108,7 +115,7 @@ class ArtistProfile
         return $this->category;
     }
 
-    public function setCategory(?ServiceCategory $category): static
+    public function setCategory(?ServiceCategory $category): self
     {
         $this->category = $category;
 
@@ -120,7 +127,7 @@ class ArtistProfile
         return $this->bio;
     }
 
-    public function setBio(?string $bio): static
+    public function setBio(?string $bio): self
     {
         $this->bio = $bio;
 
@@ -132,7 +139,7 @@ class ArtistProfile
         return $this->photoUrl;
     }
 
-    public function setPhotoUrl(?string $photoUrl): static
+    public function setPhotoUrl(?string $photoUrl): self
     {
         $this->photoUrl = $photoUrl;
 
@@ -144,11 +151,34 @@ class ArtistProfile
         return $this->coverImageUrl;
     }
 
-    public function setCoverImageUrl(?string $coverImageUrl): static
+    public function setCoverImageUrl(?string $coverImageUrl): self
     {
         $this->coverImageUrl = $coverImageUrl;
 
         return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(?string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function computeSlug(): void
+    {
+        if ($this->slug === null || (trim($this->slug) === '')) {
+            $slugger = new AsciiSlugger();
+            $base = $this->user ? $this->user->getFirstName() . ' ' . $this->user->getLastName() : 'artist';
+            $this->slug = (string) $slugger->slug($base)->lower();
+        }
     }
 
     /**

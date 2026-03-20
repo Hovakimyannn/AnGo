@@ -65,7 +65,7 @@ class ArtistController extends AbstractController
         ]);
     }
 
-    #[Route('/artist/{id}', name: 'app_artist_show')]
+    #[Route('/artist/{slug}', name: 'app_artist_show')]
     public function show(ArtistProfile $artist, Request $request, ArtistPostRepository $postRepository): Response
     {
         $category = $request->query->get('category');
