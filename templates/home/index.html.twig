@@ -591,6 +591,23 @@
                     <div class="text-gray-600 text-sm">{{ __hours_2 }}</div>
                 </div>
             </div>
+
+            {# --- DYNAMIC MAP (footer-like section) --- #}
+            <div class="mt-16 max-w-5xl mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white group hover:border-pink-50 transition-colors duration-500">
+                <div class="h-[400px] w-full">
+                    <iframe 
+                        src="https://www.google.com/maps?q=40.150267,44.516867&hl=hy&z=17&output=embed" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="grayscale-[0.1] contrast-[1.05] group-hover:grayscale-0 transition-all duration-700"
+                    ></iframe>
+                </div>
+            </div>
         </div>
     </section>
+
 {% endblock %}
