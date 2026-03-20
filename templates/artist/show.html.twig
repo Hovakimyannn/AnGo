@@ -65,6 +65,8 @@
         {% endfor %}
     {% endif %}
 
+    {% block canonical_url %}{{ absolute_url(path('app_artist_show', {slug: artist.slug})) }}{% endblock %}
+
     {% set __person = {
         '@type': 'Person',
         '@id': __page_url ~ '#person',
@@ -75,6 +77,21 @@
         'worksFor': { '@id': __ango_site_url ~ '#localbusiness' },
         'makesOffer': __offers
     } %}
+
+    {% set __artist_avg = artist.user.artistRatingAvg|default(0) %}
+    {% set __artist_count = artist.user.artistRatingCount|default(0) %}
+    {% if __artist_count > 0 %}
+        {% set __person = __person|merge({
+            'aggregateRating': {
+                '@type': 'AggregateRating',
+                'ratingValue': __artist_avg|number_format(1, '.', ''),
+                'reviewCount': __artist_count,
+                'bestRating': '5',
+                'worstRating': '1'
+            }
+        }) %}
+    {% endif %}
+
     {% if artist.photoUrl %}
         {% set __person = __person|merge({'image': absolute_url(asset('uploads/photos/' ~ artist.photoUrl))}) %}
     {% endif %}

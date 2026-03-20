@@ -74,13 +74,27 @@
         'author': {
             '@type': 'Person',
             'name': __author_name,
-            'url': absolute_url(path('app_artist_show', {id: post.artist.id}))
+            'url': absolute_url(path('app_artist_show', {slug: post.artist.slug}))
         },
         'publisher': { '@id': __ango_site_url ~ '#organization' },
         'datePublished': (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')),
         'dateModified': (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c'))),
         'keywords': __keywords
     } %}
+
+    {% set __avg = ratingStats.avg|default(0) %}
+    {% set __count = ratingStats.count|default(0) %}
+    {% if __count > 0 %}
+        {% set __blog_post = __blog_post|merge({
+            'aggregateRating': {
+                '@type': 'AggregateRating',
+                'ratingValue': __avg|number_format(1, '.', ''),
+                'reviewCount': __count,
+                'bestRating': '5',
+                'worstRating': '1'
+            }
+        }) %}
+    {% endif %}
     {% if post.imageUrl %}
         {% set __blog_post = __blog_post|merge({'image': absolute_url(asset('uploads/posts/' ~ post.imageUrl))}) %}
     {% endif %}
@@ -99,7 +113,7 @@
     {% endif %}
     <meta property="article:published_time" content="{{ (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c')) }}">
     <meta property="article:modified_time" content="{{ (post.updatedAt ? post.updatedAt|date('c') : (post.publishedAt ? post.publishedAt|date('c') : post.createdAt|date('c'))) }}">
-    <meta property="article:author" content="{{ absolute_url(path('app_artist_show', {id: post.artist.id})) }}">
+    <meta property="article:author" content="{{ absolute_url(path('app_artist_show', {slug: post.artist.slug})) }}">
 {% endblock %}
 
 {% block body %}
@@ -114,7 +128,7 @@
                         <span class="mx-2">/</span>
                         <span class="text-gray-800 font-semibold">{{ post.title }}</span>
                     </nav>
-                    <a href="{{ path('app_artist_show', {id: post.artist.id}) }}" class="text-sm text-gray-500 hover:text-pink-600 transition">
+                    <a href="{{ path('app_artist_show', {slug: post.artist.slug}) }}" class="text-sm text-gray-500 hover:text-pink-600 transition">
                         ← {{ post.artist.user.firstName }} {{ post.artist.user.lastName }}
                     </a>
                     <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mt-3">{{ post.title }}</h1>
