@@ -6,6 +6,7 @@
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
     <title>{% block title %}ANGO{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Երևանում։{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}ANGO, գեղեցկության սրահ, Երևան, varsavir, matnahardar, makeup{% endblock %}">
     {% block canonical_url %}{{ absolute_url(app.request.pathinfo) }}{% endblock %}
     {% set __ango_canonical_url = block('canonical_url')|trim %}
     {% if __ango_canonical_url is empty %}
