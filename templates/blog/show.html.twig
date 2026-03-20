@@ -140,25 +140,25 @@
                         {% set __share_title = post.title|url_encode %}
 
                         <a href="https://www.facebook.com/sharer/sharer.php?u={{ __share_url }}" target="_blank" rel="noopener" 
-                           style="background-color: #1877f2; color: white;"
-                           class="w-8 h-8 flex items-center justify-center rounded-full hover:opacity-80 transition" title="Կիսվել Facebook-ում">
-                            <i class="fab fa-facebook-f text-sm"></i>
+                           style="background-color: #1877f2; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
+                           class="hover:opacity-80 transition" title="Կիսվել Facebook-ում">
+                            <i class="fab fa-facebook-f" style="font-size: 16px;"></i>
                         </a>
                         <a href="https://t.me/share/url?url={{ __share_url }}&text={{ __share_title }}" target="_blank" rel="noopener" 
-                           style="background-color: #24A1DE; color: white;"
-                           class="w-8 h-8 flex items-center justify-center rounded-full hover:opacity-80 transition" title="Կիսվել Telegram-ում">
-                            <i class="fab fa-telegram-plane text-sm"></i>
+                           style="background-color: #24A1DE; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
+                           class="hover:opacity-80 transition" title="Կիսվել Telegram-ում">
+                            <i class="fab fa-telegram-plane" style="font-size: 18px;"></i>
                         </a>
                         <a href="viber://forward?text={{ __share_title }}%20{{ __share_url }}" 
-                           style="background-color: #7360f2; color: white;"
-                           class="w-8 h-8 flex items-center justify-center rounded-full hover:opacity-80 transition sm:hidden" title="Կիսվել Viber-ում">
-                            <i class="fab fa-viber text-sm"></i>
+                           style="background-color: #7360f2; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
+                           class="hover:opacity-80 transition sm:hidden" title="Կիսվել Viber-ում">
+                            <i class="fab fa-viber" style="font-size: 18px;"></i>
                         </a>
                         {# Desktop Viber fallback via web #}
                         <a href="https://www.addtoany.com/add_to/viber?linkurl={{ __share_url }}&linkname={{ __share_title }}" target="_blank" rel="noopener" 
-                           style="background-color: #7360f2; color: white;"
-                           class="w-8 h-8 hidden sm:flex items-center justify-center rounded-full hover:opacity-80 transition" title="Կիսվել Viber-ում">
-                            <i class="fab fa-viber text-sm"></i>
+                           style="background-color: #7360f2; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none;"
+                           class="hidden sm:flex hover:opacity-80 transition" title="Կիսվել Viber-ում">
+                            <i class="fab fa-viber" style="font-size: 18px;"></i>
                         </a>
                     </div>
 
