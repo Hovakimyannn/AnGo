@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AsCommand(
     name: 'app:generate-post-list-thumbnails',
-    description: 'Create -list.* thumbnails for Did You Know and artist posts (for existing uploads).',
+    description: 'Create -list.webp thumbnails for Did You Know and artist posts (for existing uploads).',
 )]
 final class GeneratePostListThumbnailsCommand extends Command
 {
@@ -68,10 +68,10 @@ final class GeneratePostListThumbnailsCommand extends Command
                 }
 
                 $stem = (string) pathinfo($main, PATHINFO_FILENAME);
-                $thumbName = $stem . '-list.' . pathinfo($main, PATHINFO_EXTENSION);
+                $thumbName = $stem . '-list.webp';
                 $thumbPath = $postsDir . $thumbName;
 
-                if (!$this->photoOptimizer->writeResizedCopy($srcPath, $thumbPath, self::THUMB_MAX_WIDTH, 78)) {
+                if (!$this->photoOptimizer->writeResizedWebpCopy($srcPath, $thumbPath, self::THUMB_MAX_WIDTH, 80)) {
                     continue;
                 }
 

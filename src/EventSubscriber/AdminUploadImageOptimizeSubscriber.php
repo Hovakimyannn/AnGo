@@ -191,10 +191,10 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
         }
 
         $stem = (string) pathinfo($filename, PATHINFO_FILENAME);
-        $thumbName = $stem . '-list.' . pathinfo($filename, PATHINFO_EXTENSION);
+        $thumbName = $stem . '-list.webp';
         $thumbPath = $postsDir . $thumbName;
 
-        if (!$this->photoOptimizer->writeResizedCopy($path, $thumbPath, $thumbMaxWidth, 78)) {
+        if (!$this->photoOptimizer->writeResizedWebpCopy($path, $thumbPath, $thumbMaxWidth, 80)) {
             return;
         }
 

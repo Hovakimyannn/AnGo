@@ -178,6 +178,91 @@ final class PhotoOptimizer
 
         return true;
     }
+
+    /**
+     * Downscaled copy as WebP (any supported raster source: JPEG/PNG/WebP).
+     * Requires GD with WebP encode support.
+     */
+    public function writeResizedWebpCopy(string $sourcePath, string $destinationPath, int $maxWidth, int $webpQuality = 80): bool
+    {
+        if (!function_exists('imagewebp')) {
+            return false;
+        }
+
+        if (!is_file($sourcePath) || !is_readable($sourcePath)) {
+            return false;
+        }
+
+        $dir = dirname($destinationPath);
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return false;
+        }
+
+        if (!function_exists('getimagesize') || !function_exists('imagecreatetruecolor')) {
+            return false;
+        }
+
+        $info = @getimagesize($sourcePath);
+        if (!$info || empty($info[0]) || empty($info[1]) || empty($info['mime'])) {
+            return false;
+        }
+
+        $srcW = (int) $info[0];
+        $srcH = (int) $info[1];
+        $mime = (string) $info['mime'];
+
+        $scale = 1.0;
+        if ($maxWidth > 0 && $srcW > $maxWidth) {
+            $scale = $maxWidth / $srcW;
+        }
+        $dstW = (int) max(1, round($srcW * $scale));
+        $dstH = (int) max(1, round($srcH * $scale));
+
+        $src = match ($mime) {
+            'image/jpeg' => function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($sourcePath) : null,
+            'image/png' => function_exists('imagecreatefrompng') ? @imagecreatefrompng($sourcePath) : null,
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : null,
+            default => null,
+        };
+        if (!$src) {
+            return false;
+        }
+
+        $dst = imagecreatetruecolor($dstW, $dstH);
+        if (!$dst) {
+            imagedestroy($src);
+            return false;
+        }
+
+        if (in_array($mime, ['image/png', 'image/webp'], true) && function_exists('imagealphablending')) {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+        }
+
+        if (!imagecopyresampled($dst, $src, 0, 0, 0, 0, $dstW, $dstH, $srcW, $srcH)) {
+            imagedestroy($src);
+            imagedestroy($dst);
+            return false;
+        }
+
+        imagedestroy($src);
+
+        $tmp = $destinationPath . '.tmp';
+        $ok = @imagewebp($dst, $tmp, max(0, min(100, $webpQuality)));
+        imagedestroy($dst);
+
+        if (!$ok || !is_file($tmp)) {
+            @unlink($tmp);
+            return false;
+        }
+
+        if (!@rename($tmp, $destinationPath)) {
+            @unlink($tmp);
+            return false;
+        }
+
+        return true;
+    }
 }
 
 
