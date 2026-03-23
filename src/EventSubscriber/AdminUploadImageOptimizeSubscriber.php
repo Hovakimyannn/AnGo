@@ -35,7 +35,7 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
                 'getter' => 'getImageUrl',
                 'subdir' => 'posts',
                 'maxWidth' => 1600,
-                'thumbMaxWidth' => 640,
+                'thumbMaxWidth' => 512,
                 'thumbGetter' => 'getImageThumbnailUrl',
                 'thumbSetter' => 'setImageThumbnailUrl',
             ],
@@ -45,7 +45,7 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
                 'getter' => 'getImageUrl',
                 'subdir' => 'posts',
                 'maxWidth' => 1600,
-                'thumbMaxWidth' => 640,
+                'thumbMaxWidth' => 512,
                 'thumbGetter' => 'getImageThumbnailUrl',
                 'thumbSetter' => 'setImageThumbnailUrl',
             ],
@@ -194,7 +194,7 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
         $thumbName = $stem . '-list.webp';
         $thumbPath = $postsDir . $thumbName;
 
-        if (!$this->photoOptimizer->writeResizedWebpCopy($path, $thumbPath, $thumbMaxWidth, 80)) {
+        if (!$this->photoOptimizer->writeResizedWebpCopy($path, $thumbPath, $thumbMaxWidth, 72)) {
             return;
         }
 
