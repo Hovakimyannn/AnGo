@@ -35,6 +35,10 @@ class ArtistPost
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
+    /** Filename in public/uploads/posts/ for grid/list (generated on upload). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageThumbnailUrl = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $seoTitle = null;
 
@@ -165,6 +169,18 @@ class ArtistPost
     public function setImageUrl(?string $imageUrl): static
     {
         $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getImageThumbnailUrl(): ?string
+    {
+        return $this->imageThumbnailUrl;
+    }
+
+    public function setImageThumbnailUrl(?string $imageThumbnailUrl): static
+    {
+        $this->imageThumbnailUrl = $imageThumbnailUrl;
 
         return $this;
     }

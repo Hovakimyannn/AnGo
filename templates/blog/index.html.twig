@@ -141,8 +141,11 @@
                        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                         <div class="relative h-56 bg-gray-100 overflow-hidden">
                             {% if post.imageUrl %}
-                                <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
+                                <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                      alt="{{ post.title }}"
+                                     loading="lazy"
+                                     decoding="async"
                                      class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center text-gray-400">

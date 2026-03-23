@@ -20,7 +20,6 @@ final class Version20260320111107 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE artist_profile ADD slug VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE home_page_settings ADD faq_title VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE home_page_settings ADD faq_item1_question VARCHAR(255) DEFAULT NULL');
         $this->addSql('ALTER TABLE home_page_settings ADD faq_item1_answer TEXT DEFAULT NULL');
@@ -33,7 +32,6 @@ final class Version20260320111107 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE artist_profile DROP slug');
         $this->addSql('ALTER TABLE home_page_settings DROP faq_title');
         $this->addSql('ALTER TABLE home_page_settings DROP faq_item1_question');
         $this->addSql('ALTER TABLE home_page_settings DROP faq_item1_answer');

@@ -7,21 +7,23 @@ use App\Entity\ArtistProfile;
 use App\Entity\DidYouKnowPost;
 use App\Entity\HomePageSettings;
 use App\Service\PhotoOptimizer;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\AfterEntityUpdatedEvent;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Single place: after EasyAdmin save, compress recently uploaded raster images
- * for all entities that store filenames under public/uploads/{photos|posts}/.
+ * After EasyAdmin save: compress raster uploads and, for post entities, write a small list thumbnail.
  */
 final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterface
 {
     private const JPEG_QUALITY = 82;
 
+    private const VIDEO_EXTENSIONS = ['mp4', 'webm', 'ogg'];
+
     /**
-     * @var array<string, list<array{getter: string, subdir: 'photos'|'posts', maxWidth: int}>>
+     * @var array<string, list<array<string, mixed>>>
      */
     private const FIELD_MAP = [
         ArtistProfile::class => [
@@ -29,10 +31,24 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
             ['getter' => 'getCoverImageUrl', 'subdir' => 'photos', 'maxWidth' => 1200],
         ],
         ArtistPost::class => [
-            ['getter' => 'getImageUrl', 'subdir' => 'posts', 'maxWidth' => 1600],
+            [
+                'getter' => 'getImageUrl',
+                'subdir' => 'posts',
+                'maxWidth' => 1600,
+                'thumbMaxWidth' => 640,
+                'thumbGetter' => 'getImageThumbnailUrl',
+                'thumbSetter' => 'setImageThumbnailUrl',
+            ],
         ],
         DidYouKnowPost::class => [
-            ['getter' => 'getImageUrl', 'subdir' => 'posts', 'maxWidth' => 1600],
+            [
+                'getter' => 'getImageUrl',
+                'subdir' => 'posts',
+                'maxWidth' => 1600,
+                'thumbMaxWidth' => 640,
+                'thumbGetter' => 'getImageThumbnailUrl',
+                'thumbSetter' => 'setImageThumbnailUrl',
+            ],
         ],
         HomePageSettings::class => [
             ['getter' => 'getHeroImage', 'subdir' => 'photos', 'maxWidth' => 2048],
@@ -42,8 +58,12 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
         ],
     ];
 
+    /** @var array<string, true> */
+    private array $handledEntityKeys = [];
+
     public function __construct(
         private readonly PhotoOptimizer $photoOptimizer,
+        private readonly EntityManagerInterface $entityManager,
         #[Autowire('%kernel.project_dir%')]
         private readonly string $projectDir,
     ) {
@@ -66,7 +86,15 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
             return;
         }
 
+        $id = method_exists($entity, 'getId') ? $entity->getId() : null;
+        $dedupKey = $class . '#' . ($id ?? spl_object_id($entity));
+        if (isset($this->handledEntityKeys[$dedupKey])) {
+            return;
+        }
+        $this->handledEntityKeys[$dedupKey] = true;
+
         $base = rtrim($this->projectDir, '/') . '/public/uploads/';
+        $needsFlush = false;
 
         foreach (self::FIELD_MAP[$class] as $spec) {
             $getter = $spec['getter'];
@@ -74,11 +102,20 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
                 continue;
             }
             $filename = $entity->$getter();
+
+            if (isset($spec['thumbSetter'], $spec['thumbGetter'], $spec['thumbMaxWidth'])) {
+                $this->syncPostThumbnail($entity, $spec, $base, $needsFlush);
+            }
+
             if (!is_string($filename) || $filename === '') {
                 continue;
             }
-            // Skip external URLs / absolute paths stored by mistake.
             if (str_contains($filename, '://') || str_starts_with($filename, '/')) {
+                continue;
+            }
+
+            $ext = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
+            if (in_array($ext, self::VIDEO_EXTENSIONS, true)) {
                 continue;
             }
 
@@ -92,7 +129,84 @@ final class AdminUploadImageOptimizeSubscriber implements EventSubscriberInterfa
                 continue;
             }
 
-            $this->photoOptimizer->optimize($path, maxWidth: $spec['maxWidth'], jpegQuality: self::JPEG_QUALITY);
+            $this->photoOptimizer->optimize($path, maxWidth: (int) $spec['maxWidth'], jpegQuality: self::JPEG_QUALITY);
         }
+
+        if ($needsFlush) {
+            $this->entityManager->flush();
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $spec
+     */
+    private function syncPostThumbnail(object $entity, array $spec, string $base, bool &$needsFlush): void
+    {
+        $getter = $spec['getter'];
+        $filename = $entity->$getter();
+        $postsDir = $base . $spec['subdir'] . '/';
+        $thumbGetter = (string) $spec['thumbGetter'];
+        $thumbSetter = (string) $spec['thumbSetter'];
+        $thumbMaxWidth = (int) $spec['thumbMaxWidth'];
+
+        $removeStoredThumb = function () use ($entity, $postsDir, $thumbGetter, $thumbSetter, &$needsFlush): void {
+            $old = $entity->$thumbGetter();
+            if (!is_string($old) || $old === '') {
+                return;
+            }
+            if (!str_contains($old, '://') && !str_starts_with($old, '/')) {
+                $p = $postsDir . $old;
+                if (is_file($p)) {
+                    @unlink($p);
+                }
+            }
+            $entity->$thumbSetter(null);
+            $needsFlush = true;
+        };
+
+        if (!is_string($filename) || $filename === '') {
+            $removeStoredThumb();
+
+            return;
+        }
+        if (str_contains($filename, '://') || str_starts_with($filename, '/')) {
+            return;
+        }
+
+        $ext = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
+        if (in_array($ext, self::VIDEO_EXTENSIONS, true)) {
+            $removeStoredThumb();
+
+            return;
+        }
+
+        $path = $postsDir . $filename;
+        if (!is_file($path) || !is_writable($path)) {
+            return;
+        }
+
+        $mtime = @filemtime($path);
+        if (!is_int($mtime) || (time() - $mtime) > 600) {
+            return;
+        }
+
+        $stem = (string) pathinfo($filename, PATHINFO_FILENAME);
+        $thumbName = $stem . '-list.' . pathinfo($filename, PATHINFO_EXTENSION);
+        $thumbPath = $postsDir . $thumbName;
+
+        if (!$this->photoOptimizer->writeResizedCopy($path, $thumbPath, $thumbMaxWidth, 78)) {
+            return;
+        }
+
+        $oldThumb = $entity->$thumbGetter();
+        if (is_string($oldThumb) && $oldThumb !== '' && $oldThumb !== $thumbName && !str_contains($oldThumb, '://')) {
+            $oldPath = $postsDir . $oldThumb;
+            if (is_file($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        $entity->$thumbSetter($thumbName);
+        $needsFlush = true;
     }
 }

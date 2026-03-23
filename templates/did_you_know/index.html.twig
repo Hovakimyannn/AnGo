@@ -27,8 +27,11 @@
                                         <i class="fas fa-play-circle text-5xl opacity-80"></i>
                                     </div>
                                 {% else %}
-                                    <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                    {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
+                                    <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                          alt="{{ post.title }}"
+                                         loading="lazy"
+                                         decoding="async"
                                          class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 {% endif %}
                             {% else %}
