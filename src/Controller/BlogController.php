@@ -51,6 +51,10 @@ class BlogController extends AbstractController
             'makeup' => 'Դիմահարդարում',
         ];
 
+        $listingPostCount = null !== $category
+            ? $postRepository->countPublishedByCategory($category)
+            : $postRepository->countPublished();
+
         return $this->render('blog/index.html.twig', [
             'posts' => $posts,
             'category' => $category,
@@ -61,6 +65,7 @@ class BlogController extends AbstractController
             'perPage' => $perPage,
             'totalPosts' => $totalPosts,
             'totalPages' => $totalPages,
+            'blog_listing_noindex' => 0 === $listingPostCount,
         ]);
     }
 

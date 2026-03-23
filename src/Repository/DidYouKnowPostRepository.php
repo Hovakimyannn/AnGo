@@ -28,4 +28,13 @@ class DidYouKnowPostRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function countPublished(): int
+    {
+        return (int) $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.isPublished = true')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

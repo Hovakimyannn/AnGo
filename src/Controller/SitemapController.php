@@ -4,8 +4,8 @@ namespace App\Controller;
 
 use App\Repository\ArtistPostRepository;
 use App\Repository\ArtistProfileRepository;
-use App\Repository\ServiceRepository;
 use App\Repository\DidYouKnowPostRepository;
+use App\Repository\ServiceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -14,6 +14,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class SitemapController extends AbstractController
 {
+    /** @var list<string> */
+    private const EXCLUDED_PATH_MARKERS = ['/login', '/signup', '/admin', '/reset-password', '/forgot-password'];
+
     #[Route('/sitemap.xml', name: 'app_sitemap', methods: ['GET'])]
     public function sitemap(
         ArtistProfileRepository $artistProfileRepository,
@@ -24,7 +27,16 @@ final class SitemapController extends AbstractController
     ): Response {
         $urls = [];
 
+        $today = new \DateTimeImmutable('today');
+
         $addUrl = function (string $loc, ?\DateTimeInterface $lastMod = null, ?string $changeFreq = null, ?float $priority = null) use (&$urls): void {
+            $path = (string) parse_url($loc, PHP_URL_PATH);
+            foreach (self::EXCLUDED_PATH_MARKERS as $marker) {
+                if (str_contains($path, $marker)) {
+                    return;
+                }
+            }
+
             $urls[$loc] = [
                 'loc' => $loc,
                 'lastmod' => $lastMod,
@@ -33,25 +45,41 @@ final class SitemapController extends AbstractController
             ];
         };
 
-        // --- Static/public pages ---
-        $addUrl($this->generateUrl('app_home', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 1.0);
+        // --- Static/public pages (lastmod = generation day, aligned with sitemap crawl freshness) ---
+        $addUrl($this->generateUrl('app_home', [], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 1.0);
 
-        // Artists list (with optional category filters)
-        $addUrl($this->generateUrl('app_artists', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
+        // Artists: only /artists exists; category filters use ?category= (no /artists/hair path — see ArtistController).
+        $addUrl($this->generateUrl('app_artists', [], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.8);
         foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
-            $addUrl($this->generateUrl('app_artists', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
+            $addUrl($this->generateUrl('app_artists', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.7);
         }
 
-        // Blog index + category pages
-        $addUrl($this->generateUrl('app_blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
-        foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
-            $addUrl($this->generateUrl('app_blog_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
+        // Blog index + categories: only when listing matches indexable content (same rule as blog noindex).
+        try {
+            if ($artistPostRepository->countPublished() > 0) {
+                $addUrl($this->generateUrl('app_blog_index', [], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.8);
+                foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
+                    if ($artistPostRepository->countPublishedByCategory($cat) > 0) {
+                        $addUrl($this->generateUrl('app_blog_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.7);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // DB unavailable: omit blog listing URLs (individual post loop below may still run or fail separately).
         }
 
         // Services index + category pages
-        $addUrl($this->generateUrl('app_service_index', [], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.8);
+        $addUrl($this->generateUrl('app_service_index', [], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.8);
         foreach (['hair', 'makeup', 'nails', 'pedicure'] as $cat) {
-            $addUrl($this->generateUrl('app_service_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), null, 'weekly', 0.7);
+            $addUrl($this->generateUrl('app_service_category', ['category' => $cat], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.7);
+        }
+
+        // Did you know index: only when there is at least one published post (indexable listing).
+        try {
+            if ($didYouKnowPostRepository->countPublished() > 0) {
+                $addUrl($this->generateUrl('app_did_you_know_index', [], UrlGeneratorInterface::ABSOLUTE_URL), $today, 'weekly', 0.8);
+            }
+        } catch (\Throwable $e) {
         }
 
         try {
@@ -98,7 +126,7 @@ final class SitemapController extends AbstractController
                 $slug = trim($slugger->slug($name)->lower()->toString(), '-');
                 if ($slug === '') {
                     $cat = trim((string) $service->getCategory());
-                    $slug = $cat !== '' ? $cat . '-service' : 'service';
+                    $slug = $cat !== '' ? $cat.'-service' : 'service';
                 }
 
                 $addUrl(
@@ -180,5 +208,3 @@ final class SitemapController extends AbstractController
         return implode("\n", $out)."\n";
     }
 }
-
-

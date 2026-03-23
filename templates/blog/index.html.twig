@@ -8,6 +8,11 @@
         Բացահայտեք գեղեցկության աշխարհը ANGO բլոգում։ Օգտակար խորհուրդներ, մասնագետների փորձը և իրական աշխատանքների օրինակներ (վարսահարդարում, մատնահարդարում, դիմահարդարում)։
     {%- endif -%}
 {% endblock %}
+{% block head_extra %}
+    {% if blog_listing_noindex %}
+        <meta name="robots" content="noindex,follow">
+    {% endif %}
+{% endblock %}
 {% block canonical_url %}
     {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
     {% set __params = category ? {category: category} : {} %}

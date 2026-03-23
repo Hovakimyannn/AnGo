@@ -89,6 +89,29 @@ class ArtistPostRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function countPublished(): int
+    {
+        return $this->countPublishedByCategory(null);
+    }
+
+    /**
+     * Count published posts for the blog listing at /blog (null) or /blog/{category}.
+     */
+    public function countPublishedByCategory(?string $category = null): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(DISTINCT p.id)')
+            ->andWhere('p.isPublished = true');
+
+        if (null !== $category && '' !== $category) {
+            $qb->join('p.services', 's')
+                ->andWhere('s.category = :cat')
+                ->setParameter('cat', $category);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
 }
 
 
