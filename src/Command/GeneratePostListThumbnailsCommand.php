@@ -22,7 +22,7 @@ final class GeneratePostListThumbnailsCommand extends Command
 {
     private const VIDEO_EXT = ['mp4', 'webm', 'ogg'];
 
-    private const THUMB_MAX_WIDTH = 512;
+    private const THUMB_MAX_WIDTH = 640;
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
@@ -71,7 +71,7 @@ final class GeneratePostListThumbnailsCommand extends Command
                 $thumbName = $stem . '-list.webp';
                 $thumbPath = $postsDir . $thumbName;
 
-                if (!$this->photoOptimizer->writeResizedWebpCopy($srcPath, $thumbPath, self::THUMB_MAX_WIDTH, 72)) {
+                if (!$this->photoOptimizer->writeResizedWebpCopy($srcPath, $thumbPath, self::THUMB_MAX_WIDTH, 80)) {
                     continue;
                 }
 

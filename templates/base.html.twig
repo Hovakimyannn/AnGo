@@ -23,8 +23,6 @@
     <meta name="apple-mobile-web-app-title" content="ANGO" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#111827">
-    {# Matches Tailwind bg-gray-50 while app.css loads asynchronously #}
-    <style>html{background-color:#f9fafb}</style>
 
     {# Open Graph / social previews #}
     {% set __ango_page_title = block('title')|striptags|trim %}
@@ -49,10 +47,8 @@
     <meta name="twitter:image" content="{{ __ango_og_image }}">
     <meta name="twitter:image:alt" content="{{ __ango_og_image_alt }}">
 
-    {# Tailwind CSS (compiled) — non-blocking load (Lighthouse render-blocking); brief FOUC possible #}
-    {% set __ango_app_css_href = asset('build/app.css') ~ '?v=' ~ asset_version('build/app.css') %}
-    <link rel="preload" href="{{ __ango_app_css_href }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ __ango_app_css_href }}"></noscript>
+    {# Tailwind CSS (compiled) #}
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
 
     {# Icons #}
     {% set __ango_fa_local_path = 'vendor/fontawesome/css/all.min.css' %}

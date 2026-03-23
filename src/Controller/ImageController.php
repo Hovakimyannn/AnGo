@@ -43,20 +43,7 @@ final class ImageController extends AbstractController
         }
 
         $safeName = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename) ?? $filename;
-        $qTag = match ($fmt) {
-            'webp' => '72',
-            'png' => 'p6',
-            'jpeg', 'jpg' => 'j82',
-            default => '0',
-        };
-        $cachePath = sprintf(
-            '%s/%s-w%d-%s.%s',
-            $cacheDir,
-            $safeName,
-            $w,
-            $qTag,
-            $fmt === 'jpeg' ? 'jpg' : $fmt
-        );
+        $cachePath = sprintf('%s/%s-w%d.%s', $cacheDir, $safeName, $w, $fmt === 'jpeg' ? 'jpg' : $fmt);
 
         if (!is_file($cachePath)) {
             $generated = $this->generateResized($sourcePath, $cachePath, $w, $fmt);
@@ -127,7 +114,7 @@ final class ImageController extends AbstractController
         }
 
         $ok = match ($fmt) {
-            'webp' => function_exists('imagewebp') ? @imagewebp($dst, $targetPath, 72) : false,
+            'webp' => function_exists('imagewebp') ? @imagewebp($dst, $targetPath, 80) : false,
             'png' => function_exists('imagepng') ? @imagepng($dst, $targetPath, 6) : false,
             'jpeg', 'jpg' => function_exists('imagejpeg') ? @imagejpeg($dst, $targetPath, 82) : false,
             default => false,

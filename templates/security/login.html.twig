@@ -12,9 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="ANGO" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#111827">
-    {% set __ango_app_css_href = asset('build/app.css') ~ '?v=' ~ asset_version('build/app.css') %}
-    <link rel="preload" href="{{ __ango_app_css_href }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="{{ __ango_app_css_href }}"></noscript>
+    <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
     {% set __ango_fa_local_path = 'vendor/fontawesome/css/all.min.css' %}
     {% set __ango_fa_local_ver = asset_version(__ango_fa_local_path) %}
     {% if __ango_fa_local_ver != '0' %}

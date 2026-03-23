@@ -12,13 +12,6 @@
     {% if blog_listing_noindex %}
         <meta name="robots" content="noindex,follow">
     {% endif %}
-    {% if posts is defined and posts|length > 0 %}
-        {% set __blog_first = posts[0] %}
-        {% if __blog_first.imageUrl %}
-            {% set __blog_preload = __blog_first.imageThumbnailUrl ?: __blog_first.imageUrl %}
-            <link rel="preload" as="image" href="{{ absolute_url(asset('uploads/posts/' ~ __blog_preload)) }}">
-        {% endif %}
-    {% endif %}
 {% endblock %}
 {% block canonical_url %}
     {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
@@ -151,7 +144,7 @@
                                 {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
                                 <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                      alt="{{ post.title }}"
-                                     {% if loop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                                     loading="lazy"
                                      decoding="async"
                                      class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             {% else %}

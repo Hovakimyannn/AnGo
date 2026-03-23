@@ -3,19 +3,6 @@
 {% block title %}Իսկ դուք գիտեի՞ք, որ... | ANGO{% endblock %}
 {% block meta_description %}ANGO հետաքրքիր փաստեր և օգտակար նյութեր։{% endblock %}
 
-{% block head_extra %}
-    {% if posts is defined and posts|length > 0 %}
-        {% set __dyk_first = posts[0] %}
-        {% if __dyk_first.imageUrl %}
-            {% set __dyk_ext = __dyk_first.imageUrl|split('.')|last|lower %}
-            {% if __dyk_ext not in ['mp4', 'webm', 'ogg'] %}
-                {% set __dyk_preload = __dyk_first.imageThumbnailUrl ?: __dyk_first.imageUrl %}
-                <link rel="preload" as="image" href="{{ absolute_url(asset('uploads/posts/' ~ __dyk_preload)) }}">
-            {% endif %}
-        {% endif %}
-    {% endif %}
-{% endblock %}
-
 {% block body %}
     <div class="bg-white">
         <div class="container mx-auto px-4 py-12">
@@ -41,10 +28,9 @@
                                     </div>
                                 {% else %}
                                     {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
-                                    {% set __dyk_lcp = loop.first %}
                                     <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                          alt="{{ post.title }}"
-                                         {% if __dyk_lcp %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                                         loading="lazy"
                                          decoding="async"
                                          class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                 {% endif %}

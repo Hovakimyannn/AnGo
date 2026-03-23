@@ -265,7 +265,7 @@
                                             {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
                                             <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                                  alt="{{ post.title }}"
-                                                 {% if loop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                                                 loading="lazy"
                                                  decoding="async"
                                                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                         {% else %}
