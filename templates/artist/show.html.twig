@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/post_listing_image.html.twig' as postImg %}
 
 {% if artist.photoUrl %}
     {# Add a version query param to help social platforms refresh cached previews #}
@@ -241,14 +242,14 @@
                                     <div class="-mb-px flex items-center gap-10 overflow-x-auto whitespace-nowrap pb-1 max-w-full">
                                     <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                                        data-ajax-swap="#artistPostsContent"
-                                       class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ (not selectedCategory and not selectedServiceId) ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
+                                       class="inline-flex items-center min-h-[44px] px-2 py-2 text-sm font-semibold border-b-2 transition {{ (not selectedCategory and not selectedServiceId) ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                         Բոլոր ծառայությունները
                                     </a>
 
                                     {% for s in artist.services %}
                                         <a href="{{ path('app_artist_show', {slug: artist.slug}) ~ '?category=' ~ s.category ~ '&service=' ~ s.id }}"
                                            data-ajax-swap="#artistPostsContent"
-                                           class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ selectedServiceId == s.id ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
+                                           class="inline-flex items-center min-h-[44px] px-2 py-2 text-sm font-semibold border-b-2 transition {{ selectedServiceId == s.id ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                             {{ s.name }}
                                         </a>
                                     {% endfor %}
@@ -262,9 +263,7 @@
                                 <a href="{{ path('app_blog_show', {id: post.id, slug: post.slug}) }}" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                                     <div class="relative h-48 bg-gray-100 overflow-hidden">
                                         {% if post.imageUrl %}
-                                            <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
-                                                 alt="{{ post.title }}"
-                                                 class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                            {{ postImg.picture(post.imageUrl, post.title, 'lazy', '(min-width: 768px) 50vw, 100vw') }}
                                         {% else %}
                                             <div class="w-full h-full flex items-center justify-center text-gray-400">
                                                 <i class="fas fa-image text-3xl"></i>

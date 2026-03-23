@@ -4,7 +4,7 @@
   "scripts": {
     "build:css": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --minify",
     "watch:css": "tailwindcss -c tailwind.config.js -i ./assets/styles/app.css -o ./public/build/app.css --watch",
-    "build:fa": "mkdir -p ./public/vendor/fontawesome/css ./public/vendor/fontawesome/webfonts && cp ./node_modules/@fortawesome/fontawesome-free/css/all.min.css ./public/vendor/fontawesome/css/all.min.css && cp -r ./node_modules/@fortawesome/fontawesome-free/webfonts/* ./public/vendor/fontawesome/webfonts/"
+    "build:fa": "mkdir -p ./public/vendor/fontawesome/css ./public/vendor/fontawesome/webfonts && cp ./node_modules/@fortawesome/fontawesome-free/css/all.min.css ./public/vendor/fontawesome/css/all.min.css && cp -r ./node_modules/@fortawesome/fontawesome-free/webfonts/* ./public/vendor/fontawesome/webfonts/ && perl -pi -e 's/font-display:block/font-display:swap/g' ./public/vendor/fontawesome/css/all.min.css"
   },
   "devDependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",

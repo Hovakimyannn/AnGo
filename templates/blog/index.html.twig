@@ -1,4 +1,5 @@
 {% extends 'base.html.twig' %}
+{% import 'macros/post_listing_image.html.twig' as postImg %}
 
 {% block title %}{{ category ? (categoryLabel ~ ' — Բլոգ') : 'Գեղեցկության բլոգ — Խորհուրդներ և աշխատանքներ' }} | ANGO{% endblock %}
 {% block meta_description %}
@@ -106,7 +107,7 @@
                                 {% set href = t.key ? path(t.route, {category: t.key}) : path(t.route) %}
                                 <a href="{{ href }}"
                                    data-ajax-swap="#blogContent"
-                                   class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ isActive ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
+                                   class="inline-flex items-center min-h-[44px] px-2 py-2 text-sm font-semibold border-b-2 transition {{ isActive ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                     {{ t.label }}
                                 </a>
                             {% endfor %}
@@ -141,9 +142,7 @@
                        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                         <div class="relative h-56 bg-gray-100 overflow-hidden">
                             {% if post.imageUrl %}
-                                <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
-                                     alt="{{ post.title }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                {{ postImg.picture(post.imageUrl, post.title, 'lazy', '(min-width: 768px) 33vw, 100vw') }}
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center text-gray-400">
                                     <i class="fas fa-image text-4xl"></i>
@@ -169,7 +168,7 @@
                             <p class="text-sm text-gray-600">
                                 {{ post.excerpt(180) }}
                             </p>
-                            <div class="text-xs text-gray-400 pt-2">
+                            <div class="text-xs text-gray-600 pt-2">
                                 {{ post.publishedAt ? post.publishedAt|date('Y-m-d') : post.createdAt|date('Y-m-d') }}
                             </div>
                         </div>
@@ -195,7 +194,7 @@
                         {% set __prev_query = __prev_query|merge(['page=' ~ __prev_page]) %}
                     {% endif %}
                     {% set __prev_href = __prev_query ? (__base ~ '?' ~ __prev_query|join('&')) : __base %}
-                    <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+                    <a href="{{ __prev_href }}" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
 
                     {% for p in 1..totalPages %}
                         {% set __query = [] %}
@@ -206,7 +205,7 @@
                             {% set __query = __query|merge(['page=' ~ p]) %}
                         {% endif %}
                         {% set __href = __query ? (__base ~ '?' ~ __query|join('&')) : __base %}
-                        <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                        <a href="{{ __href }}" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
                     {% endfor %}
 
                     {% set __next_page = page + 1 %}
@@ -218,7 +217,7 @@
                         {% set __next_query = __next_query|merge(['page=' ~ __next_page]) %}
                     {% endif %}
                     {% set __next_href = __next_query ? (__base ~ '?' ~ __next_query|join('&')) : __base %}
-                    <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+                    <a href="{{ __next_href }}" class="inline-flex items-center justify-center min-h-[44px] min-w-[44px] px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
                 </nav>
             {% endif %}
         </div>

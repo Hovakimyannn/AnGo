@@ -1,0 +1,33 @@
+{# Responsive post thumbnails (blog / did-you-know / service samples). Uses ImageController resize + WebP. #}
+{% macro picture(filename, alt, loading, sizes) %}
+    {% set ext = filename|split('.')|last|lower %}
+    {% if ext in ['jpg', 'jpeg', 'png', 'webp'] %}
+        {% set img_fmt = ext == 'png' ? 'png' : (ext == 'webp' ? 'webp' : 'jpg') %}
+        {% set base = path('app_image_post', { filename: filename }) %}
+        {% set v = asset_version('uploads/posts/' ~ filename) %}
+        <picture>
+            <source
+                type="image/webp"
+                srcset="{{ base }}?w=400&fmt=webp&v={{ v }} 400w, {{ base }}?w=800&fmt=webp&v={{ v }} 800w"
+                sizes="{{ sizes }}"
+            >
+            <img
+                src="{{ base }}?w=800&fmt={{ img_fmt }}&v={{ v }}"
+                srcset="{{ base }}?w=400&fmt={{ img_fmt }}&v={{ v }} 400w, {{ base }}?w=800&fmt={{ img_fmt }}&v={{ v }} 800w"
+                sizes="{{ sizes }}"
+                alt="{{ alt }}"
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                loading="{{ loading }}"
+                decoding="async"
+            >
+        </picture>
+    {% else %}
+        <img
+            src="{{ asset('uploads/posts/' ~ filename) }}"
+            alt="{{ alt }}"
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+            loading="{{ loading }}"
+            decoding="async"
+        >
+    {% endif %}
+{% endmacro %}

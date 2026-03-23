@@ -180,7 +180,7 @@
                         name.textContent = c.userName || 'User';
 
                         const time = document.createElement('div');
-                        time.className = 'text-xs text-gray-400';
+                        time.className = 'text-xs text-gray-600';
                         time.textContent = c.createdAt || '';
 
                         header.appendChild(name);

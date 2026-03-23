@@ -17,6 +17,17 @@
   :lang(hy) body {
     font-family: 'Noto Sans Armenian', 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
   }
+
+  /* Mobile: legible minimum sizes + avoid iOS input zoom (Lighthouse / a11y) */
+  @media (max-width: 768px) {
+    button,
+    input,
+    optgroup,
+    select,
+    textarea {
+      font-size: 1rem;
+    }
+  }
 }
 
 /* -------------------------------------------------------------------------- */

@@ -47,8 +47,10 @@
     <meta name="twitter:image" content="{{ __ango_og_image }}">
     <meta name="twitter:image:alt" content="{{ __ango_og_image_alt }}">
 
-    {# Tailwind CSS (compiled) #}
-    <link rel="stylesheet" href="{{ asset('build/app.css') }}?v={{ asset_version('build/app.css') }}">
+    {# Tailwind CSS (compiled) — not render-blocking: print media until onload (Lighthouse) #}
+    {% set __ango_app_css = asset('build/app.css') ~ '?v=' ~ asset_version('build/app.css') %}
+    <link rel="stylesheet" href="{{ __ango_app_css }}" media="print" onload="this.onload=null;this.media='all'">
+    <noscript><link rel="stylesheet" href="{{ __ango_app_css }}"></noscript>
 
     {# Icons #}
     {% set __ango_fa_local_path = 'vendor/fontawesome/css/all.min.css' %}
@@ -202,57 +204,57 @@
 
         <!-- Desktop Menu -->
         <nav class="hidden md:flex space-x-6 items-center font-medium text-sm text-gray-600">
-            <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+            <a href="{{ path('app_home') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Գլխավոր</a>
 
             <!-- Artists Dropdown -->
             <div class="relative group">
-                <button class="flex items-center hover:text-pink-600 transition gap-1 h-full">
+                <button type="button" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition gap-1">
                     Մասնագետներ <i class="fas fa-chevron-down text-xs"></i>
                 </button>
 
                 <!-- Fixed Dropdown with Links -->
                 <div class="absolute left-0 top-full pt-2 w-48 hidden group-hover:block origin-top-left z-50">
                     <div class="bg-white shadow-xl rounded-lg overflow-hidden border-t-2 border-pink-600">
-                        <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Վարսահարդարներ</a>
-                        <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Մատնահարդարներ</a>
-                        <a href="{{ path('app_artists', {'category': 'pedicure'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Ոտնահարդարներ</a>
-                        <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Դիմահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="flex items-center min-h-[44px] px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Վարսահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="flex items-center min-h-[44px] px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Մատնահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'pedicure'}) }}" data-ajax-swap="#artistsContent" class="flex items-center min-h-[44px] px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Ոտնահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="flex items-center min-h-[44px] px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Դիմահարդարներ</a>
                     </div>
                 </div>
             </div>
 
-            <a href="{{ path('app_service_index') }}" class="hover:text-pink-600 transition">Գնացուցակ</a>
-            <a href="{{ path('app_home') }}#about" class="hover:text-pink-600 transition">Մեր մասին</a>
-            <a href="{{ path('app_home') }}#contact" class="hover:text-pink-600 transition">Կապ</a>
-            <a href="{{ path('app_blog_index') }}" class="hover:text-pink-600 transition">Բլոգ</a>
-            <a href="{{ path('app_did_you_know_index') }}" class="hover:text-pink-600 transition">Իսկ դուք գիտեի՞ք, որ...</a>
+            <a href="{{ path('app_service_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Գնացուցակ</a>
+            <a href="{{ path('app_home') }}#about" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Մեր մասին</a>
+            <a href="{{ path('app_home') }}#contact" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Կապ</a>
+            <a href="{{ path('app_blog_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Բլոգ</a>
+            <a href="{{ path('app_did_you_know_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">Իսկ դուք գիտեի՞ք, որ...</a>
 
             {% if app.user %}
-                <a href="{{ path('app_profile') }}" class="hover:text-pink-600 transition">
+                <a href="{{ path('app_profile') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">
                     <i class="fas fa-user mr-1"></i> Իմ պրոֆիլը
                 </a>
                 {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_ARTIST') %}
-                    <a href="{{ path('admin') }}" class="hover:text-pink-600 transition">
+                    <a href="{{ path('admin') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">
                         <i class="fas fa-cog mr-1"></i> Admin
                     </a>
                 {% endif %}
             {% else %}
-                <a href="{{ path('app_login') }}" class="hover:text-pink-600 transition">
+                <a href="{{ path('app_login') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">
                     <i class="fas fa-sign-in-alt mr-1"></i> Մուտք
                 </a>
-                <a href="{{ path('app_signup') }}" class="hover:text-pink-600 transition">
+                <a href="{{ path('app_signup') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-600 transition">
                     <i class="fas fa-user-plus mr-1"></i> Գրանցվել
                 </a>
             {% endif %}
 
             <!-- Booking Button -->
-            <a href="#booking" class="bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-pink-600 transition shadow-lg transform hover:scale-105 duration-200">
+            <a href="#booking" class="inline-flex items-center justify-center min-h-[44px] bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-pink-600 transition shadow-lg transform hover:scale-105 duration-200">
                 <i class="far fa-calendar-check mr-2"></i>Ամրագրել
             </a>
         </nav>
 
         <!-- Mobile Menu Button -->
-        <button id="angoMobileMenuButton" type="button" aria-label="Բացել/փակել մենյուն" aria-controls="mobile-menu" aria-expanded="false" class="md:hidden text-2xl text-gray-700 focus:outline-none">
+        <button id="angoMobileMenuButton" type="button" aria-label="Բացել/փակել մենյուն" aria-controls="mobile-menu" aria-expanded="false" class="md:hidden inline-flex items-center justify-center min-h-[44px] min-w-[44px] text-2xl text-gray-700 focus:outline-none">
             <i class="fas fa-bars"></i>
         </button>
     </div>
@@ -310,12 +312,12 @@
             <!-- Brand & Tagline -->
             <div class="space-y-4">
                 <h3 class="text-2xl font-bold text-pink-500">ANGO</h3>
-                <p class="text-gray-400 text-sm leading-relaxed">{{ _footer_tagline|nl2br }}</p>
+                <p class="text-gray-300 text-sm leading-relaxed">{{ _footer_tagline|nl2br }}</p>
                 <div class="flex space-x-4 pt-2">
-                    <a href="{{ _footer_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Հետևեք մեզ Instagram-ում" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-pink-600 transition duration-300">
+                    <a href="{{ _footer_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Հետևեք մեզ Instagram-ում" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-800 hover:bg-pink-600 transition duration-300">
                         <i class="fab fa-instagram text-xl"></i>
                     </a>
-                    <a href="{{ _footer_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Հետևեք մեզ Facebook-ում" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-blue-600 transition duration-300">
+                    <a href="{{ _footer_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Հետևեք մեզ Facebook-ում" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-800 hover:bg-blue-600 transition duration-300">
                         <i class="fab fa-facebook-f text-lg"></i>
                     </a>
                 </div>
@@ -324,44 +326,44 @@
             <!-- Quick Services Links -->
             <div class="space-y-4">
                 <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Ծառայություններ</h4>
-                <ul class="space-y-2 text-sm text-gray-400">
-                    <li><a href="{{ path('app_artists', {category: 'hair'}) }}" class="hover:text-pink-500 transition">Վարսահարդարում</a></li>
-                    <li><a href="{{ path('app_artists', {category: 'nails'}) }}" class="hover:text-pink-500 transition">Մատնահարդարում</a></li>
-                    <li><a href="{{ path('app_artists', {category: 'pedicure'}) }}" class="hover:text-pink-500 transition">Ոտնահարդարում</a></li>
-                    <li><a href="{{ path('app_artists', {category: 'makeup'}) }}" class="hover:text-pink-500 transition">Դիմահարդարում</a></li>
-                    <li><a href="{{ path('app_service_index') }}" class="hover:text-pink-500 transition">Գնացուցակ</a></li>
+                <ul class="space-y-2 text-sm text-gray-300">
+                    <li><a href="{{ path('app_artists', {category: 'hair'}) }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Վարսահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'nails'}) }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Մատնահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'pedicure'}) }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Ոտնահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'makeup'}) }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Դիմահարդարում</a></li>
+                    <li><a href="{{ path('app_service_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Գնացուցակ</a></li>
                 </ul>
             </div>
 
             <!-- Company Info Links -->
             <div class="space-y-4">
                 <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Տեղեկատվություն</h4>
-                <ul class="space-y-2 text-sm text-gray-400">
-                    <li><a href="{{ path('app_home') }}#about" class="hover:text-pink-500 transition">Մեր մասին</a></li>
-                    <li><a href="{{ path('app_home') }}#contact" class="hover:text-pink-500 transition">Հետադարձ կապ</a></li>
-                    <li><a href="{{ path('app_blog_index') }}" class="hover:text-pink-500 transition">Բլոգ / Օգտակար խորհուրդներ</a></li>
-                    <li><a href="{{ path('app_did_you_know_index') }}" class="hover:text-pink-500 transition">Իսկ դուք գիտեի՞ք, որ...</a></li>
+                <ul class="space-y-2 text-sm text-gray-300">
+                    <li><a href="{{ path('app_home') }}#about" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Մեր մասին</a></li>
+                    <li><a href="{{ path('app_home') }}#contact" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Հետադարձ կապ</a></li>
+                    <li><a href="{{ path('app_blog_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Բլոգ / Օգտակար խորհուրդներ</a></li>
+                    <li><a href="{{ path('app_did_you_know_index') }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">Իսկ դուք գիտեի՞ք, որ...</a></li>
                 </ul>
             </div>
 
             <!-- Contact Details -->
             <div class="space-y-4">
                 <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Կապ</h4>
-                <div class="space-y-3 text-sm text-gray-400">
+                <div class="space-y-3 text-sm text-gray-300">
                     <p class="flex items-start gap-3">
                         <i class="fas fa-map-marker-alt text-pink-500 mt-1"></i>
-                        <button type="button" onclick="window.angoOpenMapSelector()" class="hover:text-pink-500 transition text-left focus:outline-none">
+                        <button type="button" onclick="window.angoOpenMapSelector()" class="min-h-[44px] inline-flex items-center hover:text-pink-500 transition text-left focus:outline-none">
                             {{ _footer_address }}
                         </button>
                     </p>
                     <p class="flex items-center gap-3">
                         <i class="fas fa-phone text-pink-500"></i>
-                        <a href="tel:{{ _footer_phone|replace({' ': ''}) }}" class="hover:text-pink-500 transition">
+                        <a href="tel:{{ _footer_phone|replace({' ': ''}) }}" class="inline-flex items-center min-h-[44px] hover:text-pink-500 transition">
                             {{ _footer_phone }}
                         </a>
                     </p>
                     <div class="pt-2">
-                        <p class="text-xs text-gray-500 mb-1 font-bold uppercase tracking-wider">Աշխատանքային ժամեր</p>
+                        <p class="text-xs text-gray-300 mb-1 font-bold uppercase tracking-wider">Աշխատանքային ժամեր</p>
                         <p>{{ _footer_hours1 }}</p>
                         <p>{{ _footer_hours2 }}</p>
                     </div>
@@ -369,10 +371,10 @@
             </div>
         </div>
 
-        <div class="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+        <div class="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-300">
             <p>&copy; {{ "now"|date("Y") }} ANGO. {{ _footer_copyright }}</p>
             <div class="flex gap-6">
-                <span class="hover:text-gray-300 transition">Yerevan, Armenia</span>
+                <span class="text-gray-300">Yerevan, Armenia</span>
             </div>
         </div>
     </div>

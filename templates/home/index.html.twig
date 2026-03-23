@@ -4,8 +4,14 @@
 {% block meta_description %}Գեղեցկության սրահ Երևանում՝ վարսահարդարում, մատնահարդարում, ոտնահարդարում, դիմահարդարում։ Մազերի խնամք, մանիկյուր, շելլակ։ Ամրագրել առցանց՝ ANGO (Ռոստովյան 34/1, Երևան)։{% endblock %}
 {% block meta_keywords %}ANGO GEXECKUTYAN SRAH, սալոն ԱՆԳՈ ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀ, ՎԱՐՍԱՀԱՐԴԱՐՄԱՆ ԿԵՆՏՐՈՆ, ԿԵՆՏՐՈՆՆԵՐ, GEXECKUTJAN, GEXECKUCYAN, SRAH, SRAHNER, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀ, սալոն, ՄԵՅՔԱՓԻ (ՄԵՅՔ ԱՓԻ) ՍՏՈՒԴԻԱ, ՍՏՈՒԴԻԱՆԵՐ, GEXECKUTYAN SRAH, VARSAVIRANOCNER, GEXECKUTYAN SRAHNER, VARSAVIRANOC, GEXECKUTYAN SRAHI CARAYUTYUNNER, GEXECKUTYAN SRAHI CARAYUTYUN, VARSAVIRANOCI CARAYUTYUN, VARSAVIRANOCNER KANANC HAMAR, KANANC VARSAVIRANOCI CARAYUTYUNNER, KANANC VARSAVIRANOCI CARAYUTYUN, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆ, KANANC VARSAVIRANOCNER, VARSAVIRANOCI CARAYUTYUNNER, KANANC VARSAVIRANOC, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀԻ ԾԱՌԱՅՈՒԹՅՈՒՆ, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆՆԵՐ, VARSAVIRANOC KANANC HAMAR, ՎԱՐՍԱՎԻՐԱՆՈՑՆԵՐ, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀՆԵՐ, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀԻ ԾԱՌԱՅՈՒԹՅՈՒՆՆԵՐ, ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆՆԵՐ, ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆ, ՎԱՐՍԱՎԻՐԱՆՈՑ՝ ԿԱՆԱՆՑ ՀԱՄԱՐ, ՎԱՐՍԱՎԻՐԱՆՈՑՆԵՐ՝ ԿԱՆԱՆՑ ՀԱՄԱՐ, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆՆԵՐ, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑԻ ԾԱՌԱՅՈՒԹՅՈՒՆ, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑ, ԿԱՆԱՆՑ ՎԱՐՍԱՎԻՐԱՆՈՑՆԵՐ, ՎԱՐՍԱՎԻՐԱՆՈՑ, ԴԻՄԱՀԱՐԴԱՐՄԱՆ ՍՐԱՀ, DIMAHARDARMAN SRAH, ԴԻՄԱՀԱՐԴԱՐՄԱՆ ՍՐԱՀՆԵՐ, DIMAHARDARUM, DIMAHARDARMAN SRAHNER, ANGO GEXECKUTYAN SRAH, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀ ԷՐԵԲՈՒՆԻՈՒՄ, ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀ ՌՈՍՏՈՎՅԱՆ, ԼԱՎԱԳՈՒՅՆ ԳԵՂԵՑԿՈՒԹՅԱՆ ՍՐԱՀ ԵՐԵՎԱՆՈՒՄ, ՄԱՆԻԿՅՈՒՐ ԵՐԵՎԱՆ, ՇԵԼԼԱԿ ԵՐԵՎԱՆ, ՀԱՐՍԱՆԵԿԱՆ ՍԱՆՐՎԱԾՔՆԵՐ, ԵՐԵԿՈՅԱՆ ԴԻՄԱՀԱՐԴԱՐՈՒՄ, ԱՌՑԱՆՑ ԳՐԱՆՑՈՒՄ ՎԱՐՍԱՎԻՐԻ ՄՈՏ{% endblock %}
 {% block head_extra %}
-    {# Help mobile LCP by preloading the first visible artist photo (if present) #}
-    {% if artists is defined and artists|length > 0 and artists[0].photoUrl %}
+    {# LCP: hero image first when set (picture > img is usually the LCP element) #}
+    {% if homeSettings is defined and homeSettings and homeSettings.heroImage %}
+        {% set hero = homeSettings.heroImage %}
+        <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: hero }) ~ '?w=960&fmt=webp' }}" type="image/webp">
+        <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: hero }) ~ '?w=960&fmt=jpg' }}" type="image/jpeg">
+    {% endif %}
+    {# Below-the-fold artist strip (only when no custom hero — default Unsplash hero is external) #}
+    {% if not (homeSettings is defined and homeSettings and homeSettings.heroImage) and artists is defined and artists|length > 0 and artists[0].photoUrl %}
         <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: artists[0].photoUrl }) ~ '?w=384&fmt=webp' }}" type="image/webp">
         <link rel="preload" as="image" href="{{ path('app_image_photo', { filename: artists[0].photoUrl }) ~ '?w=384&fmt=jpg' }}" type="image/jpeg">
     {% endif %}

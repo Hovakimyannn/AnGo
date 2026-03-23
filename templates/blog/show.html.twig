@@ -135,23 +135,23 @@
 
                     {# Social Share Buttons #}
                     <div class="flex items-center gap-3 mt-5 pb-6 border-b border-gray-100">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Կիսվել՝</span>
+                        <span class="text-xs font-bold text-gray-600 uppercase tracking-wider">Կիսվել՝</span>
                         {% set __share_url = absolute_url(app.request.requestUri)|url_encode %}
                         {% set __share_title = post.title|url_encode %}
 
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ __share_url }}" target="_blank" rel="noopener" 
-                           style="background-color: #1877f2; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
-                           class="hover:opacity-80 transition" title="Կիսվել Facebook-ում">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ __share_url }}" target="_blank" rel="noopener"
+                           style="background-color: #1877f2; color: white; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
+                           class="hover:opacity-80 transition shrink-0" title="Կիսվել Facebook-ում">
                             <i class="fab fa-facebook-f" style="font-size: 16px;"></i>
                         </a>
-                        <a href="https://t.me/share/url?url={{ __share_url }}&text={{ __share_title }}" target="_blank" rel="noopener" 
-                           style="background-color: #24A1DE; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
-                           class="hover:opacity-80 transition" title="Կիսվել Telegram-ում">
+                        <a href="https://t.me/share/url?url={{ __share_url }}&text={{ __share_title }}" target="_blank" rel="noopener"
+                           style="background-color: #24A1DE; color: white; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 10px; text-decoration: none;"
+                           class="hover:opacity-80 transition shrink-0" title="Կիսվել Telegram-ում">
                             <i class="fab fa-telegram-plane" style="font-size: 18px;"></i>
                         </a>
-                        <a href="https://www.addtoany.com/add_to/viber?linkurl={{ __share_url }}&linkname={{ __share_title }}" target="_blank" rel="noopener" 
-                           style="background-color: #7360f2; color: white; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none;"
-                           class="hover:opacity-80 transition" title="Կիսվել Viber-ում">
+                        <a href="https://www.addtoany.com/add_to/viber?linkurl={{ __share_url }}&linkname={{ __share_title }}" target="_blank" rel="noopener"
+                           style="background-color: #7360f2; color: white; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; text-decoration: none;"
+                           class="hover:opacity-80 transition shrink-0" title="Կիսվել Viber-ում">
                             <i class="fab fa-viber" style="font-size: 18px;"></i>
                         </a>
                     </div>
@@ -277,7 +277,7 @@
                                         <div class="font-bold text-gray-900 text-sm">
                                             {{ c.user.firstName }} {{ c.user.lastName }}
                                         </div>
-                                        <div class="text-xs text-gray-400">
+                                        <div class="text-xs text-gray-600">
                                             {{ c.createdAt|date('Y-m-d H:i') }}
                                         </div>
                                     </div>

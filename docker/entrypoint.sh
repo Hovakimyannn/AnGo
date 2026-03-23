@@ -32,7 +32,7 @@ fi
 
 # Ensure uploads/tmp dirs exist and are writable (EasyAdmin image uploads).
 mkdir -p /var/www/html/var/tmp
-mkdir -p /var/www/html/public/uploads/photos /var/www/html/public/uploads/posts /var/www/html/public/uploads/cache/photos
+mkdir -p /var/www/html/public/uploads/photos /var/www/html/public/uploads/posts /var/www/html/public/uploads/cache/photos /var/www/html/public/uploads/cache/posts
 chown -R www-data:www-data /var/www/html/var/tmp /var/www/html/public/uploads
 chmod -R a+rwX /var/www/html/var/tmp /var/www/html/public/uploads
 

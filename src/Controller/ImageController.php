@@ -14,13 +14,23 @@ final class ImageController extends AbstractController
     #[Route('/img/photos/{filename}', name: 'app_image_photo', requirements: ['filename' => '.+'])]
     public function photo(string $filename, Request $request): Response
     {
-        // Basic allowlist to avoid path traversal.
+        return $this->serveUploadSubdir('photos', $filename, $request);
+    }
+
+    #[Route('/img/posts/{filename}', name: 'app_image_post', requirements: ['filename' => '.+'])]
+    public function postImage(string $filename, Request $request): Response
+    {
+        return $this->serveUploadSubdir('posts', $filename, $request);
+    }
+
+    private function serveUploadSubdir(string $subdir, string $filename, Request $request): Response
+    {
         if (str_contains($filename, '..') || str_starts_with($filename, '/')) {
             return new Response('Not found', Response::HTTP_NOT_FOUND);
         }
 
         $projectDir = (string) $this->getParameter('kernel.project_dir');
-        $sourcePath = $projectDir . '/public/uploads/photos/' . $filename;
+        $sourcePath = $projectDir . '/public/uploads/' . $subdir . '/' . $filename;
         if (!is_file($sourcePath)) {
             return new Response('Not found', Response::HTTP_NOT_FOUND);
         }
@@ -32,12 +42,11 @@ final class ImageController extends AbstractController
             $fmt = 'jpg';
         }
 
-        // If no resize requested, just return the original file.
         if ($w <= 0) {
             return $this->binaryWithCache($sourcePath, $filename);
         }
 
-        $cacheDir = $projectDir . '/public/uploads/cache/photos';
+        $cacheDir = $projectDir . '/public/uploads/cache/' . $subdir;
         if (!is_dir($cacheDir)) {
             @mkdir($cacheDir, 0775, true);
         }
@@ -48,7 +57,6 @@ final class ImageController extends AbstractController
         if (!is_file($cachePath)) {
             $generated = $this->generateResized($sourcePath, $cachePath, $w, $fmt);
             if (!$generated) {
-                // Fallback to original if GD/WebP isn't available.
                 return $this->binaryWithCache($sourcePath, $filename);
             }
         }

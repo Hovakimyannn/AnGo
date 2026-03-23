@@ -92,6 +92,79 @@ final class PhotoOptimizer
 
         return true;
     }
+
+    /**
+     * Writes a .webp sibling next to a JPEG/PNG (e.g. photo.jpg → photo.webp) for smaller delivery to supporting clients.
+     */
+    public function writeWebpSibling(string $absolutePath, int $quality = 80): bool
+    {
+        if (!is_file($absolutePath) || !is_readable($absolutePath)) {
+            return false;
+        }
+
+        if (!function_exists('getimagesize') || !function_exists('imagecreatetruecolor') || !function_exists('imagewebp')) {
+            return false;
+        }
+
+        $info = @getimagesize($absolutePath);
+        if (!$info || empty($info[0]) || empty($info[1]) || empty($info['mime'])) {
+            return false;
+        }
+
+        $mime = (string) $info['mime'];
+        if (!in_array($mime, ['image/jpeg', 'image/png'], true)) {
+            return true;
+        }
+
+        $dir = dirname($absolutePath);
+        $base = pathinfo($absolutePath, PATHINFO_FILENAME);
+        $webpPath = $dir . '/' . $base . '.webp';
+
+        $src = match ($mime) {
+            'image/jpeg' => function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($absolutePath) : null,
+            'image/png' => function_exists('imagecreatefrompng') ? @imagecreatefrompng($absolutePath) : null,
+            default => null,
+        };
+        if (!$src) {
+            return false;
+        }
+
+        $srcW = (int) $info[0];
+        $srcH = (int) $info[1];
+        $dst = imagecreatetruecolor($srcW, $srcH);
+        if (!$dst) {
+            imagedestroy($src);
+            return false;
+        }
+
+        if ($mime === 'image/png' && function_exists('imagealphablending')) {
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+        }
+
+        if (!imagecopyresampled($dst, $src, 0, 0, 0, 0, $srcW, $srcH, $srcW, $srcH)) {
+            imagedestroy($src);
+            imagedestroy($dst);
+            return false;
+        }
+
+        $tmp = $webpPath . '.tmp';
+        $ok = @imagewebp($dst, $tmp, $quality);
+        imagedestroy($src);
+        imagedestroy($dst);
+
+        if (!$ok || !is_file($tmp)) {
+            @unlink($tmp);
+            return false;
+        }
+
+        if (!@rename($tmp, $webpPath)) {
+            @unlink($tmp);
+            return false;
+        }
+
+        return true;
+    }
 }
 
 
