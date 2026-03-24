@@ -325,8 +325,9 @@ class DidYouKnowPost
 
     public function getExcerpt(int $maxLen = 200): string
     {
-        $text = strip_tags((string) $this->content);
-        $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
+        $text = html_entity_decode((string) $this->content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/u', ' ', $text ?? '') ?? '';
         $text = trim($text);
         if (mb_strlen($text) <= $maxLen) {
             return $text;
