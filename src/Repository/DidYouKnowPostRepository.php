@@ -29,6 +29,20 @@ class DidYouKnowPostRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * @return list<DidYouKnowPost>
+     */
+    public function findLatestPublished(int $limit): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.isPublished = true')
+            ->orderBy('p.publishedAt', 'DESC')
+            ->addOrderBy('p.createdAt', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function countPublished(): int
     {
         return (int) $this->createQueryBuilder('p')
