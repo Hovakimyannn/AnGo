@@ -68,6 +68,8 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setServiceMakeupSubtitle('Երեկոյան և ամենօրյա make-up')
             ->setServiceNailsTitle('Մատնահարդարում')
             ->setServiceNailsSubtitle('Մանիկյուր, շելլակ, գել լաք')
+            ->setServicePedicureTitle('Ոտնահարդարում')
+            ->setServicePedicureSubtitle('Pedicure, խնամք և առողջացում')
             ->setArtistsTitle('Թոփ Մասնագետներ')
             ->setArtistsSubtitle('Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ')
             ->setAboutTitle('Մեր մասին')
@@ -112,6 +114,7 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             yield ImageField::new('serviceHairImage', 'Hair')->setBasePath('uploads/photos');
             yield ImageField::new('serviceMakeupImage', 'Makeup')->setBasePath('uploads/photos');
             yield ImageField::new('serviceNailsImage', 'Nails')->setBasePath('uploads/photos');
+            yield ImageField::new('servicePedicureImage', 'Pedicure')->setBasePath('uploads/photos');
             yield TextField::new('servicesTitle', 'Ծառայություններ');
             yield TextField::new('artistsTitle', 'մասնագետներ');
             yield TextField::new('contactPhone', 'Հեռախոս');
@@ -182,6 +185,17 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setRequired(false);
         yield TextField::new('serviceNailsTitle', 'Մատնահարդարում՝ վերնագիր')->setRequired(false);
         yield TextField::new('serviceNailsSubtitle', 'Մատնահարդարում՝ ենթավերնագիր')->setRequired(false);
+
+        yield ImageField::new('servicePedicureImage', 'Ծառայություն՝ Ոտնահարդարում')
+            ->setHelp('Card-ի չափը ֆիքս է (h-80). Նկարը crop կլինի (object-cover)։')
+            ->setBasePath('uploads/photos')
+            ->setUploadDir('public/uploads/photos')
+            ->setUploadedFileNamePattern('home-service-pedicure-[randomhash].[extension]')
+            ->setFileConstraints($constraints)
+            ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
+            ->setRequired(false);
+        yield TextField::new('servicePedicureTitle', 'Ոտնահարդարում՝ վերնագիր')->setRequired(false);
+        yield TextField::new('servicePedicureSubtitle', 'Ոտնահարդարում՝ ենթավերնագիր')->setRequired(false);
 
         yield FormField::addTab('մասնագետներ');
         yield TextField::new('artistsTitle', 'Section վերնագիր')->setRequired(false);

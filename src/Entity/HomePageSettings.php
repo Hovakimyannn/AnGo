@@ -67,6 +67,15 @@ class HomePageSettings
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $serviceNailsSubtitle = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $servicePedicureImage = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $servicePedicureTitle = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $servicePedicureSubtitle = null;
+
     // --- ARTISTS content ---
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $artistsTitle = null;
@@ -346,6 +355,42 @@ class HomePageSettings
     public function setServiceNailsSubtitle(?string $serviceNailsSubtitle): self
     {
         $this->serviceNailsSubtitle = $serviceNailsSubtitle;
+
+        return $this;
+    }
+
+    public function getServicePedicureImage(): ?string
+    {
+        return $this->servicePedicureImage;
+    }
+
+    public function setServicePedicureImage(?string $servicePedicureImage): self
+    {
+        $this->servicePedicureImage = $servicePedicureImage;
+
+        return $this;
+    }
+
+    public function getServicePedicureTitle(): ?string
+    {
+        return $this->servicePedicureTitle;
+    }
+
+    public function setServicePedicureTitle(?string $servicePedicureTitle): self
+    {
+        $this->servicePedicureTitle = $servicePedicureTitle;
+
+        return $this;
+    }
+
+    public function getServicePedicureSubtitle(): ?string
+    {
+        return $this->servicePedicureSubtitle;
+    }
+
+    public function setServicePedicureSubtitle(?string $servicePedicureSubtitle): self
+    {
+        $this->servicePedicureSubtitle = $servicePedicureSubtitle;
 
         return $this;
     }
