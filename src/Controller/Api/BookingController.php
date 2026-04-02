@@ -209,8 +209,9 @@ class BookingController extends AbstractController
 
         $appointment->setStartDatetime($date);
 
-        // Hashvarkel avarty
-        $endDate = (clone $date)->modify("+{$service->getDurationMinutes()} minutes");
+        // Hashvarkel avarty (nullable DB + slot logic uses same 60m fallback)
+        $durationMinutes = $service->getDurationMinutes() ?: 60;
+        $endDate = (clone $date)->modify(sprintf('+%d minutes', $durationMinutes));
         $appointment->setEndDatetime($endDate);
 
         $appointment->setStatus(Appointment::STATUS_PENDING);
