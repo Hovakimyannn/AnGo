@@ -112,26 +112,42 @@ class ArtistPostCrudController extends AbstractCrudController
 
         yield TextField::new('title', 'Title');
         yield SlugField::new('slug')->setTargetFieldName('title')->hideOnIndex();
-        yield TextField::new('seoTitle', 'SEO title')->hideOnIndex()->setRequired(false);
+        yield TextField::new('seoTitle', 'SEO title')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setPermission('ROLE_ADMIN');
         yield TextareaField::new('metaDescription', 'Meta description')
             ->hideOnIndex()
             ->setRequired(false)
-            ->setHelp('Recommended: up to ~160 characters.');
+            ->setHelp('Recommended: up to ~160 characters.')
+            ->setPermission('ROLE_ADMIN');
         yield TextField::new('canonicalUrl', 'Canonical URL')
             ->hideOnIndex()
             ->setRequired(false)
-            ->setHelp('Optional absolute URL override for canonical tag.');
+            ->setHelp('Optional absolute URL override for canonical tag.')
+            ->setPermission('ROLE_ADMIN');
         yield TextField::new('robotsDirective', 'Robots directive')
             ->hideOnIndex()
             ->setRequired(false)
-            ->setHelp('Example: index,follow or noindex,nofollow.');
-        yield TextField::new('ogTitle', 'OG title')->hideOnIndex()->setRequired(false);
-        yield TextareaField::new('ogDescription', 'OG description')->hideOnIndex()->setRequired(false);
+            ->setHelp('Example: index,follow or noindex,nofollow.')
+            ->setPermission('ROLE_ADMIN');
+        yield TextField::new('ogTitle', 'OG title')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setPermission('ROLE_ADMIN');
+        yield TextareaField::new('ogDescription', 'OG description')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setPermission('ROLE_ADMIN');
         yield TextField::new('ogImageUrl', 'OG image URL/path')
             ->hideOnIndex()
             ->setRequired(false)
-            ->setHelp('Absolute URL or filename from uploads/posts.');
-        yield TextField::new('ogImageAlt', 'OG image alt')->hideOnIndex()->setRequired(false);
+            ->setHelp('Absolute URL or filename from uploads/posts.')
+            ->setPermission('ROLE_ADMIN');
+        yield TextField::new('ogImageAlt', 'OG image alt')
+            ->hideOnIndex()
+            ->setRequired(false)
+            ->setPermission('ROLE_ADMIN');
 
         yield ImageField::new('imageUrl', 'Image')
             ->setBasePath('uploads/posts')
