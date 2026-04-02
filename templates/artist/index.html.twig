@@ -1,25 +1,33 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ category }} Աբովյանում | AnGo{% endblock %}
+{% block title %}{{ category }} Երևանում | ANGO{% endblock %}
 {% block meta_description %}
     {% set __catKey = app.request.query.get('category') %}
     {% if __catKey == 'hair' %}
-        AnGo վարսահարդարներ (վարսավիր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO վարսահարդարներ (վարսավիր) Երևանում։ Տեսեք մասնագետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'nails' %}
-        AnGo մատնահարդարներ (մանիկյուր/պեդիկյուր) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO մատնահարդարներ (մանիկյուր) Երևանում։ Տեսեք մասնագետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+    {% elseif __catKey == 'pedicure' %}
+        ANGO ոտնահարդարներ (pedicure) Երևանում։ Տեսեք մասնագետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% elseif __catKey == 'makeup' %}
-        AnGo դիմահարդարներ (makeup artist) Աբովյանում։ Տեսեք վարպետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
+        ANGO դիմահարդարներ (makeup artist) Երևանում։ Տեսեք մասնագետների պրոֆիլները, աշխատանքները և ամրագրեք այցը առցանց։
     {% else %}
-        AnGo վարպետներ Աբովյանում։ Տեսեք մեր վարպետներին և ամրագրեք այցը առցանց։
+        ANGO մասնագետներ Երևանում։ Տեսեք մեր մասնագետներին և ամրագրեք այցը առցանց։
     {% endif %}
 {% endblock %}
 
-{% block canonical %}
+{% block canonical_url %}
     {% set __cat = app.request.query.get('category') %}
-    {% if __cat in ['hair', 'nails', 'makeup'] %}
-        <link rel="canonical" href="{{ absolute_url(path('app_artists', {category: __cat})) }}">
+    {% set __page = page|default(1) %}
+    {% if __cat in ['hair', 'nails', 'pedicure', 'makeup'] %}
+        {% set __url = absolute_url(path('app_artists', {category: __cat})) %}
     {% else %}
-        {{ parent() }}
+        {% set __url = absolute_url(path('app_artists')) %}
+    {% endif %}
+    {% if __page > 1 %}
+        {{ __url ~ (('?' in __url) ? '&' : '?') ~ 'page=' ~ __page }}
+    {% else %}
+        {{ __url }}
     {% endif %}
 {% endblock %}
 
@@ -30,14 +38,17 @@
     {% set __catKey = app.request.query.get('category') %}
     {% set __seo_keywords = '' %}
     {% if __catKey == 'hair' %}
-        {% set __seo_keywords = 'varsahardar abovyanum, varsavir abovyan' %}
+        {% set __seo_keywords = 'varsahardar yerevanum, varsavir yerevan' %}
     {% elseif __catKey == 'nails' %}
-        {% set __seo_keywords = 'matnahardar abovyanum, manikyur abovyan' %}
+        {% set __seo_keywords = 'matnahardar yerevanum, manikyur yerevan' %}
+    {% elseif __catKey == 'pedicure' %}
+        {% set __seo_keywords = 'otnahardar yerevanum, pedicure yerevan' %}
     {% elseif __catKey == 'makeup' %}
-        {% set __seo_keywords = 'makeup artist abovyan, harsanekan dimahardarum' %}
+        {% set __seo_keywords = 'makeup artist yerevan, harsanekan dimahardarum' %}
     {% endif %}
 
     {% set __artist_list = [] %}
+    {% set __position_offset = ((page|default(1) - 1) * (perPage|default(12))) %}
     {% if artists is defined %}
         {% for a in artists %}
             {% set __full_name = (a.user.firstName ~ ' ' ~ a.user.lastName)|trim %}
@@ -45,7 +56,7 @@
                 '@type': 'Person',
                 'name': __full_name,
                 'jobTitle': a.specialization,
-                'url': absolute_url(path('app_artist_show', {id: a.id})),
+                'url': absolute_url(path('app_artist_show', {slug: a.slug})),
                 'worksFor': { '@id': __ango_site_url ~ '#localbusiness' }
             } %}
             {% if a.photoUrl %}
@@ -53,16 +64,35 @@
             {% endif %}
             {% set __artist_list = __artist_list|merge([{
                 '@type': 'ListItem',
-                'position': loop.index,
+                'position': __position_offset + loop.index,
                 'item': __person
             }]) %}
         {% endfor %}
     {% endif %}
 
+    {% set __breadcrumbs = {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Գլխավոր',
+                'item': __ango_site_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': (category == 'Մասնագետներ' ? 'Մասնագետներ' : category),
+                'item': block('canonical_url')|trim
+            }
+        ]
+    } %}
+
     <script type="application/ld+json">
         {{ {
             '@context': 'https://schema.org',
             '@graph': [
+                __breadcrumbs,
                 ({
                     '@type': 'ItemList',
                     'name': category,
@@ -75,18 +105,32 @@
 
 {% block body %}
     <div id="artistsContent" class="container mx-auto px-4 py-12">
+        <nav class="text-sm text-gray-500 mb-6">
+            <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-800 font-semibold">{{ category }}</span>
+        </nav>
+
         <div class="text-center mb-12">
-            <h1 class="text-3xl font-bold mb-4">
-                <span class="text-pink-600">{{ category }}</span>
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">
+                {% if app.request.query.get('category') %}
+                    <span class="text-pink-600">{{ category }}</span> Երևանում
+                {% else %}
+                    Մեր <span class="text-pink-600">Մասնագետները</span>
+                {% endif %}
             </h1>
             {% set __catKey = app.request.query.get('category') %}
             {% if __catKey == 'hair' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Վարսահարդարներ / վարսավիրներ՝ Աբովյանում։ Տեսեք «վարսահարդարի աշխատանքները», ընտրեք վարպետին և ամրագրեք այցը։
+                    Վարսահարդարներ / վարսավիրներ՝ Երևանում։ Տեսեք «վարսահարդարի աշխատանքները», ընտրեք մասնագետին և ամրագրեք այցը։
                 </p>
             {% elseif __catKey == 'nails' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Մատնահարդարներ՝ մանիկյուր/պեդիկյուր, շելլակ, գել լաք։ Ընտրեք վարպետին և ամրագրեք այցը։
+                    Մատնահարդարներ՝ մանիկյուր, շելլակ, գել լաք։ Ընտրեք մասնագետին և ամրագրեք այցը։
+                </p>
+            {% elseif __catKey == 'pedicure' %}
+                <p class="text-gray-500 max-w-3xl mx-auto">
+                    Ոտնահարդարներ՝ pedicure, խնամք և բուժական մոտեցում։ Ընտրեք մասնագետին և ամրագրեք այցը։
                 </p>
             {% elseif __catKey == 'makeup' %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
@@ -94,7 +138,7 @@
                 </p>
             {% else %}
                 <p class="text-gray-500 max-w-3xl mx-auto">
-                    Մեր վարպետները՝ վարսահարդարում, մատնահարդարում և դիմահարդարում։ Ընտրեք մասնագետին և ամրագրեք այցը առցանց։
+                    Մեր մասնագետները՝ վարսահարդարում, մատնահարդարում, ոտնահարդարում (pedicure) և դիմահարդարում։ Ընտրեք մասնագետին և ամրագրեք այցը առցանց։
                 </p>
             {% endif %}
             <div class="w-24 h-1 bg-gray-200 mx-auto rounded-full"></div>
@@ -115,7 +159,7 @@
                         {% endif %}
 
                         <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end justify-center p-6">
-                            <a href="{{ path('app_artist_show', {id: artist.id}) }}" class="relative z-20 text-white font-bold border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition">
+                            <a href="{{ path('app_artist_show', {slug: artist.slug}) }}" class="relative z-20 text-white font-bold border border-white px-6 py-2 rounded-full hover:bg-white hover:text-black transition">
                                 Տեսնել Ավելին
                             </a>
                         </div>
@@ -126,15 +170,34 @@
                     </div>
 
                     {# Make whole card clickable #}
-                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                    <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                        class="absolute inset-0 z-10"
                        aria-label="{{ artist.user.firstName }} {{ artist.user.lastName }} էջ"></a>
                 </div>
             {% else %}
                 <div class="col-span-3 text-center py-12">
-                    <p class="text-gray-500 text-lg">Այս կատեգորիայում դեռ վարպետներ գրանցված չեն:</p>
+                    <p class="text-gray-500 text-lg">Այս կատեգորիայում դեռ մասնագետներ գրանցված չեն:</p>
                 </div>
             {% endfor %}
         </div>
+
+        {% if totalPages|default(1) > 1 %}
+            {% set __cat = app.request.query.get('category') %}
+            {% set __base = __cat in ['hair', 'nails', 'pedicure', 'makeup'] ? (path('app_artists', {category: __cat})) : path('app_artists') %}
+            <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                {% set __prev_page = page - 1 %}
+                {% set __prev_href = __prev_page > 1 ? (__base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ __prev_page) : __base %}
+                <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+
+                {% for p in 1..totalPages %}
+                    {% set __href = p > 1 ? (__base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ p) : __base %}
+                    <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                {% endfor %}
+
+                {% set __next_page = page + 1 %}
+                {% set __next_href = __base ~ (('?' in __base) ? '&' : '?') ~ 'page=' ~ __next_page %}
+                <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+            </nav>
+        {% endif %}
     </div>
 {% endblock %}

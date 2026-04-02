@@ -94,12 +94,12 @@ final class AppointmentMailer
 Ձեր ամրագրումը ստացվել է և գտնվում է «{$status}» կարգավիճակում։
 
 Ծառայություն: {$service}
-Վարպետ: {$artist}
+Մասնագետ: {$artist}
 Սկիզբ: {$startText}
 Տևողություն: {$duration}
 
 Շնորհակալություն,
-AnGo
+ANGO
 TEXT);
     }
 
@@ -123,12 +123,12 @@ TEXT);
 Ձեր ամրագրման կարգավիճակը թարմացվել է՝ «{$oldLabel}» → «{$newLabel}»։
 
 Ծառայություն: {$service}
-Վարպետ: {$artist}
+Մասնագետ: {$artist}
 Սկիզբ: {$startText}
 Տևողություն: {$duration}
 
 Շնորհակալություն,
-AnGo
+ANGO
 TEXT);
     }
 

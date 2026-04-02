@@ -17,9 +17,12 @@ use Symfony\Component\Validator\Constraints\Image;
 
 final class HomePageSettingsCrudController extends AbstractCrudController
 {
-    public function __construct(
-        private readonly HomePageSettingsRepository $homePageSettingsRepository,
-    ) {}
+    private $homePageSettingsRepository;
+
+    public function __construct(HomePageSettingsRepository $homePageSettingsRepository)
+    {
+        $this->homePageSettingsRepository = $homePageSettingsRepository;
+    }
 
     public static function getEntityFqcn(): string
     {
@@ -54,28 +57,42 @@ final class HomePageSettingsCrudController extends AbstractCrudController
         $settings
             ->setHeroTitlePre('Բացահայտեք Ձեր')
             ->setHeroTitleHighlight('Կատարելությունը')
-            ->setHeroSubtitle('Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Աբովյանի սրտում։')
+            ->setHeroSubtitle('Պրոֆեսիոնալ մոտեցում, բարձրակարգ սպասարկում և հարմարավետ միջավայր հենց Երևանի սրտում։')
             ->setHeroPrimaryButtonLabel('Ամրագրել Այց')
-            ->setHeroSecondaryButtonLabel('Տեսնել Վարպետներին')
+            ->setHeroSecondaryButtonLabel('Տեսնել Մասնագետներին')
             ->setServicesTitle('Մեր Ծառայությունները')
+            ->setServicesSubtitle('Երևանում (Yerevanum) AnGo-ում՝ Վարսահարդարում, Մատնահարդարում, Ոտնահարդարում (pedicure) և Դիմահարդարում․ նաև մազերի խնամք ու մանիկյուր՝ Shellac-ով։')
             ->setServiceHairTitle('Վարսահարդարում')
             ->setServiceHairSubtitle('Կտրվածքներ, ներկում և խնամք')
             ->setServiceMakeupTitle('Դիմահարդարում')
             ->setServiceMakeupSubtitle('Երեկոյան և ամենօրյա make-up')
             ->setServiceNailsTitle('Մատնահարդարում')
-            ->setServiceNailsSubtitle('Մանիկյուր և Պեդիկյուր')
-            ->setArtistsTitle('Թոփ Վարպետներ')
+            ->setServiceNailsSubtitle('Մանիկյուր, շելլակ, գել լաք')
+            ->setServicePedicureTitle('Ոտնահարդարում')
+            ->setServicePedicureSubtitle('Pedicure, խնամք և առողջացում')
+            ->setArtistsTitle('Թոփ Մասնագետներ')
             ->setArtistsSubtitle('Ծանոթացեք մեր պրոֆեսիոնալ թիմի հետ')
             ->setAboutTitle('Մեր մասին')
             ->setAboutText1('AnGo-ը ստեղծվել է՝ մեկ նպատակով․ առաջարկել բարձրակարգ ծառայություններ, պրոֆեսիոնալ մոտեցում և հարմարավետ միջավայր՝ յուրաքանչյուր այցը դարձնելով հաճելի փորձ։')
             ->setAboutText2('Մեր թիմը մշտապես հետևում է նորաձևության թրենդներին և աշխատում է որակյալ նյութերով՝ ապահովելով լավագույն արդյունքը։')
             ->setWhyUsTitle('Ինչու՞ մենք')
-            ->setWhyUsItems("Պրոֆեսիոնալ վարպետներ\nԱնհատական մոտեցում\nՈրակյալ նյութեր\nՀարմարավետ միջավայր")
+            ->setWhyUsItems("Պրոֆեսիոնալ մասնագետներ\nԱնհատական մոտեցում\nՈրակյալ նյութեր\nՀարմարավետ միջավայր")
             ->setContactTitle('Կապ')
-            ->setContactAddress('Ք.Աբովյան, Սարալանջի 22')
+            ->setContactAddress('Ք. Երևան, Ռոստովյան 34/1')
             ->setContactPhone('+374 94 64 99 24')
             ->setContactHoursLine1('Երկ - Շաբ: 10:00 - 20:00')
-            ->setContactHoursLine2('Կիր: 11:00 - 18:00');
+            ->setContactHoursLine2('Կիր: 11:00 - 18:00')
+            ->setFooterTagline("Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Երևանում։")
+            ->setContactInstagramUrl('https://www.instagram.com/angobeauty__/')
+            ->setContactFacebookUrl('https://www.facebook.com/profile.php?id=61580633960341')
+            ->setContactCopyrightText('Բոլոր իրավունքները պաշտպանված են։')
+            ->setFaqTitle('Հաճախ տրվող հարցեր')
+            ->setFaqItem1Question('Ունե՞ք առցանց ամրագրում')
+            ->setFaqItem1Answer('Այո, մեր կայքում կարող եք ընդամենը մի քանի վայրկյանում ընտրել մասնագետին և ամրագրել այցը առցանց՝ Ձեզ հարմար ժամի:')
+            ->setFaqItem2Question('Որտե՞ղ է գտնվում ANGO սրահը')
+            ->setFaqItem2Answer('Մեր սրահը գտնվում է Երևանում, Ռոստովյան 34/1 հասցեում (Էրեբունի համայնք)։ Հարմար է թե՛ ավտոմեքենայով, թե՛ հասարակական տրանսպորտով մոտենալու համար:')
+            ->setFaqItem3Question('Ի՞նչ ծառայություններ եք առաջարկում')
+            ->setFaqItem3Answer('Մենք առաջարկում ենք ծառայությունների լայն տեսականի՝ վարսահարդարում (կտրվածք, ներկում, խնամք), մատնահարդարում (մանիկյուր, շելլակ, գել լաք), ոտնահարդարում (pedicure) և պրոֆեսիոնալ դիմահարդարում (makeup artist):');
 
         return $settings;
     }
@@ -97,8 +114,9 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             yield ImageField::new('serviceHairImage', 'Hair')->setBasePath('uploads/photos');
             yield ImageField::new('serviceMakeupImage', 'Makeup')->setBasePath('uploads/photos');
             yield ImageField::new('serviceNailsImage', 'Nails')->setBasePath('uploads/photos');
+            yield ImageField::new('servicePedicureImage', 'Pedicure')->setBasePath('uploads/photos');
             yield TextField::new('servicesTitle', 'Ծառայություններ');
-            yield TextField::new('artistsTitle', 'Վարպետներ');
+            yield TextField::new('artistsTitle', 'մասնագետներ');
             yield TextField::new('contactPhone', 'Հեռախոս');
             return;
         }
@@ -129,6 +147,10 @@ final class HomePageSettingsCrudController extends AbstractCrudController
 
         yield FormField::addTab('Ծառայություններ');
         yield TextField::new('servicesTitle', 'Section վերնագիր')
+            ->setHelp('Օր. «Մեր Ծառայությունները»')
+            ->setRequired(false);
+        yield TextareaField::new('servicesSubtitle', 'Section նկարագրություն (պարագրաֆ վերնագրի տակ)')
+            ->setHelp('Կարճ տեքստ ծառայությունների ցանկի մասին, օր. Երևանում AnGo-ում՝ Վարսահարդարում, Մատնահարդարում...')
             ->setRequired(false);
 
         yield ImageField::new('serviceHairImage', 'Ծառայություն՝ Վարսահարդարում')
@@ -164,7 +186,18 @@ final class HomePageSettingsCrudController extends AbstractCrudController
         yield TextField::new('serviceNailsTitle', 'Մատնահարդարում՝ վերնագիր')->setRequired(false);
         yield TextField::new('serviceNailsSubtitle', 'Մատնահարդարում՝ ենթավերնագիր')->setRequired(false);
 
-        yield FormField::addTab('Վարպետներ');
+        yield ImageField::new('servicePedicureImage', 'Ծառայություն՝ Ոտնահարդարում')
+            ->setHelp('Card-ի չափը ֆիքս է (h-80). Նկարը crop կլինի (object-cover)։')
+            ->setBasePath('uploads/photos')
+            ->setUploadDir('public/uploads/photos')
+            ->setUploadedFileNamePattern('home-service-pedicure-[randomhash].[extension]')
+            ->setFileConstraints($constraints)
+            ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
+            ->setRequired(false);
+        yield TextField::new('servicePedicureTitle', 'Ոտնահարդարում՝ վերնագիր')->setRequired(false);
+        yield TextField::new('servicePedicureSubtitle', 'Ոտնահարդարում՝ ենթավերնագիր')->setRequired(false);
+
+        yield FormField::addTab('մասնագետներ');
         yield TextField::new('artistsTitle', 'Section վերնագիր')->setRequired(false);
         yield TextField::new('artistsSubtitle', 'Section նկարագրություն')->setRequired(false);
 
@@ -178,15 +211,38 @@ final class HomePageSettingsCrudController extends AbstractCrudController
             ->setRequired(false);
         yield TextField::new('whyUsTitle', '«Ինչու՞ մենք» վերնագիր')->setRequired(false);
         yield TextareaField::new('whyUsItems', '«Ինչու՞ մենք» ցանկ')
-            ->setHelp('Յուրաքանչյուր տողը կդառնա մեկ կետ (օր՝ Պրոֆեսիոնալ վարպետներ)')
+            ->setHelp('Յուրաքանչյուր տողը կդառնա մեկ կետ (օր՝ Պրոֆեսիոնալ մասնագետներ)')
             ->setRequired(false);
 
-        yield FormField::addTab('Կապ');
+        yield FormField::addTab('Կապ / Footer');
         yield TextField::new('contactTitle', 'Section վերնագիր')->setRequired(false);
         yield TextField::new('contactAddress', 'Հասցե')->setRequired(false);
         yield TextField::new('contactPhone', 'Հեռախոս')->setRequired(false);
         yield TextField::new('contactHoursLine1', 'Աշխատանքային ժամեր (տող 1)')->setRequired(false);
         yield TextField::new('contactHoursLine2', 'Աշխատանքային ժամեր (տող 2)')->setRequired(false);
+        yield TextareaField::new('footerTagline', 'Footer՝ AnGo բլոկի տեքստ')
+            ->setHelp('Կարճ նկարագրություն footer-ի առաջին սյունակում (AnGo)')
+            ->setRequired(false);
+        yield TextField::new('contactInstagramUrl', 'Instagram URL')->setRequired(false);
+        yield TextField::new('contactFacebookUrl', 'Facebook URL')->setRequired(false);
+        yield TextField::new('contactCopyrightText', 'Footer copyright տեքստ')
+            ->setHelp('Օր. «Բոլոր իրավունքները պաշտպանված են։» Տարին ավտոմատ ավելանում է։')
+            ->setRequired(false);
+
+        yield FormField::addTab('FAQ');
+        yield TextField::new('faqTitle', 'Section վերնագիր')->setRequired(false);
+        
+        yield FormField::addPanel('Հարց 1');
+        yield TextField::new('faqItem1Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem1Answer', 'Պատասխան')->setRequired(false);
+
+        yield FormField::addPanel('Հարց 2');
+        yield TextField::new('faqItem2Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem2Answer', 'Պատասխան')->setRequired(false);
+
+        yield FormField::addPanel('Հարց 3');
+        yield TextField::new('faqItem3Question', 'Հարց')->setRequired(false);
+        yield TextareaField::new('faqItem3Answer', 'Պատասխան')->setRequired(false);
     }
 }
 

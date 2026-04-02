@@ -6,7 +6,7 @@
     {% set __ango_og_image_alt = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
 {% endif %}
 
-{% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | AnGo{% endblock %}
+{% block title %}{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} | ANGO{% endblock %}
 {% block meta_description -%}
 {%- set fullName = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim -%}
 {%- set svcLimit = 4 -%}
@@ -16,9 +16,9 @@
 {%- endfor -%}
 {%- if svcBits -%}
     {%- set svcTail = (artist.services|length > svcLimit) ? ' և այլն' : '' -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում (AnGo)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Երևանում (ANGO)։ Ծառայություններ՝ {{ svcBits|join(', ') }}{{ svcTail }}։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- else -%}
-    {{- fullName }} — {{ artist.specialization }} Աբովյանում։ Ծառայություններ և գներ AnGo գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
+    {{- fullName }} — {{ artist.specialization }} Երևանում։ Ծառայություններ և գներ ANGO գեղեցկության սրահում։ Տեսեք աշխատանքները և ամրագրեք այցը առցանց։
 {%- endif -%}
 {%- endblock %}
 
@@ -29,6 +29,7 @@
     {% set __page_url = absolute_url(app.request.pathinfo) %}
     {% set __full_name = (artist.user.firstName ~ ' ' ~ artist.user.lastName)|trim %}
     {% set __bio = (artist.bio ? artist.bio|striptags|replace({'&nbsp;': ' '})|trim : '') %}
+    {% set __artist_list_url = absolute_url(path('app_artists')) %}
 
     {% set __offers = [] %}
     {% for s in artist.services %}
@@ -40,7 +41,7 @@
                 '@type': 'Service',
                 'name': s.name,
                 'serviceType': s.category,
-                'timeRequired': 'PT' ~ s.durationMinutes ~ 'M'
+                'timeRequired': 'PT' ~ (s.durationMinutes ?: 60) ~ 'M'
             }
         }]) %}
     {% endfor %}
@@ -64,6 +65,8 @@
         {% endfor %}
     {% endif %}
 
+    {% block canonical_url %}{{ absolute_url(path('app_artist_show', {slug: artist.slug})) }}{% endblock %}
+
     {% set __person = {
         '@type': 'Person',
         '@id': __page_url ~ '#person',
@@ -74,14 +77,53 @@
         'worksFor': { '@id': __ango_site_url ~ '#localbusiness' },
         'makesOffer': __offers
     } %}
+
+    {% set __artist_avg = artist.user.artistRatingAvg|default(0) %}
+    {% set __artist_count = artist.user.artistRatingCount|default(0) %}
+    {% if __artist_count > 0 %}
+        {% set __person = __person|merge({
+            'aggregateRating': {
+                '@type': 'AggregateRating',
+                'ratingValue': __artist_avg|number_format(1, '.', ''),
+                'reviewCount': __artist_count,
+                'bestRating': '5',
+                'worstRating': '1'
+            }
+        }) %}
+    {% endif %}
+
     {% if artist.photoUrl %}
         {% set __person = __person|merge({'image': absolute_url(asset('uploads/photos/' ~ artist.photoUrl))}) %}
     {% endif %}
+    {% set __breadcrumbs = {
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+            {
+                '@type': 'ListItem',
+                'position': 1,
+                'name': 'Գլխավոր',
+                'item': __ango_site_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 2,
+                'name': 'Մասնագետներ',
+                'item': __artist_list_url
+            },
+            {
+                '@type': 'ListItem',
+                'position': 3,
+                'name': __full_name,
+                'item': __page_url
+            }
+        ]
+    } %}
 
     <script type="application/ld+json">
         {{ {
             '@context': 'https://schema.org',
             '@graph': [
+                __breadcrumbs,
                 __person,
                 {
                     '@type': 'ItemList',
@@ -119,7 +161,7 @@
                         sizes="100vw"
                         alt="{{ artist.user.firstName }} {{ artist.user.lastName }}"
                         class="w-full h-full object-cover opacity-40"
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                     >
                 </picture>
@@ -132,13 +174,20 @@
         </div>
 
         <div class="container mx-auto px-4 py-12">
+            <nav class="text-sm text-gray-500 mb-6">
+                <a href="{{ path('app_home') }}" class="hover:text-pink-600 transition">Գլխավոր</a>
+                <span class="mx-2">/</span>
+                <a href="{{ path('app_artists') }}" class="hover:text-pink-600 transition">Մասնագետներ</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-800 font-semibold">{{ artist.user.firstName }} {{ artist.user.lastName }}</span>
+            </nav>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
 
                 <!-- Left: Photo -->
-                <div class="md:col-span-1">
+                <div class="md:col-span-1 min-w-0">
                     <div class="rounded-2xl overflow-hidden shadow-2xl -mt-32 relative bg-white border-4 border-white">
                         {% if artist.photoUrl %}
-                            <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-auto">
+                            <img src="{{ asset('uploads/photos/' ~ artist.photoUrl) }}" alt="{{ artist.user.firstName }} {{ artist.user.lastName }} — {{ artist.specialization }} Երևանում | ANGO Beauty Salon" class="w-full h-auto">
                         {% else %}
                             <img src="https://ui-avatars.com/api/?name={{ artist.user.firstName }}" alt="{{ artist.user.firstName }} {{ artist.user.lastName }}" class="w-full h-auto">
                         {% endif %}
@@ -163,9 +212,9 @@
                 </div>
 
                 <!-- Right: Info -->
-                <div class="md:col-span-2 space-y-10">
+                <div class="md:col-span-2 space-y-10 min-w-0">
                     <section>
-                        <h2 class="text-2xl font-bold mb-4 border-l-4 border-pink-500 pl-4">Վարպետի Մասին</h2>
+                        <h2 class="text-2xl font-bold mb-4 border-l-4 border-pink-500 pl-4">Մասնագետի Մասին</h2>
                         <div class="text-gray-600">{{ artist.bio|raw }}</div>
                     </section>
 
@@ -175,7 +224,7 @@
                             {% for service in artist.services %}
                                 <div class="flex justify-between p-4 bg-gray-50 rounded-lg border">
                                     <span class="font-medium">{{ service.name }}</span>
-                                    <span class="text-pink-600 font-bold">{{ service.price }} ֏</span>
+                                    <span class="text-pink-600 font-bold whitespace-nowrap">{{ service.price }} ֏</span>
                                 </div>
                             {% else %}
                                 <p class="text-gray-500">Ծառայություններ նշված չեն:</p>
@@ -186,18 +235,18 @@
                     <section id="artistPostsContent">
                         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
 
-                            <div class="w-full md:w-auto">
+                            <div class="w-full min-w-0">
                                 {# Service tabs (click = filter; sets category to service.category) #}
                                 <div class="border-b border-gray-200">
-                                    <div class="-mb-px flex items-center gap-10 overflow-x-auto whitespace-nowrap pb-1">
-                                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                                    <div class="-mb-px flex items-center gap-10 overflow-x-auto whitespace-nowrap pb-1 max-w-full">
+                                    <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                                        data-ajax-swap="#artistPostsContent"
                                        class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ (not selectedCategory and not selectedServiceId) ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                         Բոլոր ծառայությունները
                                     </a>
 
                                     {% for s in artist.services %}
-                                        <a href="{{ path('app_artist_show', {id: artist.id}) ~ '?category=' ~ s.category ~ '&service=' ~ s.id }}"
+                                        <a href="{{ path('app_artist_show', {slug: artist.slug}) ~ '?category=' ~ s.category ~ '&service=' ~ s.id }}"
                                            data-ajax-swap="#artistPostsContent"
                                            class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ selectedServiceId == s.id ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
                                             {{ s.name }}
@@ -213,8 +262,11 @@
                                 <a href="{{ path('app_blog_show', {id: post.id, slug: post.slug}) }}" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                                     <div class="relative h-48 bg-gray-100 overflow-hidden">
                                         {% if post.imageUrl %}
-                                            <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                            {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
+                                            <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                                  alt="{{ post.title }}"
+                                                 loading="lazy"
+                                                 decoding="async"
                                                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                                         {% else %}
                                             <div class="w-full h-full flex items-center justify-center text-gray-400">
@@ -232,7 +284,7 @@
                                     </div>
                                 </a>
                             {% else %}
-                                <div class="text-gray-500">Այս վարպետի համար դեռ post չկա։</div>
+                                <div class="text-gray-500">Այս մասնագետի համար դեռ post չկա։</div>
                             {% endfor %}
                         </div>
                     </section>

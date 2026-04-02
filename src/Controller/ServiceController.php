@@ -6,6 +6,7 @@ use App\Entity\Service;
 use App\Repository\ArtistPostRepository;
 use App\Repository\ServiceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
@@ -13,15 +14,17 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class ServiceController extends AbstractController
 {
     #[Route('/services', name: 'app_service_index', defaults: ['category' => null], methods: ['GET'])]
-    #[Route('/services/{category}', name: 'app_service_category', requirements: ['category' => 'hair|nails|makeup'], methods: ['GET'])]
+    #[Route('/services/{category}', name: 'app_service_category', requirements: ['category' => 'hair|nails|pedicure|makeup'], methods: ['GET'])]
     public function index(
         ?string $category = null,
+        Request $request,
         ServiceRepository $serviceRepository,
         SluggerInterface $slugger,
     ): Response {
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 
@@ -37,22 +40,35 @@ final class ServiceController extends AbstractController
             ];
         }
 
+        $page = max(1, $request->query->getInt('page', 1));
+        $perPage = 12;
+        $totalServices = count($serviceCards);
+        $totalPages = max(1, (int) ceil($totalServices / $perPage));
+        if ($totalServices > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+        $pagedServiceCards = array_slice($serviceCards, ($page - 1) * $perPage, $perPage);
+
         $grouped = [];
-        foreach ($serviceCards as $card) {
+        foreach ($pagedServiceCards as $card) {
             $k = (string) ($card['service']->getCategory() ?? '');
             $grouped[$k][] = $card;
         }
 
-        $categoryOrder = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $categoryOrder = ['hair' => 1, 'makeup' => 2, 'nails' => 3, 'pedicure' => 4];
         uksort($grouped, static fn (string $a, string $b) => ($categoryOrder[$a] ?? 99) <=> ($categoryOrder[$b] ?? 99));
 
         return $this->render('service/index.html.twig', [
             'category' => $category,
             'categoryLabel' => $category ? ($categoryLabels[$category] ?? $category) : 'Բոլոր ծառայությունները',
             'categoryLabels' => $categoryLabels,
-            'serviceCards' => $serviceCards,
+            'serviceCards' => $pagedServiceCards,
             'groupedServices' => $grouped,
             'services' => $serviceRepository->findAll(),
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalServices' => $totalServices,
+            'totalPages' => $totalPages,
         ]);
     }
 
@@ -109,6 +125,7 @@ final class ServiceController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 

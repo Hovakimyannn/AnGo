@@ -3,7 +3,7 @@ services:
 ###> doctrine/doctrine-bundle ###
   database:
     ports:
-      - "5432:5432"
+      - "5433:5432"
 ###< doctrine/doctrine-bundle ###
 
 ###> symfony/mailer ###
@@ -15,4 +15,10 @@ services:
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
+  nginx:
+    volumes:
+      - ./public:/var/www/html/public
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "8080:80"
 ###< symfony/mailer ###

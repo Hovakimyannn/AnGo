@@ -73,7 +73,7 @@ class UserCrudController extends AbstractCrudController
             ->setHelp('Նշեք աշխատակցի դերը։ ROLE_USER-ը միշտ ավտոմատ առկա է։')
             ->setChoices([
                 'Ադմին' => 'ROLE_ADMIN',
-                'Վարպետ' => 'ROLE_ARTIST',
+                'Մասնագետ' => 'ROLE_ARTIST',
             ]);
     }
 

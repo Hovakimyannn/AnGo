@@ -1,4 +1,4 @@
-# AnGo
+# ANGO
 
 Symfony app (EasyAdmin + Twig) with performance-focused frontend.
 

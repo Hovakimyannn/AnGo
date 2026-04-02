@@ -35,6 +35,34 @@ class ArtistPost
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageUrl = null;
 
+    /** Filename in public/uploads/posts/ for grid/list (generated on upload). */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageThumbnailUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $seoTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $metaDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $canonicalUrl = null;
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $robotsDirective = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogTitle = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $ogDescription = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogImageUrl = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $ogImageAlt = null;
+
     #[ORM\Column(options: ['default' => false])]
     private bool $isPublished = false;
 
@@ -145,6 +173,117 @@ class ArtistPost
         return $this;
     }
 
+    public function getImageThumbnailUrl(): ?string
+    {
+        return $this->imageThumbnailUrl;
+    }
+
+    public function setImageThumbnailUrl(?string $imageThumbnailUrl): static
+    {
+        $this->imageThumbnailUrl = $imageThumbnailUrl;
+
+        return $this;
+    }
+
+    public function getSeoTitle(): ?string
+    {
+        return $this->seoTitle;
+    }
+
+    public function setSeoTitle(?string $seoTitle): static
+    {
+        $this->seoTitle = $seoTitle !== null ? trim($seoTitle) : null;
+
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription !== null ? trim($metaDescription) : null;
+
+        return $this;
+    }
+
+    public function getCanonicalUrl(): ?string
+    {
+        return $this->canonicalUrl;
+    }
+
+    public function setCanonicalUrl(?string $canonicalUrl): static
+    {
+        $canonicalUrl = $canonicalUrl !== null ? trim($canonicalUrl) : null;
+        $this->canonicalUrl = $canonicalUrl !== '' ? $canonicalUrl : null;
+
+        return $this;
+    }
+
+    public function getRobotsDirective(): ?string
+    {
+        return $this->robotsDirective;
+    }
+
+    public function setRobotsDirective(?string $robotsDirective): static
+    {
+        $robotsDirective = $robotsDirective !== null ? trim($robotsDirective) : null;
+        $this->robotsDirective = $robotsDirective !== '' ? $robotsDirective : null;
+
+        return $this;
+    }
+
+    public function getOgTitle(): ?string
+    {
+        return $this->ogTitle;
+    }
+
+    public function setOgTitle(?string $ogTitle): static
+    {
+        $this->ogTitle = $ogTitle !== null ? trim($ogTitle) : null;
+
+        return $this;
+    }
+
+    public function getOgDescription(): ?string
+    {
+        return $this->ogDescription;
+    }
+
+    public function setOgDescription(?string $ogDescription): static
+    {
+        $this->ogDescription = $ogDescription !== null ? trim($ogDescription) : null;
+
+        return $this;
+    }
+
+    public function getOgImageUrl(): ?string
+    {
+        return $this->ogImageUrl;
+    }
+
+    public function setOgImageUrl(?string $ogImageUrl): static
+    {
+        $ogImageUrl = $ogImageUrl !== null ? trim($ogImageUrl) : null;
+        $this->ogImageUrl = $ogImageUrl !== '' ? $ogImageUrl : null;
+
+        return $this;
+    }
+
+    public function getOgImageAlt(): ?string
+    {
+        return $this->ogImageAlt;
+    }
+
+    public function setOgImageAlt(?string $ogImageAlt): static
+    {
+        $this->ogImageAlt = $ogImageAlt !== null ? trim($ogImageAlt) : null;
+
+        return $this;
+    }
+
     public function isPublished(): bool
     {
         return $this->isPublished;
@@ -235,8 +374,9 @@ class ArtistPost
 
     public function getExcerpt(int $maxLen = 200): string
     {
-        $text = strip_tags((string) $this->content);
-        $text = preg_replace('/\s+/', ' ', $text ?? '') ?? '';
+        $text = html_entity_decode((string) $this->content, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = strip_tags($text);
+        $text = preg_replace('/\s+/u', ' ', $text ?? '') ?? '';
         $text = trim($text);
         if (mb_strlen($text) <= $maxLen) {
             return $text;

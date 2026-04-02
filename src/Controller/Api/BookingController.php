@@ -74,6 +74,7 @@ class BookingController extends AbstractController
                 ['key' => 'hair', 'label' => 'Վարսահարդարում', 'order' => 1],
                 ['key' => 'makeup', 'label' => 'Դիմահարդարում', 'order' => 2],
                 ['key' => 'nails', 'label' => 'Մատնահարդարում', 'order' => 3],
+                ['key' => 'pedicure', 'label' => 'Ոտնահարդարում', 'order' => 4],
             ];
         }
 
@@ -201,7 +202,7 @@ class BookingController extends AbstractController
         $appointment = new Appointment();
         $appointment->setArtist($artist);
         $appointment->setService($service);
-        $appointment->setServicePriceAtBooking((float) ($service->getPrice() ?? 0));
+        $appointment->setServicePriceAtBooking($service->getPrice());
         $appointment->setClientName($data['name']);
         $appointment->setClientPhone($data['phone']);
         $appointment->setClientEmail($data['email']);

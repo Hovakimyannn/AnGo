@@ -1,7 +1,9 @@
 User-agent: *
+Allow: /
 Disallow: /admin
+Disallow: /login
+Disallow: /signup
 Disallow: /logout
+Disallow: /api/
 
 Sitemap: https://ango.beauty/sitemap.xml
-
-

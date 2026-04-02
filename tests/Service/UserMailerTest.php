@@ -23,7 +23,7 @@ final class UserMailerTest extends TestCase
         $service = new UserMailer(
             mailer: $mailer,
             router: $router,
-            from: 'AnGo <noreply@example.test>',
+            from: 'ANGO <noreply@example.test>',
             mailerDsn: 'null://null',
             appUrl: 'https://example.test',
         );
@@ -50,7 +50,7 @@ final class UserMailerTest extends TestCase
         $service = new UserMailer(
             mailer: $mailer,
             router: $router,
-            from: 'AnGo <noreply@example.test>',
+            from: 'ANGO <noreply@example.test>',
             mailerDsn: 'smtp://user:pass@example.test:587',
             appUrl: 'https://example.test',
         );
@@ -66,7 +66,7 @@ final class UserMailerTest extends TestCase
         self::assertInstanceOf(Email::class, $message);
         /** @var Email $email */
         $email = $message;
-        self::assertSame('Բարի գալուստ AnGo', $email->getSubject());
+        self::assertSame('Բարի գալուստ ANGO', $email->getSubject());
 
         $html = (string) $email->getHtmlBody();
         self::assertStringContainsString('https://example.test/login', $html);

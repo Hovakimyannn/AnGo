@@ -22,13 +22,14 @@ class ArtistController extends AbstractController
     public function index(Request $request, ArtistProfileRepository $artistRepository): Response
     {
         $category = $request->query->get('category');
-        if ($category && !in_array($category, ['hair', 'nails', 'makeup'], true)) {
+        if ($category && !in_array($category, ['hair', 'nails', 'pedicure', 'makeup'], true)) {
             $category = null;
         }
 
         $categoryLabels = [
             'hair' => 'Վարսահարդարներ',
             'nails' => 'Մատնահարդարներ',
+            'pedicure' => 'Ոտնահարդարներ',
             'makeup' => 'Դիմահարդարներ',
         ];
 
@@ -43,14 +44,28 @@ class ArtistController extends AbstractController
             $artists = $artistRepository->findAll();
         }
 
+        $page = max(1, $request->query->getInt('page', 1));
+        $perPage = 12;
+        $totalArtists = count($artists);
+        $totalPages = max(1, (int) ceil($totalArtists / $perPage));
+        if ($totalArtists > 0 && $page > $totalPages) {
+            $page = $totalPages;
+        }
+        $artists = array_slice($artists, ($page - 1) * $perPage, $perPage);
+
         return $this->render('artist/index.html.twig', [
             'artists' => $artists,
-            'category' => $categoryLabels[$category] ?? 'Մեր վարպետները',
+            'category' => $categoryLabels[$category] ?? 'Մեր մասնագետները',
+            'categoryKey' => $category,
             'services' => $this->serviceRepository->findAll(), // <--- FIX: Uxarkum enq carayutyunnery
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalArtists' => $totalArtists,
+            'totalPages' => $totalPages,
         ]);
     }
 
-    #[Route('/artist/{id}', name: 'app_artist_show')]
+    #[Route('/artist/{slug}', name: 'app_artist_show')]
     public function show(ArtistProfile $artist, Request $request, ArtistPostRepository $postRepository): Response
     {
         $category = $request->query->get('category');
@@ -59,6 +74,7 @@ class ArtistController extends AbstractController
         $categoryLabels = [
             'hair' => 'Վարսահարդարում',
             'nails' => 'Մատնահարդարում',
+            'pedicure' => 'Ոտնահարդարում',
             'makeup' => 'Դիմահարդարում',
         ];
 
@@ -70,7 +86,7 @@ class ArtistController extends AbstractController
                 $availableCategories[] = $cat;
             }
         }
-        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3];
+        $order = ['hair' => 1, 'makeup' => 2, 'nails' => 3, 'pedicure' => 4];
         usort($availableCategories, static fn (string $a, string $b) => ($order[$a] ?? 99) <=> ($order[$b] ?? 99));
 
         if ($category && !in_array($category, $availableCategories, true)) {

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\DidYouKnowPostRepository;
 use App\Repository\HomePageSettingsRepository;
 use App\Repository\ArtistProfileRepository;
 use App\Repository\ServiceRepository;
@@ -12,8 +13,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(ArtistProfileRepository $artistRepository, ServiceRepository $serviceRepository, HomePageSettingsRepository $homePageSettingsRepository): Response
-    {
+    public function index(
+        ArtistProfileRepository $artistRepository,
+        ServiceRepository $serviceRepository,
+        HomePageSettingsRepository $homePageSettingsRepository,
+        DidYouKnowPostRepository $didYouKnowPostRepository,
+    ): Response {
         // Vercnum enq 3 patahakan kam verjin artistnerin Home page-i hamar
         // Irական project-um kareli e nshel "Featured" dasht ev yst dra filter anel
         $artists = $artistRepository->findAll();
@@ -23,10 +28,13 @@ class HomeController extends AbstractController
 
         $homeSettings = $homePageSettingsRepository->findOneBy([]);
 
+        $didYouKnowPosts = $didYouKnowPostRepository->findLatestPublished(3);
+
         return $this->render('home/index.html.twig', [
             'artists' => $artists,
             'services' => $services,
             'homeSettings' => $homeSettings,
+            'didYouKnowPosts' => $didYouKnowPosts,
         ]);
     }
 }

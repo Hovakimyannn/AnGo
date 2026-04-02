@@ -1,11 +1,36 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ categoryLabel }} | AnGo{% endblock %}
-{% block meta_description %}AnGo բլոգ՝ {{ categoryLabel }}։ Տեսեք վարպետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։{% endblock %}
+{% block title %}{{ category ? (categoryLabel ~ ' — Բլոգ') : 'Գեղեցկության բլոգ — Խորհուրդներ և աշխատանքներ' }} | ANGO{% endblock %}
+{% block meta_description %}
+    {%- if category -%}
+        ANGO բլոգ՝ {{ categoryLabel }}։ Տեսեք մասնագետների աշխատանքները, ծառայությունների օրինակներ և օգտակար նյութեր։
+    {%- else -%}
+        Բացահայտեք գեղեցկության աշխարհը ANGO բլոգում։ Օգտակար խորհուրդներ, մասնագետների փորձը և իրական աշխատանքների օրինակներ (վարսահարդարում, մատնահարդարում, դիմահարդարում)։
+    {%- endif -%}
+{% endblock %}
+{% block head_extra %}
+    {% if blog_listing_noindex %}
+        <meta name="robots" content="noindex,follow">
+    {% endif %}
+{% endblock %}
+{% block canonical_url %}
+    {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
+    {% set __params = category ? {category: category} : {} %}
+    {% set __url = absolute_url(path(__route, __params)) %}
+    {% set __query = [] %}
+    {% if selectedServiceId %}
+        {% set __query = __query|merge(['service=' ~ selectedServiceId]) %}
+    {% endif %}
+    {% if (page|default(1)) > 1 %}
+        {% set __query = __query|merge(['page=' ~ page]) %}
+    {% endif %}
+    {{ __query ? (__url ~ '?' ~ __query|join('&')) : __url }}
+{% endblock %}
 
 {% block structured_data %}
     {{ parent() }}
     {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
+    {% set __position_offset = ((page|default(1) - 1) * (perPage|default(9))) %}
 
     {% set __posts = [] %}
     {% if posts is defined %}
@@ -17,7 +42,7 @@
                 'author': {
                     '@type': 'Person',
                     'name': (p.artist.user.firstName ~ ' ' ~ p.artist.user.lastName)|trim,
-                    'url': absolute_url(path('app_artist_show', {id: p.artist.id}))
+                    'url': absolute_url(path('app_artist_show', {slug: p.artist.slug}))
                 },
                 'datePublished': (p.publishedAt ? p.publishedAt|date('c') : p.createdAt|date('c'))
             } %}
@@ -26,7 +51,7 @@
             {% endif %}
             {% set __posts = __posts|merge([{
                 '@type': 'ListItem',
-                'position': loop.index,
+                'position': __position_offset + loop.index,
                 'item': __item
             }]) %}
         {% endfor %}
@@ -38,8 +63,8 @@
             '@graph': [
                 {
                     '@type': 'CollectionPage',
-                    'name': categoryLabel,
-                    'url': absolute_url(app.request.pathinfo)
+                    'name': category ? (categoryLabel ~ ' — Բլոգ') : 'Գեղեցկության բլոգ — Խորհուրդներ և աշխատանքներ',
+                    'url': block('canonical_url')|trim
                 },
                 {
                     '@type': 'ItemList',
@@ -57,10 +82,10 @@
             <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
                 <div>
                     <h1 class="text-3xl md:text-4xl font-bold text-gray-900">
-                        {{ categoryLabel }}
+                        {{ category ? categoryLabel : 'Գեղեցկության բլոգ' }}
                     </h1>
                     <p class="text-gray-500 mt-2">
-                        Տեսեք այս բաժնի բոլոր հոդվածները
+                        {{ category ? ('Տեսեք ' ~ categoryLabel ~ ' բաժնի բոլոր հոդվածները') : 'Օգտակար խորհուրդներ, մասնագետների փորձը և աշխատանքների օրինակներ' }}
                     </p>
                 </div>
 
@@ -72,7 +97,8 @@
                                 { key: null, label: 'Բոլորը', route: 'app_blog_index' },
                                 { key: 'hair', label: 'Վարսահարդարում', route: 'app_blog_category' },
                                 { key: 'makeup', label: 'Դիմահարդարում', route: 'app_blog_category' },
-                                { key: 'nails', label: 'Մատնահարդարում', route: 'app_blog_category' }
+                                { key: 'nails', label: 'Մատնահարդարում', route: 'app_blog_category' },
+                                { key: 'pedicure', label: 'Ոտնահարդարում', route: 'app_blog_category' }
                             ] %}
 
                             {% for t in tabs %}
@@ -87,24 +113,24 @@
                         </nav>
                     </div>
 
-                    {# Service tabs (click = filter) #}
+                    {# Service dropdown (avoid horizontal scroll) #}
                     {% set baseHref = category ? path('app_blog_category', {category: category}) : path('app_blog_index') %}
-                    <div class="border-b border-gray-200">
-                        <nav class="-mb-px flex items-center space-x-10 overflow-x-auto whitespace-nowrap">
-                            <a href="{{ baseHref }}"
-                               data-ajax-swap="#blogContent"
-                               class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ (not selectedServiceId) ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
-                                Բոլոր ծառայությունները
-                            </a>
-
-                            {% for s in services %}
-                                <a href="{{ baseHref ~ '?service=' ~ s.id }}"
-                                   data-ajax-swap="#blogContent"
-                                   class="px-2 py-2 text-sm font-semibold border-b-2 transition {{ selectedServiceId == s.id ? 'text-gray-900 border-gray-900' : 'text-gray-500 border-transparent hover:text-gray-900 hover:border-gray-300' }}">
-                                    {{ s.name }}
-                                </a>
-                            {% endfor %}
-                        </nav>
+                    <div class="mt-4">
+                        <label for="blogServiceSelect" class="block text-xs font-semibold text-gray-500 mb-2">Ծառայություններ</label>
+                        <div class="relative">
+                            <select id="blogServiceSelect"
+                                    class="w-full appearance-none border border-gray-300 rounded-lg bg-white px-3 py-2.5 pr-10 text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                                <option value="{{ baseHref }}" {{ not selectedServiceId ? 'selected' : '' }}>Բոլոր ծառայությունները</option>
+                                {% for s in services %}
+                                    <option value="{{ baseHref ~ '?service=' ~ s.id }}" {{ selectedServiceId == s.id ? 'selected' : '' }}>
+                                        {{ s.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-500">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -115,8 +141,11 @@
                        class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                         <div class="relative h-56 bg-gray-100 overflow-hidden">
                             {% if post.imageUrl %}
-                                <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
+                                <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                      alt="{{ post.title }}"
+                                     loading="lazy"
+                                     decoding="async"
                                      class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center text-gray-400">
@@ -154,6 +183,47 @@
                     </div>
                 {% endfor %}
             </div>
+
+            {% if totalPages|default(1) > 1 %}
+                {% set __route = category ? 'app_blog_category' : 'app_blog_index' %}
+                {% set __params = category ? {category: category} : {} %}
+                {% set __base = path(__route, __params) %}
+                <nav class="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                    {% set __prev_page = page - 1 %}
+                    {% set __prev_query = [] %}
+                    {% if selectedServiceId %}
+                        {% set __prev_query = __prev_query|merge(['service=' ~ selectedServiceId]) %}
+                    {% endif %}
+                    {% if __prev_page > 1 %}
+                        {% set __prev_query = __prev_query|merge(['page=' ~ __prev_page]) %}
+                    {% endif %}
+                    {% set __prev_href = __prev_query ? (__base ~ '?' ~ __prev_query|join('&')) : __base %}
+                    <a href="{{ __prev_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page > 1 ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">‹</a>
+
+                    {% for p in 1..totalPages %}
+                        {% set __query = [] %}
+                        {% if selectedServiceId %}
+                            {% set __query = __query|merge(['service=' ~ selectedServiceId]) %}
+                        {% endif %}
+                        {% if p > 1 %}
+                            {% set __query = __query|merge(['page=' ~ p]) %}
+                        {% endif %}
+                        {% set __href = __query ? (__base ~ '?' ~ __query|join('&')) : __base %}
+                        <a href="{{ __href }}" class="px-3 py-2 rounded-lg border text-sm {{ p == page ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-700 hover:bg-gray-50' }}">{{ p }}</a>
+                    {% endfor %}
+
+                    {% set __next_page = page + 1 %}
+                    {% set __next_query = [] %}
+                    {% if selectedServiceId %}
+                        {% set __next_query = __next_query|merge(['service=' ~ selectedServiceId]) %}
+                    {% endif %}
+                    {% if __next_page > 1 %}
+                        {% set __next_query = __next_query|merge(['page=' ~ __next_page]) %}
+                    {% endif %}
+                    {% set __next_href = __next_query ? (__base ~ '?' ~ __next_query|join('&')) : __base %}
+                    <a href="{{ __next_href }}" class="px-3 py-2 rounded-lg border text-sm {{ page < totalPages ? 'bg-white text-gray-700 hover:bg-gray-50' : 'pointer-events-none text-gray-300 bg-gray-50' }}">›</a>
+                </nav>
+            {% endif %}
         </div>
     </div>
 {% endblock %}

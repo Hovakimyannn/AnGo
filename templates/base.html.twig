@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="GsKbQNTzgOBtOY-p6QVbVTu-lDDmH0QCKC1HAkaztJc" />
-    <title>{% block title %}AnGo{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}AnGo գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն վարպետներ Աբովյանում։{% endblock %}">
+    <title>{% block title %}ANGO{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}ANGO գեղեցկության սրահ՝ պրոֆեսիոնալ սպասարկում և լավագույն մասնագետներ Երևանում։{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}ANGO, գեղեցկության սրահ, Երևան, varsavir, matnahardar, makeup{% endblock %}">
+    {# Capture the canonical URL from the child or use the current request path #}
+    {% set __ango_canonical_url_raw %}{% block canonical_url %}{% endblock %}{% endset %}
+    {% set __ango_canonical_url = __ango_canonical_url_raw|trim ?: absolute_url(app.request.pathinfo) %}
+
     {% block canonical %}
-        <link rel="canonical" href="{{ absolute_url(app.request.pathinfo) }}">
+        <link rel="canonical" href="{{ __ango_canonical_url }}">
     {% endblock %}
 
     {# Favicons + manifest (served from /public) #}
@@ -15,28 +20,30 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="AnGo" />
+    <meta name="apple-mobile-web-app-title" content="ANGO" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#111827">
 
     {# Open Graph / social previews #}
     {% set __ango_page_title = block('title')|striptags|trim %}
     {% set __ango_page_desc = block('meta_description')|striptags|trim %}
-    {% set __ango_page_url = absolute_url(app.request.pathinfo) %}
+    {% set __ango_page_url = __ango_canonical_url %}
+    {% set __ango_og_title_final = (__ango_og_title is defined and __ango_og_title) ? __ango_og_title : __ango_page_title %}
+    {% set __ango_og_desc_final = (__ango_og_description is defined and __ango_og_description) ? __ango_og_description : __ango_page_desc %}
     {% set __ango_og_image = (__ango_og_image is defined and __ango_og_image) ? __ango_og_image : absolute_url(asset('uploads/photos/ango-logo.png') ~ '?v=' ~ asset_version('uploads/photos/ango-logo.png')) %}
-    {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'AnGo' %}
+    {% set __ango_og_image_alt = (__ango_og_image_alt is defined and __ango_og_image_alt) ? __ango_og_image_alt : 'ANGO' %}
     {% set __ango_og_type = (__ango_og_type is defined and __ango_og_type) ? __ango_og_type : 'website' %}
-    <meta property="og:site_name" content="AnGo">
-    <meta property="og:title" content="{{ __ango_page_title }}">
-    <meta property="og:description" content="{{ __ango_page_desc }}">
+    <meta property="og:site_name" content="ANGO">
+    <meta property="og:title" content="{{ __ango_og_title_final }}">
+    <meta property="og:description" content="{{ __ango_og_desc_final }}">
     <meta property="og:type" content="{{ __ango_og_type }}">
     <meta property="og:url" content="{{ __ango_page_url }}">
     <meta property="og:image" content="{{ __ango_og_image }}">
     <meta property="og:image:alt" content="{{ __ango_og_image_alt }}">
     <meta property="og:locale" content="hy_AM">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ __ango_page_title }}">
-    <meta name="twitter:description" content="{{ __ango_page_desc }}">
+    <meta name="twitter:title" content="{{ __ango_og_title_final }}">
+    <meta name="twitter:description" content="{{ __ango_og_desc_final }}">
     <meta name="twitter:image" content="{{ __ango_og_image }}">
     <meta name="twitter:image:alt" content="{{ __ango_og_image_alt }}">
 
@@ -62,6 +69,7 @@
     {% block structured_data %}
         {% set __ango_json_opts = constant('JSON_UNESCAPED_SLASHES') b-or constant('JSON_UNESCAPED_UNICODE') %}
         {% set __ango_site_url = absolute_url(path('app_home')) %}
+        {% set __ango_opening_specs = ango_opening_hours_specification(home_settings) %}
         <script type="application/ld+json">
             {{ {
                 '@context': 'https://schema.org',
@@ -70,17 +78,19 @@
                         '@type': 'WebSite',
                         '@id': __ango_site_url ~ '#website',
                         'url': __ango_site_url,
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'inLanguage': 'hy-AM'
                     },
                     {
                         '@type': 'Organization',
                         '@id': __ango_site_url ~ '#organization',
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'alternateName': [
-                            'AnGo Beauty',
+                            'ANGO Beauty',
                             'Ango.beauty',
-                            'Անգո Բյութի'
+                            'Անգո Բյութի',
+                            'ANGO beauty salon Yerevan',
+                            'ANGO gexeckutyan srah Yerevanum'
                         ],
                         'url': __ango_site_url,
                         'logo': {
@@ -95,46 +105,38 @@
                     {
                         '@type': 'BeautySalon',
                         '@id': __ango_site_url ~ '#localbusiness',
-                        'name': 'AnGo',
+                        'name': 'ANGO',
                         'alternateName': [
-                            'AnGo Beauty',
+                            'ANGO Beauty',
                             'Ango.beauty',
                             'Անգո Բյութի',
-                            'AnGo Գեղեցկության սրահ',
-                            'AnGo beauty salon Abovyan',
-                            'AnGo gexeckutyan srah Abovyanum'
+                            'ANGO Գեղեցկության սրահ Երևանում',
+                            'ANGO beauty salon Yerevan',
+                            'ANGO gexeckutyan srah Yerevanum'
                         ],
-                        'description': 'Gexeckutyan srah Abovyanum (Saralanji 22, Abovyan) — Varsahardarum (varsavir), Matnahardarum (matnahardar), Dimahardarum (makeup / meyqap). Online booking: amragrel ayc.',
+                        'description': 'Գեղեցկության սրահ Երևանում (Ռոստովյան 34/1)՝ վարսահարդարում, մատնահարդարում, ոտնահարդարում, դիմահարդարում։ Ամրագրել առցանց։',
                         'url': __ango_site_url,
                         'image': __ango_og_image,
                         'telephone': '+37494649924',
                         'priceRange': '$$',
                         'address': {
                             '@type': 'PostalAddress',
-                            'streetAddress': 'Saralanji 22',
-                            'addressLocality': 'Abovyan',
-                            'addressRegion': 'Kotayk',
+                            'streetAddress': 'Rostovyan 34/1',
+                            'addressLocality': 'Yerevan',
+                            'addressRegion': 'Yerevan',
                             'addressCountry': 'AM'
                         },
+                        'geo': {
+                            '@type': 'GeoCoordinates',
+                            'latitude': 40.150267,
+                            'longitude': 44.516867
+                        },
+                        'logo': absolute_url(asset('favicon/android-chrome-512x512.png')),
                         'areaServed': [
-                            { '@type': 'City', 'name': 'Abovyan', 'alternateName': 'Աբովյան' },
-                            { '@type': 'AdministrativeArea', 'name': 'Kotayk', 'alternateName': 'Կոտայք' },
+                            { '@type': 'City', 'name': 'Yerevan', 'alternateName': 'Երևան' },
                             { '@type': 'Country', 'name': 'Armenia', 'alternateName': 'Հայաստան' }
                         ],
-                        'openingHoursSpecification': [
-                            {
-                                '@type': 'OpeningHoursSpecification',
-                                'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-                                'opens': '10:00',
-                                'closes': '20:00'
-                            },
-                            {
-                                '@type': 'OpeningHoursSpecification',
-                                'dayOfWeek': ['Sunday'],
-                                'opens': '11:00',
-                                'closes': '18:00'
-                            }
-                        ],
+                        'openingHoursSpecification': __ango_opening_specs,
                         'parentOrganization': { '@id': __ango_site_url ~ '#organization' }
                     },
                     {
@@ -159,9 +161,6 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
-
-{# --- SNOWFALL OVERLAY (seasonal visual) --- #}
-<canvas id="angoSnowCanvas" class="ango-snowfall" aria-hidden="true"></canvas>
 
 {# --- HEADER --- #}
 <header class="fixed w-full bg-white/95 backdrop-blur shadow-sm z-50 transition-all duration-300 h-16">
@@ -191,7 +190,7 @@
                         sizes="96px"
                         width="96"
                         height="56"
-                        alt="AnGo"
+                        alt="AnGo Beauty Salon Yerevan Logo"
                         class="w-auto object-contain h-14 max-w-[220px]"
                         loading="eager"
                         decoding="async"
@@ -208,7 +207,7 @@
             <!-- Artists Dropdown -->
             <div class="relative group">
                 <button class="flex items-center hover:text-pink-600 transition gap-1 h-full">
-                    Վարպետներ <i class="fas fa-chevron-down text-xs"></i>
+                    Մասնագետներ <i class="fas fa-chevron-down text-xs"></i>
                 </button>
 
                 <!-- Fixed Dropdown with Links -->
@@ -216,15 +215,17 @@
                     <div class="bg-white shadow-xl rounded-lg overflow-hidden border-t-2 border-pink-600">
                         <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Վարսահարդարներ</a>
                         <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Մատնահարդարներ</a>
+                        <a href="{{ path('app_artists', {'category': 'pedicure'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Ոտնահարդարներ</a>
                         <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block px-4 py-2 hover:bg-pink-50 hover:text-pink-600">Դիմահարդարներ</a>
                     </div>
                 </div>
             </div>
 
-            <a href="{{ path('app_service_index') }}" class="hover:text-pink-600 transition">Ծառայություններ</a>
+            <a href="{{ path('app_service_index') }}" class="hover:text-pink-600 transition">Գնացուցակ</a>
             <a href="{{ path('app_home') }}#about" class="hover:text-pink-600 transition">Մեր մասին</a>
             <a href="{{ path('app_home') }}#contact" class="hover:text-pink-600 transition">Կապ</a>
             <a href="{{ path('app_blog_index') }}" class="hover:text-pink-600 transition">Բլոգ</a>
+            <a href="{{ path('app_did_you_know_index') }}" class="hover:text-pink-600 transition">Իսկ դուք գիտեի՞ք, որ...</a>
 
             {% if app.user %}
                 <a href="{{ path('app_profile') }}" class="hover:text-pink-600 transition">
@@ -260,17 +261,19 @@
     <div id="mobile-menu" class="hidden md:hidden bg-white border-t absolute w-full shadow-lg">
         <a href="{{ path('app_home') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Գլխավոր</a>
         <div class="block px-6 py-3 border-b bg-gray-50">
-            <span class="font-semibold text-pink-600 block mb-2">Վարպետներ</span>
+            <span class="font-semibold text-pink-600 block mb-2">Մասնագետներ</span>
             <div class="pl-4 space-y-2 text-sm text-gray-600 border-l-2 border-pink-200">
                 <a href="{{ path('app_artists', {'category': 'hair'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Վարսահարդարներ</a>
                 <a href="{{ path('app_artists', {'category': 'nails'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Մատնահարդարներ</a>
+                <a href="{{ path('app_artists', {'category': 'pedicure'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Ոտնահարդարներ</a>
                 <a href="{{ path('app_artists', {'category': 'makeup'}) }}" data-ajax-swap="#artistsContent" class="block py-1">Դիմահարդարներ</a>
             </div>
         </div>
-        <a href="{{ path('app_service_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Ծառայություններ</a>
+        <a href="{{ path('app_service_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Գնացուցակ</a>
         <a href="{{ path('app_home') }}#about" class="block px-6 py-3 border-b hover:bg-gray-50">Մեր մասին</a>
         <a href="{{ path('app_home') }}#contact" class="block px-6 py-3 border-b hover:bg-gray-50">Կապ</a>
         <a href="{{ path('app_blog_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Բլոգ</a>
+        <a href="{{ path('app_did_you_know_index') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Իսկ դուք գիտեի՞ք, որ...</a>
 
         {% if app.user %}
             <a href="{{ path('app_profile') }}" class="block px-6 py-3 border-b hover:bg-gray-50">Իմ պրոֆիլը</a>
@@ -292,41 +295,154 @@
     {% block body %}{% endblock %}
 </main>
 
-{# --- FOOTER --- #}
-<footer class="bg-gray-900 text-white py-12">
-    <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-            <h3 class="text-xl font-bold mb-4 text-pink-500">AnGo</h3>
-            <p class="text-gray-400 text-sm">Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։ Լավագույն մասնագետները Աբովյանում։</p>
-        </div>
-        <div>
-            <h4 class="font-bold mb-4">Հասցե</h4>
-            <p class="text-gray-400 text-sm"><i class="fas fa-map-marker-alt mr-2"></i> Ք.Աբովյան, Սարալանջի 22</p>
-            <p class="text-gray-400 text-sm mt-2"><i class="fas fa-phone mr-2"></i> +374 94 64 99 24</p>
-        </div>
-        <div>
-            <h4 class="font-bold mb-4">Աշխատանքային ժամեր</h4>
-            <p class="text-gray-400 text-sm">Երկ - Շաբ: 10:00 - 20:00</p>
-            <p class="text-gray-400 text-sm">Կիր: 11:00 - 18:00</p>
-        </div>
-        <div>
-            <h4 class="font-bold mb-4">Սոցիալական</h4>
-            <div class="flex space-x-4">
-                <a href="https://www.instagram.com/angobeauty__/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram" class="hover:text-pink-500 transition">
-                    <i class="fab fa-instagram text-2xl" aria-hidden="true"></i>
-                </a>
-                <a href="https://www.facebook.com/profile.php?id=61580633960341" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Facebook" class="hover:text-pink-500 transition">
-                    <i class="fab fa-facebook text-2xl" aria-hidden="true"></i>
-                </a>
+{# --- FOOTER (admin: Home էջի կարգավորումներ → Կապ / Footer) --- #}
+{% set _footer_tagline = (home_settings is defined and home_settings and home_settings.footerTagline is not empty) ? home_settings.footerTagline : "Ձեր գեղեցկությունը մեր ամենակարևոր հոգսն է։\nԼավագույն մասնագետները Երևանում։" %}
+{% set _footer_address = (home_settings is defined and home_settings and home_settings.contactAddress is not empty) ? home_settings.contactAddress : 'Ք. Երևան, Ռոստովյան 34/1' %}
+{% set _footer_phone = (home_settings is defined and home_settings and home_settings.contactPhone is not empty) ? home_settings.contactPhone : '+374 94 64 99 24' %}
+{% set _footer_hours1 = (home_settings is defined and home_settings and home_settings.contactHoursLine1 is not empty) ? home_settings.contactHoursLine1 : 'Երկ - Շաբ: 10:00 - 20:00' %}
+{% set _footer_hours2 = (home_settings is defined and home_settings and home_settings.contactHoursLine2 is not empty) ? home_settings.contactHoursLine2 : 'Կիր: 11:00 - 18:00' %}
+{% set _footer_instagram = (home_settings is defined and home_settings and home_settings.contactInstagramUrl is not empty) ? home_settings.contactInstagramUrl : 'https://www.instagram.com/angobeauty__/' %}
+{% set _footer_facebook = (home_settings is defined and home_settings and home_settings.contactFacebookUrl is not empty) ? home_settings.contactFacebookUrl : 'https://www.facebook.com/profile.php?id=61580633960341' %}
+{% set _footer_copyright = (home_settings is defined and home_settings and home_settings.contactCopyrightText is not empty) ? home_settings.contactCopyrightText : 'Բոլոր իրավունքները պաշտպանված են։' %}
+<footer class="bg-gray-900 text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12">
+            <!-- Brand & Tagline -->
+            <div class="space-y-4">
+                <h3 class="text-2xl font-bold text-pink-500">ANGO</h3>
+                <p class="text-gray-400 text-sm leading-relaxed">{{ _footer_tagline|nl2br }}</p>
+                <div class="flex space-x-4 pt-2">
+                    <a href="{{ _footer_instagram }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Հետևեք մեզ Instagram-ում" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-pink-600 transition duration-300">
+                        <i class="fab fa-instagram text-xl"></i>
+                    </a>
+                    <a href="{{ _footer_facebook }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook" title="Հետևեք մեզ Facebook-ում" class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-800 hover:bg-blue-600 transition duration-300">
+                        <i class="fab fa-facebook-f text-lg"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Services Links -->
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Ծառայություններ</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="{{ path('app_artists', {category: 'hair'}) }}" class="hover:text-pink-500 transition">Վարսահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'nails'}) }}" class="hover:text-pink-500 transition">Մատնահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'pedicure'}) }}" class="hover:text-pink-500 transition">Ոտնահարդարում</a></li>
+                    <li><a href="{{ path('app_artists', {category: 'makeup'}) }}" class="hover:text-pink-500 transition">Դիմահարդարում</a></li>
+                    <li><a href="{{ path('app_service_index') }}" class="hover:text-pink-500 transition">Գնացուցակ</a></li>
+                </ul>
+            </div>
+
+            <!-- Company Info Links -->
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Տեղեկատվություն</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="{{ path('app_home') }}#about" class="hover:text-pink-500 transition">Մեր մասին</a></li>
+                    <li><a href="{{ path('app_home') }}#contact" class="hover:text-pink-500 transition">Հետադարձ կապ</a></li>
+                    <li><a href="{{ path('app_blog_index') }}" class="hover:text-pink-500 transition">Բլոգ / Օգտակար խորհուրդներ</a></li>
+                    <li><a href="{{ path('app_did_you_know_index') }}" class="hover:text-pink-500 transition">Իսկ դուք գիտեի՞ք, որ...</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Details -->
+            <div class="space-y-4">
+                <h4 class="font-bold text-lg border-b border-gray-800 pb-2">Կապ</h4>
+                <div class="space-y-3 text-sm text-gray-400">
+                    <p class="flex items-start gap-3">
+                        <i class="fas fa-map-marker-alt text-pink-500 mt-1"></i>
+                        <button type="button" onclick="window.angoOpenMapSelector()" class="hover:text-pink-500 transition text-left focus:outline-none">
+                            {{ _footer_address }}
+                        </button>
+                    </p>
+                    <p class="flex items-center gap-3">
+                        <i class="fas fa-phone text-pink-500"></i>
+                        <a href="tel:{{ _footer_phone|replace({' ': ''}) }}" class="hover:text-pink-500 transition">
+                            {{ _footer_phone }}
+                        </a>
+                    </p>
+                    <div class="pt-2">
+                        <p class="text-xs text-gray-500 mb-1 font-bold uppercase tracking-wider">Աշխատանքային ժամեր</p>
+                        <p>{{ _footer_hours1 }}</p>
+                        <p>{{ _footer_hours2 }}</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="text-center mt-12 pt-8 border-t border-gray-800 text-xs text-gray-300">
-        &copy; {{ "now"|date("Y") }} AnGo. Բոլոր իրավունքները պաշտպանված են։
+
+        <div class="mt-16 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+            <p>&copy; {{ "now"|date("Y") }} ANGO. {{ _footer_copyright }}</p>
+            <div class="flex gap-6">
+                <span class="hover:text-gray-300 transition">Yerevan, Armenia</span>
+            </div>
+        </div>
     </div>
 </footer>
 
 {# --- INCLUDE MODAL --- #}
+
+{# --- MAP SELECTOR MODAL --- #}
+<div id="angoMapSelectorModal" class="hidden fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none">
+    <div class="bg-white w-full max-w-sm rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden transform translate-y-full sm:translate-y-4 transition-transform duration-300">
+        <div class="p-6">
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Ընտրեք քարտեզը</h3>
+            <p class="text-gray-500 text-sm mb-6">Ինչո՞վ բացել հասցեն՝ {{ _footer_address }}</p>
+            
+            <div class="space-y-3">
+                <a href="https://www.google.com/maps?q=40.150267,44.516867" target="_blank" rel="noopener" class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 hover:bg-pink-50 border border-transparent hover:border-pink-100 transition group">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-sm overflow-hidden p-1">
+                        <img src="https://www.google.com/images/branding/product/2x/maps_96in128dp.png" alt="Google Maps" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-grow">
+                        <span class="block font-bold text-gray-900">Google Maps</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 group-hover:text-pink-400"></i>
+                </a>
+
+                <a href="https://yandex.com/maps/?ll=44.516867,40.150267&z=18&text=40.150267,44.516867" target="_blank" rel="noopener" class="flex items-center gap-4 p-4 rounded-2xl bg-gray-50 hover:bg-pink-50 border border-transparent hover:border-pink-100 transition group">
+                    <div class="w-10 h-10 flex items-center justify-center rounded-xl bg-white shadow-sm overflow-hidden p-1">
+                        <img src="https://favicon.yandex.net/favicon/v2/https://maps.yandex.ru/?size=32" alt="Yandex Maps" class="w-full h-full object-contain">
+                    </div>
+                    <div class="flex-grow">
+                        <span class="block font-bold text-gray-900">Yandex Maps</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-gray-300 group-hover:text-pink-400"></i>
+                </a>
+            </div>
+
+            <button type="button" onclick="window.angoCloseMapSelector()" class="w-full mt-6 py-4 text-sm font-bold text-gray-500 hover:text-gray-900 transition">
+                Չեղարկել
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.angoOpenMapSelector = function() {
+        const modal = document.getElementById('angoMapSelectorModal');
+        const content = modal.querySelector('div');
+        modal.classList.remove('hidden', 'pointer-events-none');
+        setTimeout(() => {
+            modal.style.opacity = '1';
+            content.style.transform = 'translateY(0)';
+        }, 10);
+    };
+
+    window.angoCloseMapSelector = function() {
+        const modal = document.getElementById('angoMapSelectorModal');
+        const content = modal.querySelector('div');
+        modal.style.opacity = '0';
+        content.style.transform = window.innerWidth < 640 ? 'translateY(100%)' : 'translateY(16px)';
+        setTimeout(() => {
+            modal.classList.add('hidden', 'pointer-events-none');
+        }, 300);
+    };
+
+    // Close on backdrop click
+    document.getElementById('angoMapSelectorModal').addEventListener('click', function(e) {
+        if (e.target === this) window.angoCloseMapSelector();
+    });
+</script>
+
 {% include 'parts/booking_modal.html.twig' %}
 
 <script src="{{ asset('js/app.js') }}?v={{ asset_version('js/app.js') }}" defer></script>

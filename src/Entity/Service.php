@@ -17,16 +17,16 @@ class Service
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    // Category: 'hair', 'nails', 'makeup'
+    // Category: 'hair', 'nails', 'pedicure', 'makeup'
     #[ORM\Column(length: 50)]
     private ?string $category = null;
 
     // Tevoxutyuny ropeov (orinak` 60)
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?int $durationMinutes = null;
 
-    #[ORM\Column]
-    private ?float $price = null;
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $price = null;
 
     /**
      * @var Collection<int, ArtistProfile>
@@ -80,12 +80,12 @@ class Service
         return $this;
     }
 
-    public function getPrice(): ?float
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setPrice(float $price): static
+    public function setPrice(?string $price): static
     {
         $this->price = $price;
 

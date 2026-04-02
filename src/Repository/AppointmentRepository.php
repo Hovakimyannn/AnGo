@@ -116,9 +116,8 @@ class AppointmentRepository extends ServiceEntityRepository
         if (is_array($statuses) && $statuses === []) {
             return 0.0;
         }
-
         $qb = $this->createQueryBuilder('a')
-            ->select('COALESCE(SUM(a.servicePriceAtBooking), 0) AS total')
+            ->select('a.servicePriceAtBooking')
             ->andWhere('a.startDatetime >= :from')
             ->andWhere('a.startDatetime < :to')
             ->setParameter('from', $from)
@@ -134,7 +133,16 @@ class AppointmentRepository extends ServiceEntityRepository
                 ->setParameter('statuses', $statuses);
         }
 
-        return (float) $qb->getQuery()->getSingleScalarResult();
+        $results = $qb->getQuery()->getScalarResult();
+        $total = 0.0;
+        foreach ($results as $row) {
+            $priceStr = str_replace([' ', ','], '', (string) ($row['servicePriceAtBooking'] ?? ''));
+            if (preg_match('/^([0-9.]+)/', $priceStr, $matches)) {
+                $total += (float) $matches[1];
+            }
+        }
+
+        return $total;
     }
 
     /**

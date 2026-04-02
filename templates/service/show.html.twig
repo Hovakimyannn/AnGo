@@ -2,8 +2,20 @@
 
 {% block title %}{{ service.name }} — {{ categoryLabel }} | AnGo{% endblock %}
 {% block meta_description %}
-    {% set __price = service.price|number_format(0, '.', ' ') %}
-    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Աբովյան)։ Տևողություն՝ {{ service.durationMinutes }} րոպե, գին՝ {{ __price }} ֏։ Տեսեք վարպետներին և օրինակ աշխատանքները։
+    {% set __price = service.price %}
+    {{ service.name }} — {{ categoryLabel }} ծառայություն AnGo գեղեցկության սրահում (Երևան)։ Գին՝ {{ __price }} ֏։ Տեսեք մասնագետներին և օրինակ աշխատանքները։
+{% endblock %}
+
+{% block canonical_url %}{{ absolute_url(path('app_service_show', {id: service.id, slug: canonicalSlug})) }}{% endblock %}
+
+{% block head_extra %}
+    {% set __og_title = (service.name ~ ' — ANGO Yerevan')|trim %}
+    {% set __og_desc = (service.name ~ ' ' ~ categoryLabel ~ ' ծառայություն Երևանում (ANGO)։ Գին՝ ' ~ service.price ~ ' ֏։ Տեսեք մասնագետներին և ամրագրեք այցը առցանց։')|trim %}
+    <meta property="og:title" content="{{ __og_title }}">
+    <meta property="og:description" content="{{ __og_desc }}">
+    {% if posts|length > 0 and posts[0].imageUrl %}
+        <meta property="og:image" content="{{ absolute_url(asset('uploads/posts/' ~ posts[0].imageUrl)) }}">
+    {% endif %}
 {% endblock %}
 
 {% block structured_data %}
@@ -16,7 +28,7 @@
     {% set __translit = '' %}
     {% if categoryKey == 'hair' %}
         {% set __seo_kw_list = [
-            'Վարսահարդարում Աբովյանում',
+            'Վարսահարդարում Երևանում',
             'Վարսահարդարման գներ',
             'Վարսավիր',
             'Մազերի խնամք',
@@ -29,12 +41,11 @@
         {% if ('բոտոքս' in __nameLower) or ('botox' in __nameLower) %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Մազերի բոտոքս', 'Hair botox']) %}
         {% endif %}
-        {% set __translit = 'varsahardarum abovyanum, varsavir abovyan, mazeri xnamq' %}
+        {% set __translit = 'varsahardarum yerevanum, varsavir yerevan, mazeri xnamq' %}
     {% elseif categoryKey == 'nails' %}
         {% set __seo_kw_list = [
-            'Մատնահարդարում Աբովյանում',
+            'Մատնահարդարում Երևանում',
             'Մանիկյուր',
-            'Պեդիկյուր',
             'Եղունգների ձևավորում'
         ] %}
         {% if ('շելլակ' in __nameLower) or ('shellac' in __nameLower) %}
@@ -43,10 +54,18 @@
         {% if ('գել' in __nameLower) or ('gel' in __nameLower) %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Գել լաք (Gel lak)']) %}
         {% endif %}
-        {% set __translit = 'matnahardarum abovyanum, manikyur abovyan, shellac manikyur' %}
+        {% set __translit = 'matnahardarum yerevanum, manikyur yerevan, shellac manikyur' %}
+    {% elseif categoryKey == 'pedicure' %}
+        {% set __seo_kw_list = [
+            'Ոտնահարդարում Երևանում',
+            'Pedicure',
+            'Պեդիկյուր',
+            'Ոտքերի խնամք'
+        ] %}
+        {% set __translit = 'otnahardarum yerevanum, pedicure yerevan' %}
     {% elseif categoryKey == 'makeup' %}
         {% set __seo_kw_list = [
-            'Դիմահարդարում Աբովյանում',
+            'Դիմահարդարում Երևանում',
             'Պրոֆեսիոնալ դիմահարդարում',
             'Երեկոյան դիմահարդարում',
             'Ամենօրյա դիմահարդարում'
@@ -54,7 +73,7 @@
         {% if 'հարսանեկան' in __nameLower %}
             {% set __seo_kw_list = __seo_kw_list|merge(['Հարսանեկան դիմահարդարում']) %}
         {% endif %}
-        {% set __translit = 'dimahardarum abovyanum, harsanekan dimahardarum, makeup artist abovyan' %}
+        {% set __translit = 'dimahardarum yerevanum, harsanekan dimahardarum, makeup artist yerevan' %}
     {% endif %}
 
     {% set __seo_keywords = __seo_kw_list|join(', ') %}
@@ -125,17 +144,14 @@
                            class="text-xs font-semibold bg-pink-50 text-pink-700 px-3 py-1 rounded-full border border-pink-100 hover:bg-pink-100 transition">
                             {{ categoryLabel }}
                         </a>
-                        <span class="text-xs font-semibold bg-gray-50 text-gray-700 px-3 py-1 rounded-full border border-gray-200">
-                            {{ service.durationMinutes }} րոպե
-                        </span>
-                        <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full">
-                            {{ service.price|number_format(0, '.', ' ') }} ֏
+                        <span class="text-xs font-semibold bg-gray-900 text-white px-3 py-1 rounded-full whitespace-nowrap">
+                            {{ service.price }} ֏
                         </span>
                     </div>
 
                     <div class="mt-6 text-gray-600 leading-relaxed">
                         <p>
-                            Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, վարպետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
+                            Այս էջում կարող եք տեսնել ծառայության հիմնական տվյալները, մասնագետներին, ինչպես նաև օրինակ աշխատանքներ (եթե կան)։
                         </p>
                     </div>
                 </div>
@@ -145,7 +161,7 @@
                         <div class="text-sm text-gray-500">Ամրագրում</div>
                         <div class="text-lg font-bold text-gray-900 mt-1">Ամրագրեք այցը առցանց</div>
                         <p class="text-sm text-gray-600 mt-2">
-                            Կարող եք ընտրել վարպետին և հարմար ժամ։
+                            Կարող եք ընտրել մասնագետին և հարմար ժամ։
                         </p>
                         <a href="#booking"
                            data-category="{{ categoryKey }}"
@@ -168,7 +184,8 @@
                                    class="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-xl transition">
                                     <div class="relative h-48 bg-gray-100 overflow-hidden">
                                         {% if post.imageUrl %}
-                                            <img src="{{ asset('uploads/posts/' ~ post.imageUrl) }}"
+                                            {% set __list_img = post.imageThumbnailUrl ?: post.imageUrl %}
+                                            <img src="{{ asset('uploads/posts/' ~ __list_img) }}"
                                                  alt="{{ post.title }}"
                                                  loading="lazy"
                                                  decoding="async"
@@ -210,14 +227,14 @@
                 </div>
 
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Վարպետներ</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-5">Մասնագետներ</h2>
 
                     {% set artists = service.artistProfiles %}
                     {% if artists is not empty %}
                         <div class="space-y-4">
                             {% for artist in artists %}
                                 <div class="flex items-center justify-between gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition">
-                                    <a href="{{ path('app_artist_show', {id: artist.id}) }}"
+                                    <a href="{{ path('app_artist_show', {slug: artist.slug}) }}"
                                        class="flex items-center gap-4 min-w-0">
                                         <div class="w-14 h-14 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
                                             {% if artist.photoUrl %}
@@ -268,7 +285,7 @@
                         </div>
                     {% else %}
                         <div class="rounded-2xl border bg-gray-50 p-6 text-gray-600">
-                            Այս ծառայությունը դեռ կապված չէ որևէ վարպետի հետ։
+                            Այս ծառայությունը դեռ կապված չէ որևէ մասնագետի հետ։
                         </div>
                     {% endif %}
                 </div>
@@ -292,12 +309,8 @@
                                     {{ s.name }}
                                 </div>
                                 <div class="mt-2 flex items-center justify-between text-sm text-gray-500">
-                                    <div class="inline-flex items-center gap-2">
-                                        <i class="far fa-clock text-gray-400" aria-hidden="true"></i>
-                                        <span>{{ s.durationMinutes }} րոպե</span>
-                                    </div>
-                                    <div class="font-extrabold text-gray-900">
-                                        {{ s.price|number_format(0, '.', ' ') }} ֏
+                                    <div class="font-extrabold text-gray-900 whitespace-nowrap">
+                                        {{ s.price }} ֏
                                     </div>
                                 </div>
                                 <div class="mt-4 text-sm font-semibold text-gray-900 group-hover:text-pink-600 transition">

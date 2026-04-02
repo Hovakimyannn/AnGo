@@ -52,7 +52,7 @@ class BookingService
             }
         }
 
-        $serviceDuration = $service->getDurationMinutes(); // Orinak 60 rope
+        $serviceDuration = $service->getDurationMinutes() ?: 60; // Orinak 60 rope
 
         // 2. Gtnel ayd orva bolor grancvac patvernery
         // Menq petq e stexcenq Datetime objecner ayd orva skzbi ev verji hamar

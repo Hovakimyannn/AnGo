@@ -24,6 +24,17 @@
             const expanded = !menu.classList.contains('hidden');
             button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
         });
+
+        window.angoCloseMobileMenu = function () {
+            menu.classList.add('hidden');
+            button.setAttribute('aria-expanded', 'false');
+        };
+
+        menu.addEventListener('click', function (e) {
+            if (e.target.closest('a[href]') && typeof window.angoCloseMobileMenu === 'function') {
+                window.angoCloseMobileMenu();
+            }
+        });
     });
 
     // ---------------------------------------------------------------------
@@ -35,6 +46,7 @@
             { key: 'hair', label: 'Վարսահարդարում', order: 1 },
             { key: 'makeup', label: 'Դիմահարդարում', order: 2 },
             { key: 'nails', label: 'Մատնահարդարում', order: 3 },
+            { key: 'pedicure', label: 'Ոտնահարդարում', order: 4 },
         ];
 
         /** @type {Array<{key:string,label:string,order?:number}>} */
@@ -353,13 +365,13 @@
                 if (!category) return;
 
                 const rawLabel = (opt.textContent || '').trim();
-                const name = opt.dataset.name ? String(opt.dataset.name) : rawLabel.replace(/\s*\(\s*[\d.]+\s*AMD\s*\)\s*$/, '').trim();
+                const name = opt.dataset.name ? String(opt.dataset.name) : rawLabel.replace(/\s*\(\s*[\d.-]+\s*(?:AMD|֏)\s*\)\s*$/, '').trim();
                 let price = undefined;
                 if (opt.dataset.price) {
                     const p = Number(opt.dataset.price);
                     price = Number.isFinite(p) ? p : undefined;
                 } else {
-                    const m = rawLabel.match(/\(\s*([\d.]+)\s*AMD\s*\)/);
+                    const m = rawLabel.match(/\(\s*([\d.-]+)\s*(?:AMD|֏)\s*\)/);
                     if (m && m[1]) {
                         const p = Number(m[1]);
                         price = Number.isFinite(p) ? p : undefined;
@@ -453,7 +465,7 @@
             filtered.forEach((service) => {
                 const name = String(service.name || '').trim();
                 const price = service.price;
-                const label = name + ((price !== undefined && price !== null && price !== '') ? ` (${price} AMD)` : '');
+                const label = name + ((price !== undefined && price !== null && price !== '') ? ` (${price} ֏)` : '');
                 serviceSelect.innerHTML += `<option value="${service.id}">${label}</option>`;
             });
 
@@ -483,7 +495,7 @@
                 stepArtist.classList.remove('opacity-50', 'pointer-events-none');
             } catch (e) {
                 console.error('Error:', e);
-                artistSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել վարպետներին</option>';
+                artistSelect.innerHTML = '<option value="">Չհաջողվեց բեռնել մասնագետներին</option>';
             }
         }
 
@@ -692,151 +704,6 @@
     })();
 
     // ---------------------------------------------------------------------
-    // Snowfall overlay
-    // ---------------------------------------------------------------------
-    (function () {
-        function initSnow() {
-            const canvas = document.getElementById('angoSnowCanvas');
-            if (!canvas) return;
-
-            // Respect accessibility & performance preferences.
-            const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-            const saveData = !!(navigator.connection && navigator.connection.saveData);
-            if (prefersReducedMotion || saveData) {
-                canvas.style.display = 'none';
-                return;
-            }
-
-            /** @type {CanvasRenderingContext2D|null} */
-            const ctx = canvas.getContext('2d', { alpha: true });
-            if (!ctx) return;
-
-            let width = 0;
-            let height = 0;
-            let dpr = 1;
-            /** @type {Array<{x:number,y:number,r:number,vy:number,vx:number,wobble:number,wobbleSpeed:number,o:number}>} */
-            let flakes = [];
-            let rafId = 0;
-            let lastTs = performance.now();
-
-            function rand(min, max) {
-                return Math.random() * (max - min) + min;
-            }
-
-            function resizeCanvas() {
-                // Use bounding box to match CSS size (handles zoom/layout).
-                const rect = canvas.getBoundingClientRect();
-                width = Math.max(1, Math.floor(rect.width));
-                height = Math.max(1, Math.floor(rect.height));
-                dpr = Math.min(2, window.devicePixelRatio || 1);
-
-                canvas.width = Math.floor(width * dpr);
-                canvas.height = Math.floor(height * dpr);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            }
-
-            function makeFlake() {
-                const r = rand(0.8, 2.8);
-                return {
-                    x: rand(0, width),
-                    y: rand(-height, height),
-                    r,
-                    vy: rand(0.7, 1.6),
-                    vx: rand(-0.25, 0.25),
-                    wobble: rand(0, Math.PI * 2),
-                    wobbleSpeed: rand(0.008, 0.02),
-                    o: rand(0.25, 0.75)
-                };
-            }
-
-            function initFlakes() {
-                // Density scales with viewport, with a safe upper bound.
-                const target = Math.min(180, Math.max(60, Math.round(width / 10)));
-                flakes = new Array(target).fill(0).map(makeFlake);
-            }
-
-            function step(ts) {
-                const dt = Math.min(0.05, (ts - lastTs) / 1000); // cap to avoid huge jumps
-                lastTs = ts;
-
-                ctx.clearRect(0, 0, width, height);
-
-                for (let i = 0; i < flakes.length; i++) {
-                    const f = flakes[i];
-                    f.wobble += f.wobbleSpeed;
-
-                    // 60 is a normalization factor so speeds feel consistent across dt.
-                    const dx = (f.vx + Math.sin(f.wobble) * 0.25) * 60 * dt;
-                    const dy = f.vy * 60 * dt;
-                    f.x += dx;
-                    f.y += dy;
-
-                    // Wrap around screen bounds.
-                    if (f.y - f.r > height) {
-                        f.y = -f.r;
-                        f.x = rand(0, width);
-                    }
-                    if (f.x < -f.r) f.x = width + f.r;
-                    if (f.x > width + f.r) f.x = -f.r;
-
-                    ctx.globalAlpha = f.o;
-                    ctx.beginPath();
-                    ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fill();
-                }
-
-                ctx.globalAlpha = 1;
-                rafId = requestAnimationFrame(step);
-            }
-
-            function start() {
-                if (rafId) return;
-                lastTs = performance.now();
-                rafId = requestAnimationFrame(step);
-            }
-
-            function stop() {
-                if (!rafId) return;
-                cancelAnimationFrame(rafId);
-                rafId = 0;
-            }
-
-            // Init
-            resizeCanvas();
-            initFlakes();
-            start();
-
-            // Re-init on resize/orientation changes.
-            window.addEventListener('resize', function () {
-                resizeCanvas();
-                initFlakes();
-            }, { passive: true });
-
-            // Pause when tab is hidden to save CPU.
-            document.addEventListener('visibilitychange', function () {
-                if (document.hidden) stop();
-                else start();
-            });
-        }
-
-        // Defer initialization to avoid impacting LCP/first render.
-        const run = function () {
-            try {
-                initSnow();
-            } catch (e) {
-                // no-op
-            }
-        };
-
-        if (typeof window.requestIdleCallback === 'function') {
-            window.requestIdleCallback(run, { timeout: 2000 });
-        } else {
-            setTimeout(run, 1200);
-        }
-    })();
-
-    // ---------------------------------------------------------------------
     // AJAX filter navigation (no full reload)
     // ---------------------------------------------------------------------
     (function () {
@@ -870,7 +737,8 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'
                     },
-                    credentials: 'same-origin'
+                    credentials: 'same-origin',
+                    cache: 'no-store'
                 });
 
                 if (!resp.ok) throw new Error('Bad response');
@@ -917,6 +785,10 @@
 
             e.preventDefault();
 
+            if (typeof window.angoCloseMobileMenu === 'function') {
+                window.angoCloseMobileMenu();
+            }
+
             // Mark current page state so browser Back restores the correct filtered content
             const currentState = history.state || {};
             if (!currentState.__angoAjaxSwap || currentState.selector !== selector) {
@@ -932,6 +804,17 @@
             angoSwap(window.location.href, state.selector, false);
         });
     })();
+
+    // ---------------------------------------------------------------------
+    // Blog service filter dropdown (works after AJAX swaps)
+    // ---------------------------------------------------------------------
+    document.addEventListener('change', function (e) {
+        const select = e.target && e.target.id === 'blogServiceSelect' ? e.target : null;
+        if (!select) return;
+        if (select.value) {
+            window.location.href = select.value;
+        }
+    });
 })();
 
 

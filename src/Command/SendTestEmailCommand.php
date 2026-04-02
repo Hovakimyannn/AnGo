@@ -47,9 +47,9 @@ final class SendTestEmailCommand extends Command
         $email = new Email()
             ->from($this->from)
             ->to($to)
-            ->subject('SendGrid test email (AnGo)')
+            ->subject('SendGrid test email (ANGO)')
             ->text(sprintf(
-                "Hello!\n\nThis is a test email from AnGo.\nTime: %s\n",
+                "Hello!\n\nThis is a test email from ANGO.\nTime: %s\n",
                 new DateTimeImmutable()->format('c')
             ));
 
