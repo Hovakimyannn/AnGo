@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\Appointment;
+use App\Entity\ArtistProfile;
 use App\Repository\ArtistProfileRepository;
 use App\Repository\ServiceCategoryRepository;
 use App\Repository\ServiceRepository;
@@ -36,7 +37,7 @@ class BookingController extends AbstractController
         foreach ($artists as $artist) {
             $data[] = [
                 'id' => $artist->getId(),
-                'name' => (string)$artist->getUser(),
+                'name' => $this->artistPublicDisplayName($artist),
                 'photo' => $artist->getPhotoUrl(),
             ];
         }
@@ -152,8 +153,8 @@ class BookingController extends AbstractController
         foreach ($artists as $artist) {
             $data[] = [
                 'id' => $artist->getId(),
-                'name' => (string)$artist->getUser(), // __toString() kashxati
-                'photo' => $artist->getPhotoUrl()
+                'name' => $this->artistPublicDisplayName($artist),
+                'photo' => $artist->getPhotoUrl(),
             ];
         }
 
@@ -223,5 +224,19 @@ class BookingController extends AbstractController
         $this->appointmentMailer->sendBookingCreated($appointment);
 
         return $this->json(['success' => true, 'id' => $appointment->getId()]);
+    }
+
+    private function artistPublicDisplayName(ArtistProfile $artist): string
+    {
+        $user = $artist->getUser();
+        if (!$user) {
+            return 'Մասնագետ';
+        }
+
+        $first = trim((string) $user->getFirstName());
+        $last = trim((string) $user->getLastName());
+        $name = trim($first.' '.$last);
+
+        return $name !== '' ? $name : 'Մասնագետ';
     }
 }
