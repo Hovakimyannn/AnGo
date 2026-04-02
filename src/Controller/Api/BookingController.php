@@ -175,7 +175,12 @@ class BookingController extends AbstractController
 
         $artist = $this->artistRepository->find($artistId);
         $service = $this->serviceRepository->find($serviceId);
-        $date = new \DateTime($dateStr);
+        $tz = new \DateTimeZone(BookingService::SALON_TIMEZONE);
+        try {
+            $date = new \DateTime(trim((string) $dateStr), $tz);
+        } catch (\Throwable) {
+            return $this->json(['error' => 'Invalid date'], 400);
+        }
 
         if (!$artist || !$service) {
             return $this->json(['error' => 'Not found'], 404);
@@ -191,10 +196,25 @@ class BookingController extends AbstractController
     public function createBooking(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+        if (!\is_array($data)) {
+            return $this->json(['error' => 'Invalid data'], 400);
+        }
 
-        $artist = $this->artistRepository->find($data['artistId']);
-        $service = $this->serviceRepository->find($data['serviceId']);
-        $date = new \DateTime($data['date'] . ' ' . $data['time']);
+        $tz = new \DateTimeZone(BookingService::SALON_TIMEZONE);
+        $datePart = isset($data['date']) ? trim((string) $data['date']) : '';
+        $timePart = isset($data['time']) ? trim((string) $data['time']) : '';
+        $start = \DateTimeImmutable::createFromFormat('Y-m-d H:i', $datePart.' '.$timePart, $tz);
+        if (false === $start) {
+            return $this->json(['error' => 'Invalid date/time'], 400);
+        }
+
+        $now = new \DateTimeImmutable('now', $tz);
+        if ($start <= $now) {
+            return $this->json(['error' => 'Անցած ամսաթիվ կամ ժամ։'], 400);
+        }
+
+        $artist = $this->artistRepository->find($data['artistId'] ?? null);
+        $service = $this->serviceRepository->find($data['serviceId'] ?? null);
 
         if (!$artist || !$service) {
             return $this->json(['error' => 'Invalid data'], 400);
@@ -204,15 +224,15 @@ class BookingController extends AbstractController
         $appointment->setArtist($artist);
         $appointment->setService($service);
         $appointment->setServicePriceAtBooking($service->getPrice());
-        $appointment->setClientName($data['name']);
-        $appointment->setClientPhone($data['phone']);
-        $appointment->setClientEmail($data['email']);
+        $appointment->setClientName((string) ($data['name'] ?? ''));
+        $appointment->setClientPhone((string) ($data['phone'] ?? ''));
+        $appointment->setClientEmail((string) ($data['email'] ?? ''));
 
-        $appointment->setStartDatetime($date);
+        $appointment->setStartDatetime($start);
 
         // Hashvarkel avarty (nullable DB + slot logic uses same 60m fallback)
         $durationMinutes = $service->getDurationMinutes() ?: 60;
-        $endDate = (clone $date)->modify(sprintf('+%d minutes', $durationMinutes));
+        $endDate = $start->modify(sprintf('+%d minutes', $durationMinutes));
         $appointment->setEndDatetime($endDate);
 
         $appointment->setStatus(Appointment::STATUS_PENDING);

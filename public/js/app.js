@@ -85,6 +85,41 @@
         /** @type {string|null} */
         let currentArtistId = null;
 
+        function bookingTodayYmd() {
+            const n = new Date();
+            return (
+                n.getFullYear() +
+                '-' +
+                String(n.getMonth() + 1).padStart(2, '0') +
+                '-' +
+                String(n.getDate()).padStart(2, '0')
+            );
+        }
+
+        function applyBookingDateMin() {
+            const dateInput = document.getElementById('dateInput');
+            if (!dateInput) return;
+            dateInput.setAttribute('min', bookingTodayYmd());
+        }
+
+        function isBookingSlotInPast(dateStr, timeStr) {
+            const t = String(timeStr || '').trim();
+            const tp = t.split(':');
+            if (tp.length < 2) return false;
+            const h = parseInt(tp[0], 10);
+            const mi = parseInt(tp[1], 10);
+            if (!Number.isFinite(h) || !Number.isFinite(mi)) return false;
+            const ds = String(dateStr || '').trim();
+            const dp = ds.split('-');
+            if (dp.length < 3) return false;
+            const yy = parseInt(dp[0], 10);
+            const mm = parseInt(dp[1], 10);
+            const dd = parseInt(dp[2], 10);
+            if (!Number.isFinite(yy) || !Number.isFinite(mm) || !Number.isFinite(dd)) return false;
+            const slotDate = new Date(yy, mm - 1, dd, h, mi, 0, 0);
+            return slotDate.getTime() <= Date.now();
+        }
+
         function categoryLabel(key) {
             const k = String(key || '');
             return categoriesMeta[k]?.label || k;
@@ -228,6 +263,7 @@
                     });
                 }
             }
+            applyBookingDateMin();
         }
 
         function closeBooking() {
@@ -548,6 +584,7 @@
 
             if (serviceId && artistId) {
                 stepDate?.classList.remove('opacity-50', 'pointer-events-none');
+                applyBookingDateMin();
             } else {
                 stepDate?.classList.add('opacity-50', 'pointer-events-none');
             }
@@ -564,7 +601,16 @@
 
             const artistId = artistSelect.value;
             const serviceId = serviceSelect.value;
-            const date = dateInput.value;
+            applyBookingDateMin();
+            const minDay = bookingTodayYmd();
+            let date = dateInput.value;
+            if (date && date < minDay) {
+                dateInput.value = minDay;
+                date = minDay;
+                const selectedTime = document.getElementById('selectedTime');
+                if (selectedTime) selectedTime.value = '';
+                document.getElementById('stepClient')?.classList.add('hidden');
+            }
 
             if (!artistId || !serviceId || !date) return;
 
@@ -583,12 +629,21 @@
                     return;
                 }
 
+                const todayLocal = bookingTodayYmd();
                 data.slots.forEach(time => {
                     const btn = document.createElement('button');
                     btn.type = 'button';
-                    btn.className = 'border border-pink-200 text-pink-600 hover:bg-pink-600 hover:text-white py-2 rounded transition text-sm font-bold';
+                    const disabled = String(date) === todayLocal && isBookingSlotInPast(date, time);
+                    if (disabled) {
+                        btn.disabled = true;
+                        btn.className =
+                            'border border-gray-200 text-gray-400 bg-gray-100 py-2 rounded text-sm font-bold cursor-not-allowed opacity-70';
+                    } else {
+                        btn.className =
+                            'border border-pink-200 text-pink-600 hover:bg-pink-600 hover:text-white py-2 rounded transition text-sm font-bold';
+                        btn.onclick = () => selectTime(btn, time);
+                    }
                     btn.innerText = time;
-                    btn.onclick = () => selectTime(btn, time);
                     slotsContainer.appendChild(btn);
                 });
             } catch (e) {
@@ -626,6 +681,16 @@
                 phone: document.getElementById('clientPhone')?.value,
                 email: document.getElementById('clientEmail')?.value
             };
+
+            const minDay = bookingTodayYmd();
+            if (data.date && data.date < minDay) {
+                alert('Նախորդ օրվա համար ամրագրումն անհասանելի է։');
+                return;
+            }
+            if (data.date === minDay && data.time && isBookingSlotInPast(data.date, data.time)) {
+                alert('Ընտրեք ապագայի ժամ։');
+                return;
+            }
 
             try {
                 const response = await fetch('/api/booking/book', {
@@ -665,7 +730,10 @@
             if (artistSelect) artistSelect.addEventListener('change', onArtistChange);
 
             const dateInput = document.getElementById('dateInput');
-            if (dateInput) dateInput.addEventListener('change', loadSlots);
+            if (dateInput) {
+                applyBookingDateMin();
+                dateInput.addEventListener('change', loadSlots);
+            }
         });
 
         // Expose globals (keeps existing inline handlers working).

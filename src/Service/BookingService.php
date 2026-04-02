@@ -10,6 +10,9 @@ use App\Repository\AvailabilityRepository;
 
 class BookingService
 {
+    /** @see BookingController — same zone for slot API and POST /book */
+    public const SALON_TIMEZONE = 'Asia/Yerevan';
+
     public function __construct(
         private AppointmentRepository $appointmentRepository,
         private AvailabilityRepository $availabilityRepository
@@ -93,7 +96,38 @@ class BookingService
             $cursor->modify('+30 minutes');
         }
 
-        return $slots;
+        return $this->removePastSlotsForToday($slots, $date);
+    }
+
+    /**
+     * @param list<string> $slots
+     *
+     * @return list<string>
+     */
+    private function removePastSlotsForToday(array $slots, \DateTimeInterface $date): array
+    {
+        $tz = new \DateTimeZone(self::SALON_TIMEZONE);
+        $now = new \DateTimeImmutable('now', $tz);
+        if ($date->format('Y-m-d') !== $now->format('Y-m-d')) {
+            return $slots;
+        }
+
+        return array_values(array_filter(
+            $slots,
+            function (string $slot) use ($date, $now, $tz): bool {
+                $slot = trim($slot);
+                $candidate = \DateTimeImmutable::createFromFormat(
+                    'Y-m-d H:i',
+                    $date->format('Y-m-d').' '.$slot,
+                    $tz
+                );
+                if ($candidate === false) {
+                    return true;
+                }
+
+                return $candidate > $now;
+            }
+        ));
     }
 
     private function isOverlapping(\DateTimeInterface $start, \DateTimeInterface $end, array $appointments): bool
