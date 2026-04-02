@@ -6,12 +6,17 @@ use App\Entity\User;
 use App\Service\PasswordResetService;
 use App\Service\UserMailer;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -21,6 +26,8 @@ class UserCrudController extends AbstractCrudController
         private readonly UserPasswordHasherInterface $passwordHasher,
         private readonly UserMailer $userMailer,
         private readonly PasswordResetService $passwordResetService,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly AdminUrlGenerator $adminUrlGenerator,
     ) {}
 
     public static function getEntityFqcn(): string
@@ -36,6 +43,17 @@ class UserCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Օգտատերեր')
             ->setDefaultSort(['id' => 'DESC'])
             ->setSearchFields(['email', 'firstName', 'lastName', 'phone']);
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $resendAccountSetup = Action::new('resendAccountSetup', 'Կրկին ուղարկել email')
+            ->setIcon('fa fa-envelope')
+            ->linkToCrudAction('resendAccountSetup');
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $resendAccountSetup)
+            ->add(Crud::PAGE_DETAIL, $resendAccountSetup);
     }
 
     public function configureFields(string $pageName): iterable
@@ -88,6 +106,47 @@ class UserCrudController extends AbstractCrudController
         }
 
         $this->addFlash('success', 'Օգտատերը ստեղծվեց։ Գաղտնաբառ սահմանելու հղումը ուղարկվեց email-ով։');
+    }
+
+    public function resendAccountSetup(AdminContext $context): Response
+    {
+        $instance = $context->getEntity()?->getInstance();
+        if (!$instance instanceof User) {
+            $this->addFlash('danger', 'Սխալ օգտատեր։');
+
+            return $this->redirectToUserIndex();
+        }
+
+        $token = $this->passwordResetService->createToken($instance);
+        $this->entityManager->flush();
+
+        if (!$this->userMailer->sendAccountSetup($instance, $token)) {
+            $resetUrl = $this->generateUrl('app_reset_password', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+            $reason = trim((string) $this->userMailer->getLastFailureReason());
+            $reasonText = $reason !== '' ? sprintf(' Պատճառ՝ %s', $reason) : '';
+            $this->addFlash('warning', sprintf(
+                'Email ուղարկել չհաջողվեց (ստուգեք MAILER_DSN / MAILER_FROM)։%s Reset link: %s',
+                $reasonText,
+                $resetUrl
+            ));
+
+            return $this->redirectToUserIndex();
+        }
+
+        $this->addFlash('success', 'Գաղտնաբառ սահմանելու հղումը կրկին ուղարկվեց email-ով։');
+
+        return $this->redirectToUserIndex();
+    }
+
+    private function redirectToUserIndex(): Response
+    {
+        $url = $this->adminUrlGenerator
+            ->unsetAll()
+            ->setController(self::class)
+            ->setAction(Crud::PAGE_INDEX)
+            ->generateUrl();
+
+        return $this->redirect($url);
     }
 
     private function generateRandomPassword(): string
