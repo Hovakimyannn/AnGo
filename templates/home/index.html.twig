@@ -671,11 +671,15 @@
                     <div class="text-gray-600 text-sm group-hover/card:text-gray-900 transition-colors">{{ __contact_address }}</div>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-                    <div class="font-bold text-gray-900 mb-2"><i class="fas fa-phone mr-2 text-pink-600"></i> Հեռախոս</div>
-                    {% set __contact_phone = (homeSettings is defined and homeSettings and homeSettings.contactPhone) ? homeSettings.contactPhone : '+374 94 64 99 24' %}
-                    <a href="{{ __contact_phone|tel_uri }}" class="text-gray-600 text-sm hover:text-pink-600 transition inline-block">{{ __contact_phone }}</a>
-                </div>
+                {% set __contact_phone = (homeSettings is defined and homeSettings and homeSettings.contactPhone) ? homeSettings.contactPhone : '+374 94 64 99 24' %}
+                <a href="{{ __contact_phone|tel_uri }}"
+                   class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition cursor-pointer group/card block no-underline text-inherit focus:outline-none focus-visible:ring-2 focus-visible:ring-pink-500 focus-visible:ring-offset-2"
+                   aria-label="Զանգել {{ __contact_phone|e('html_attr') }}">
+                    <div class="font-bold text-gray-900 mb-2 group-hover/card:text-pink-600 transition-colors">
+                        <i class="fas fa-phone mr-2 text-pink-600"></i> Հեռախոս
+                    </div>
+                    <div class="text-gray-600 text-sm group-hover/card:text-gray-900 transition-colors">{{ __contact_phone }}</div>
+                </a>
                 <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                     <div class="font-bold text-gray-900 mb-2"><i class="far fa-clock mr-2 text-pink-600"></i> Աշխատանքային ժամեր</div>
                     {% set __hours_1 = (homeSettings is defined and homeSettings and homeSettings.contactHoursLine1) ? homeSettings.contactHoursLine1 : 'Երկ - Շաբ: 10:00 - 20:00' %}
