@@ -356,7 +356,7 @@
                     </p>
                     <p class="flex items-center gap-3">
                         <i class="fas fa-phone text-pink-500"></i>
-                        <a href="tel:{{ _footer_phone|replace({' ': ''}) }}" class="hover:text-pink-500 transition">
+                        <a href="{{ _footer_phone|tel_uri }}" class="hover:text-pink-500 transition">
                             {{ _footer_phone }}
                         </a>
                     </p>
