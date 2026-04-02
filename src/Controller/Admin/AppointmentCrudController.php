@@ -18,7 +18,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use Doctrine\ORM\QueryBuilder;
@@ -230,9 +229,7 @@ class AppointmentCrudController extends AbstractCrudController
             ])
             ->hideOnIndex();
 
-        yield MoneyField::new('servicePriceAtBooking', 'Գին')
-            ->setCurrency('AMD')
-            ->setStoredAsCents(false)
+        yield TextField::new('servicePriceAtBooking', 'Գին')
             ->setHelp('Պահվում է ամրագրելու պահին, որպեսզի հաշվետվությունը չփոխվի, եթե հետո Service-ի գինը փոխվի։')
             ->setPermission('ROLE_ADMIN')
             ->hideOnForm();
