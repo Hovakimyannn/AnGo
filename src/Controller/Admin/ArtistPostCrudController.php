@@ -182,23 +182,39 @@ class ArtistPostCrudController extends AbstractCrudController
 
         yield AssociationField::new('services', 'Services')
             ->setFormTypeOption('by_reference', false)
-            ->setQueryBuilder(function (QueryBuilder $qb) use ($pageName) {
-                $profile = $this->resolveArtistProfileForServiceChoices($pageName);
-                if ($profile) {
-                    $ids = $profile->getServices()->map(fn(Service $s) => $s->getId())->toArray();
-                    $ids = array_values(array_filter($ids));
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                $user = $this->getUser();
+                if (!$user instanceof AppUser) {
+                    return $qb;
+                }
 
-                    if (empty($ids)) {
-                        return $qb->andWhere('entity.id IS NULL'); // Return nothing
-                    }
+                // If we are in an admin context and editing an existing post,
+                // we should preferably use that post's artist.
+                $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
+                $targetArtistProfile = null;
 
-                    return $qb->andWhere('entity.id IN (:ids)')
-                        ->setParameter('ids', $ids)
+                if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
+                    $targetArtistProfile = $instance->getArtist();
+                } else {
+                    // Default to current user's profile
+                    $targetArtistProfile = $this->artistProfileRepository->findOneBy(['user' => $user]);
+                }
+
+                if ($targetArtistProfile) {
+                    return $qb
+                        ->innerJoin('entity.artistProfiles', 'ap')
+                        ->andWhere('ap.id = :profileId')
+                        ->setParameter('profileId', $targetArtistProfile->getId())
                         ->orderBy('entity.category', 'ASC')
                         ->addOrderBy('entity.name', 'ASC');
                 }
 
-                return $qb;
+                // Fallback: if no profile found, only show services if admin
+                if ($this->isGranted('ROLE_ADMIN')) {
+                    return $qb;
+                }
+
+                return $qb->andWhere('1 = 0');
             });
 
         yield BooleanField::new('isPublished', 'Published');
@@ -209,35 +225,6 @@ class ArtistPostCrudController extends AbstractCrudController
         yield TextEditorField::new('content', 'Content');
     }
 
-    /**
-     * Services on a post must be a subset of the artist's profile services.
-     *
-     * - Artist panel (no ROLE_ADMIN): logged-in artist's profile.
-     * - Admin editing a post: the post's artist (new post still shows all services until saved).
-     *
-     * @param ArtistPost|null $post Set from form PRE_SET_DATA when available (more reliable than admin context).
-     */
-    private function resolveArtistProfileForServiceChoices(string $pageName, ?ArtistPost $post = null): ?ArtistProfile
-    {
-        $user = $this->getUser();
-
-        // If we are editing an existing post, show services for that post's artist
-        if (Crud::PAGE_EDIT === $pageName) {
-            $instance = $post ?? $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
-            if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
-                $artist = $instance->getArtist();
-                return $this->artistProfileRepository->findWithServicesById((int) $artist->getId()) ?? $artist;
-            }
-        }
-
-        // For NEW posts (or if Edit failed to find artist), default to currently logged-in user's profile
-        if ($user instanceof AppUser) {
-            return $this->artistProfileRepository->findWithServicesForUser($user)
-                ?? $this->artistProfileRepository->findOneBy(['user' => $user]);
-        }
-
-        return null;
-    }
 }
 
 
