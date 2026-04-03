@@ -13,6 +13,8 @@ use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Provider\AdminContextProviderInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -26,6 +28,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistPostCrudController extends AbstractCrudController
@@ -107,6 +113,97 @@ class ArtistPostCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
+        $this->configureArtistServicesFieldOnForm($builder, Crud::PAGE_NEW);
+
+        return $builder;
+    }
+
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+        $this->configureArtistServicesFieldOnForm($builder, Crud::PAGE_EDIT);
+
+        return $builder;
+    }
+
+    /**
+     * EasyAdmin's AssociationConfigurator can override query_builder/choices after FieldDto is built.
+     * Replacing the field on PRE_SET_DATA forces only the artist's services at runtime.
+     */
+    private function configureArtistServicesFieldOnForm(FormBuilderInterface $builder, string $pageName): void
+    {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($pageName): void {
+            $data = $event->getData();
+            $form = $event->getForm();
+            if (!$form->has('services')) {
+                return;
+            }
+
+            $post = $data instanceof ArtistPost ? $data : null;
+            $profile = $this->resolveArtistProfileForServiceChoices($pageName, $post);
+            if (!$profile instanceof ArtistProfile || null === $profile->getId()) {
+                return;
+            }
+
+            $fresh = $this->artistProfileRepository->findWithServicesById((int) $profile->getId());
+            if (!$fresh instanceof ArtistProfile) {
+                return;
+            }
+
+            $choices = $fresh->getServices()->toArray();
+            usort($choices, static function (Service $a, Service $b): int {
+                $byCat = ((string) ($a->getCategory() ?? '')) <=> ((string) ($b->getCategory() ?? ''));
+                if (0 !== $byCat) {
+                    return $byCat;
+                }
+
+                return strnatcasecmp((string) ($a->getName() ?? ''), (string) ($b->getName() ?? ''));
+            });
+
+            $ids = array_values(array_filter(array_map(static fn (Service $s) => $s->getId(), $choices)));
+
+            $existing = $form->get('services');
+            $label = $existing->getOption('label');
+            $required = $existing->getOption('required');
+
+            $form->remove('services');
+
+            $help = $choices === []
+                ? 'Ձեր պրոֆիլում ծառայություն չկա։ Ավելացրեք «Իմ պրոֆիլը» → Ծառայություններ։'
+                : $existing->getOption('help');
+
+            $form->add('services', EntityType::class, [
+                'class' => Service::class,
+                'label' => $label,
+                'required' => $required,
+                'help' => $help,
+                'multiple' => true,
+                'expanded' => false,
+                'by_reference' => false,
+                'choices' => $choices,
+                'query_builder' => static function (EntityRepository $er) use ($ids): QueryBuilder {
+                    $qb = $er->createQueryBuilder('entity');
+                    if ($ids === []) {
+                        return $qb->where('1 = 0');
+                    }
+
+                    return $qb
+                        ->where('entity.id IN (:ids)')
+                        ->setParameter('ids', $ids)
+                        ->orderBy('entity.category', 'ASC')
+                        ->addOrderBy('entity.name', 'ASC');
+                },
+                'attr' => [
+                    'class' => 'form-select',
+                    'size' => min(12, max(3, \count($choices) + 1)),
+                ],
+            ]);
+        });
+    }
+
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
@@ -168,52 +265,10 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
-        $servicesField = AssociationField::new('services', 'Services');
-
-        $profile = $this->resolveArtistProfileForServiceChoices($pageName);
-
-        if ($profile instanceof ArtistProfile) {
-            // Load options from the profile relation. We must also set query_builder: otherwise
-            // EasyAdmin's AssociationConfigurator adds a default query_builder that loads every Service.
-            $choices = $profile->getServices()->toArray();
-            usort($choices, static function (Service $a, Service $b): int {
-                $byCat = ((string) ($a->getCategory() ?? '')) <=> ((string) ($b->getCategory() ?? ''));
-                if (0 !== $byCat) {
-                    return $byCat;
-                }
-
-                return strnatcasecmp((string) ($a->getName() ?? ''), (string) ($b->getName() ?? ''));
-            });
-
-            $ids = array_values(array_filter(array_map(static fn (Service $s) => $s->getId(), $choices)));
-
-            $servicesField = $servicesField
-                ->setFormTypeOptions([
-                    'by_reference' => false,
-                    'choices' => $choices,
-                    'query_builder' => static function (EntityRepository $er) use ($ids): QueryBuilder {
-                        $qb = $er->createQueryBuilder('entity');
-                        if ($ids === []) {
-                            return $qb->where('1 = 0');
-                        }
-
-                        return $qb
-                            ->where('entity.id IN (:ids)')
-                            ->setParameter('ids', $ids)
-                            ->orderBy('entity.category', 'ASC')
-                            ->addOrderBy('entity.name', 'ASC');
-                    },
-                ])
-                ->renderAsNativeWidget();
-
-            if ($choices === []) {
-                $servicesField = $servicesField->setHelp('Ձեր պրոֆիլում ծառայություն չկա։ Ավելացրեք «Իմ պրոֆիլը» → Ծառայություններ։');
-            }
-        } else {
-            $servicesField = $servicesField->setFormTypeOption('by_reference', false);
-        }
-
-        yield $servicesField;
+        // Choices/query_builder are applied in configureArtistServicesFieldOnForm() (PRE_SET_DATA),
+        // because EasyAdmin can replace AssociationField options during form factory build.
+        yield AssociationField::new('services', 'Services')
+            ->setFormTypeOption('by_reference', false);
 
         yield BooleanField::new('isPublished', 'Published');
         yield DateTimeField::new('publishedAt', 'Published at')->hideOnForm();
@@ -228,21 +283,24 @@ class ArtistPostCrudController extends AbstractCrudController
      *
      * - Artist panel (no ROLE_ADMIN): logged-in artist's profile.
      * - Admin editing a post: the post's artist (new post still shows all services until saved).
+     *
+     * @param ArtistPost|null $post Set from form PRE_SET_DATA when available (more reliable than admin context).
      */
-    private function resolveArtistProfileForServiceChoices(string $pageName): ?ArtistProfile
+    private function resolveArtistProfileForServiceChoices(string $pageName, ?ArtistPost $post = null): ?ArtistProfile
     {
         $user = $this->getUser();
 
         if (!$this->isGranted('ROLE_ADMIN') && $this->isGranted('ROLE_ARTIST') && $user instanceof AppUser) {
-            return $this->artistProfileRepository->findOneBy(['user' => $user]);
+            return $this->artistProfileRepository->findWithServicesForUser($user)
+                ?? $this->artistProfileRepository->findOneBy(['user' => $user]);
         }
 
         if ($this->isGranted('ROLE_ADMIN') && Crud::PAGE_EDIT === $pageName) {
-            $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
-            if ($instance instanceof ArtistPost) {
+            $instance = $post ?? $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
+            if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
                 $artist = $instance->getArtist();
 
-                return $artist instanceof ArtistProfile ? $artist : null;
+                return $this->artistProfileRepository->findWithServicesById((int) $artist->getId()) ?? $artist;
             }
         }
 
