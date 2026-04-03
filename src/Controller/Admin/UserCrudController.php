@@ -70,7 +70,12 @@ class UserCrudController extends AbstractCrudController
         yield ChoiceField::new('roles', 'Դերեր')
             ->allowMultipleChoices()
             ->renderExpanded(false)
-            ->setHelp('Նշեք աշխատակցի դերը։ ROLE_USER-ը միշտ ավտոմատ առկա է։')
+            ->setRequired(false)
+            ->setFormTypeOptions([
+                'required' => false,
+                'empty_data' => [],
+            ])
+            ->setHelp('Դեր չընտրելը թողնում է միայն ROLE_USER (սովորական օգտատեր)։ Ադմին կամ մասնագետ ավելացնելու համար նշեք համապատասխան տարբերակը։')
             ->setChoices([
                 'Ադմին' => 'ROLE_ADMIN',
                 'Մասնագետ' => 'ROLE_ARTIST',

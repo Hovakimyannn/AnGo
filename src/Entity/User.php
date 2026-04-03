@@ -92,7 +92,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setRoles(array $roles): static
     {
-        $this->roles = $roles;
+        // ROLE_USER is implicit in getRoles(); do not persist it. Allow empty array = "no extra roles".
+        $this->roles = array_values(array_unique(array_values(array_filter(
+            $roles,
+            static fn (mixed $r): bool => \is_string($r) && $r !== '' && $r !== 'ROLE_USER'
+        ))));
+
         return $this;
     }
 
