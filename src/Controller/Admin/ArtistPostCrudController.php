@@ -117,7 +117,91 @@ class ArtistPostCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
+    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
+        $this->addServicesFilterListener($builder);
 
+        return $builder;
+    }
+
+    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
+    {
+        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
+        $this->addServicesFilterListener($builder);
+
+        return $builder;
+    }
+
+    /**
+     * Replace the "services" field at runtime so only the artist's own services appear.
+     * EasyAdmin's setQueryBuilder doesn't work with Autocomplete, so we use PRE_SET_DATA.
+     */
+    private function addServicesFilterListener(FormBuilderInterface $builder): void
+    {
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+            $form = $event->getForm();
+            if (!$form->has('services')) {
+                return;
+            }
+
+            // Determine which artist profile to filter by
+            $artistProfile = $this->resolveArtistProfile($event->getData());
+            if (!$artistProfile) {
+                return;
+            }
+
+            $profileId = $artistProfile->getId();
+            if (!$profileId) {
+                return;
+            }
+
+            $existing = $form->get('services');
+            $label = $existing->getOption('label');
+            $required = $existing->getOption('required');
+
+            $form->remove('services');
+
+            $form->add('services', EntityType::class, [
+                'class' => Service::class,
+                'label' => $label,
+                'required' => $required,
+                'multiple' => true,
+                'expanded' => false,
+                'by_reference' => false,
+                'query_builder' => static function (EntityRepository $er) use ($profileId): QueryBuilder {
+                    return $er->createQueryBuilder('s')
+                        ->innerJoin('s.artistProfiles', 'ap')
+                        ->andWhere('ap.id = :profileId')
+                        ->setParameter('profileId', $profileId)
+                        ->orderBy('s.category', 'ASC')
+                        ->addOrderBy('s.name', 'ASC');
+                },
+                'attr' => [
+                    'class' => 'form-select',
+                ],
+            ]);
+        });
+    }
+
+    /**
+     * Find the artist profile to use for filtering services.
+     */
+    private function resolveArtistProfile(mixed $data): ?ArtistProfile
+    {
+        // If editing an existing post that has an artist, use that artist
+        if ($data instanceof ArtistPost && $data->getArtist() instanceof ArtistProfile) {
+            return $data->getArtist();
+        }
+
+        // Otherwise use the currently logged-in user's artist profile
+        $user = $this->getUser();
+        if ($user instanceof AppUser) {
+            return $this->artistProfileRepository->findOneBy(['user' => $user]);
+        }
+
+        return null;
+    }
 
     public function configureFields(string $pageName): iterable
     {
@@ -180,42 +264,9 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
+        // Services field - filtering is done in addServicesFilterListener()
         yield AssociationField::new('services', 'Services')
-            ->setFormTypeOption('by_reference', false)
-            ->setQueryBuilder(function (QueryBuilder $qb) {
-                $user = $this->getUser();
-                if (!$user instanceof AppUser) {
-                    return $qb;
-                }
-
-                // If we are in an admin context and editing an existing post,
-                // we should preferably use that post's artist.
-                $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
-                $targetArtistProfile = null;
-
-                if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
-                    $targetArtistProfile = $instance->getArtist();
-                } else {
-                    // Default to current user's profile
-                    $targetArtistProfile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-                }
-
-                if ($targetArtistProfile) {
-                    return $qb
-                        ->innerJoin('entity.artistProfiles', 'ap')
-                        ->andWhere('ap.id = :profileId')
-                        ->setParameter('profileId', $targetArtistProfile->getId())
-                        ->orderBy('entity.category', 'ASC')
-                        ->addOrderBy('entity.name', 'ASC');
-                }
-
-                // Fallback: if no profile found, only show services if admin
-                if ($this->isGranted('ROLE_ADMIN')) {
-                    return $qb;
-                }
-
-                return $qb->andWhere('1 = 0');
-            });
+            ->setFormTypeOption('by_reference', false);
 
         yield BooleanField::new('isPublished', 'Published');
         yield DateTimeField::new('publishedAt', 'Published at')->hideOnForm();
@@ -226,5 +277,3 @@ class ArtistPostCrudController extends AbstractCrudController
     }
 
 }
-
-
