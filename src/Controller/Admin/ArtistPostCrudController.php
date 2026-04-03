@@ -8,6 +8,7 @@ use App\Entity\Service;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -17,6 +18,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\Field;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -25,6 +27,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistPostCrudController extends AbstractCrudController
@@ -171,44 +174,35 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
-        // Use autocomplete() so EasyAdmin uses AJAX + setQueryBuilder callback
-        yield AssociationField::new('services', 'Services')
-            ->setFormTypeOption('by_reference', false)
-            ->autocomplete()
-            ->setQueryBuilder(function (QueryBuilder $qb) {
-                $user = $this->getUser();
-                if (!$user instanceof AppUser) {
-                    return $qb->andWhere('1 = 0');
-                }
+        // On index/detail pages, use AssociationField to display nicely
+        // On form pages, use Field+EntityType to bypass EasyAdmin's AssociationConfigurator
+        if ($pageName === Crud::PAGE_INDEX || $pageName === Crud::PAGE_DETAIL) {
+            yield AssociationField::new('services', 'Services');
+        } else {
+            // Resolve the artist profile for filtering
+            $profileId = $this->resolveArtistProfileId($pageName);
 
-                // For editing existing post, use post's artist
-                $context = $this->adminContextProvider->getContext();
-                $instance = $context?->getEntity()?->getInstance();
+            yield Field::new('services', 'Services')
+                ->setFormType(EntityType::class)
+                ->setFormTypeOptions([
+                    'class' => Service::class,
+                    'multiple' => true,
+                    'expanded' => false,
+                    'by_reference' => false,
+                    'query_builder' => static function (EntityRepository $er) use ($profileId): QueryBuilder {
+                        if (!$profileId) {
+                            return $er->createQueryBuilder('s')->where('1 = 0');
+                        }
 
-                if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
-                    $profileId = $instance->getArtist()->getId();
-                } else {
-                    // For new posts or fallback, use logged-in user's artist profile
-                    $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-                    $profileId = $profile?->getId();
-                }
-
-                if ($profileId) {
-                    return $qb
-                        ->innerJoin('entity.artistProfiles', 'ap')
-                        ->andWhere('ap.id = :profileId')
-                        ->setParameter('profileId', $profileId)
-                        ->orderBy('entity.category', 'ASC')
-                        ->addOrderBy('entity.name', 'ASC');
-                }
-
-                // No profile found: admin sees all, artist sees nothing
-                if ($this->isGranted('ROLE_ADMIN')) {
-                    return $qb;
-                }
-
-                return $qb->andWhere('1 = 0');
-            });
+                        return $er->createQueryBuilder('s')
+                            ->innerJoin('s.artistProfiles', 'ap')
+                            ->andWhere('ap.id = :profileId')
+                            ->setParameter('profileId', $profileId)
+                            ->orderBy('s.category', 'ASC')
+                            ->addOrderBy('s.name', 'ASC');
+                    },
+                ]);
+        }
 
         yield BooleanField::new('isPublished', 'Published');
         yield DateTimeField::new('publishedAt', 'Published at')->hideOnForm();
@@ -218,4 +212,27 @@ class ArtistPostCrudController extends AbstractCrudController
         yield TextEditorField::new('content', 'Content');
     }
 
+    /**
+     * Determine the artist profile ID used to filter services.
+     * For editing: use the post's artist. For new: use logged-in user's profile.
+     */
+    private function resolveArtistProfileId(string $pageName): ?int
+    {
+        // When editing, try to get the post's artist
+        if ($pageName === Crud::PAGE_EDIT) {
+            $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
+            if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
+                return $instance->getArtist()->getId();
+            }
+        }
+
+        // Default: use the logged-in user's artist profile
+        $user = $this->getUser();
+        if ($user instanceof AppUser) {
+            $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
+            return $profile?->getId();
+        }
+
+        return null;
+    }
 }
