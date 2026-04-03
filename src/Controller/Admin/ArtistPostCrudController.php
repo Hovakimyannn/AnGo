@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\ArtistPost;
+use App\Entity\ArtistProfile;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
 use Doctrine\ORM\EntityRepository;
@@ -166,22 +167,39 @@ class ArtistPostCrudController extends AbstractCrudController
 
         $servicesField = AssociationField::new('services', 'Services')
             ->setFormTypeOption('by_reference', false);
-        if ($this->isGranted('ROLE_ARTIST') && !$this->isGranted('ROLE_ADMIN')) {
+
+        // EasyAdmin uses TomSelect + Ajax for associations; form EntityType query_builder alone
+        // does not limit autocomplete. setQueryBuilder() is applied to those requests too.
+        $profile = null;
+        if ($this->isGranted('ROLE_ARTIST')) {
             $user = $this->getUser();
             if ($user instanceof AppUser) {
                 $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-                if ($profile) {
-                    $servicesField = $servicesField->setFormTypeOption('query_builder', function (EntityRepository $er) use ($profile) {
-                        return $er->createQueryBuilder('s')
-                            ->join('s.artistProfiles', 'ap')
-                            ->andWhere('ap = :artist')
-                            ->setParameter('artist', $profile)
-                            ->orderBy('s.category', 'ASC')
-                            ->addOrderBy('s.name', 'ASC');
-                    });
-                }
             }
         }
+
+        if ($profile instanceof ArtistProfile) {
+            $filterForArtist = static function (QueryBuilder $qb) use ($profile): QueryBuilder {
+                return $qb
+                    ->join('entity.artistProfiles', 'ap')
+                    ->andWhere('ap = :artist')
+                    ->setParameter('artist', $profile)
+                    ->orderBy('entity.category', 'ASC')
+                    ->addOrderBy('entity.name', 'ASC');
+            };
+
+            $servicesField = $servicesField
+                ->setQueryBuilder($filterForArtist)
+                ->setFormTypeOption('query_builder', function (EntityRepository $er) use ($profile) {
+                    return $er->createQueryBuilder('entity')
+                        ->join('entity.artistProfiles', 'ap')
+                        ->andWhere('ap = :artist')
+                        ->setParameter('artist', $profile)
+                        ->orderBy('entity.category', 'ASC')
+                        ->addOrderBy('entity.name', 'ASC');
+                });
+        }
+
         yield $servicesField;
 
         yield BooleanField::new('isPublished', 'Published');
