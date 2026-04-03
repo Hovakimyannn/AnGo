@@ -8,7 +8,6 @@ use App\Entity\Service;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -179,8 +178,8 @@ class ArtistPostCrudController extends AbstractCrudController
         if ($pageName === Crud::PAGE_INDEX || $pageName === Crud::PAGE_DETAIL) {
             yield AssociationField::new('services', 'Services');
         } else {
-            // Resolve the artist profile for filtering
-            $profileId = $this->resolveArtistProfileId($pageName);
+            // Fetch the artist's services directly
+            $services = $this->getArtistServices($pageName);
 
             yield Field::new('services', 'Services')
                 ->setFormType(EntityType::class)
@@ -189,18 +188,10 @@ class ArtistPostCrudController extends AbstractCrudController
                     'multiple' => true,
                     'expanded' => false,
                     'by_reference' => false,
-                    'query_builder' => static function (EntityRepository $er) use ($profileId): QueryBuilder {
-                        if (!$profileId) {
-                            return $er->createQueryBuilder('s')->where('1 = 0');
-                        }
-
-                        return $er->createQueryBuilder('s')
-                            ->innerJoin('s.artistProfiles', 'ap')
-                            ->andWhere('ap.id = :profileId')
-                            ->setParameter('profileId', $profileId)
-                            ->orderBy('s.category', 'ASC')
-                            ->addOrderBy('s.name', 'ASC');
-                    },
+                    'choices' => $services,
+                    'attr' => [
+                        'data-ea-widget' => 'false',
+                    ],
                 ]);
         }
 
@@ -213,26 +204,44 @@ class ArtistPostCrudController extends AbstractCrudController
     }
 
     /**
-     * Determine the artist profile ID used to filter services.
-     * For editing: use the post's artist. For new: use logged-in user's profile.
+     * Get the services for the artist's profile (for form dropdown).
+     *
+     * @return Service[]
      */
-    private function resolveArtistProfileId(string $pageName): ?int
+    private function getArtistServices(string $pageName): array
     {
+        $profile = null;
+
         // When editing, try to get the post's artist
         if ($pageName === Crud::PAGE_EDIT) {
             $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
             if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
-                return $instance->getArtist()->getId();
+                $profile = $this->artistProfileRepository->findWithServicesById(
+                    (int) $instance->getArtist()->getId()
+                );
             }
         }
 
         // Default: use the logged-in user's artist profile
-        $user = $this->getUser();
-        if ($user instanceof AppUser) {
-            $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-            return $profile?->getId();
+        if (!$profile) {
+            $user = $this->getUser();
+            if ($user instanceof AppUser) {
+                $profile = $this->artistProfileRepository->findWithServicesForUser($user);
+            }
         }
 
-        return null;
+        if (!$profile) {
+            return [];
+        }
+
+        $services = $profile->getServices()->toArray();
+
+        // Sort by category, then name
+        usort($services, static function (Service $a, Service $b): int {
+            $byCat = ((string) ($a->getCategory() ?? '')) <=> ((string) ($b->getCategory() ?? ''));
+            return $byCat !== 0 ? $byCat : strnatcasecmp((string) ($a->getName() ?? ''), (string) ($b->getName() ?? ''));
+        });
+
+        return $services;
     }
 }
