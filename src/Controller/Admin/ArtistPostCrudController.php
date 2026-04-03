@@ -74,12 +74,16 @@ class ArtistPostCrudController extends AbstractCrudController
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
-        if ($entityInstance instanceof ArtistPost && !$this->isGranted('ROLE_ADMIN') && $this->isGranted('ROLE_ARTIST')) {
-            $user = $this->getUser();
-            if ($user instanceof AppUser) {
-                $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-                if ($profile) {
-                    $entityInstance->setArtist($profile);
+        if ($entityInstance instanceof ArtistPost) {
+            // Priority 1: If artist is already set (e.g. by Admin in form), keep it.
+            // Priority 2: If not set, try to auto-fill from currently logged-in user's profile.
+            if ($entityInstance->getArtist() === null) {
+                $user = $this->getUser();
+                if ($user instanceof AppUser) {
+                    $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
+                    if ($profile) {
+                        $entityInstance->setArtist($profile);
+                    }
                 }
             }
         }
@@ -198,7 +202,6 @@ class ArtistPostCrudController extends AbstractCrudController
                 },
                 'attr' => [
                     'class' => 'form-select',
-                    'size' => min(12, max(3, \count($choices) + 1)),
                 ],
             ]);
         });
@@ -290,18 +293,19 @@ class ArtistPostCrudController extends AbstractCrudController
     {
         $user = $this->getUser();
 
-        if (!$this->isGranted('ROLE_ADMIN') && $this->isGranted('ROLE_ARTIST') && $user instanceof AppUser) {
-            return $this->artistProfileRepository->findWithServicesForUser($user)
-                ?? $this->artistProfileRepository->findOneBy(['user' => $user]);
-        }
-
-        if ($this->isGranted('ROLE_ADMIN') && Crud::PAGE_EDIT === $pageName) {
+        // If we are editing an existing post, show services for that post's artist
+        if (Crud::PAGE_EDIT === $pageName) {
             $instance = $post ?? $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
             if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
                 $artist = $instance->getArtist();
-
                 return $this->artistProfileRepository->findWithServicesById((int) $artist->getId()) ?? $artist;
             }
+        }
+
+        // For NEW posts (or if Edit failed to find artist), default to currently logged-in user's profile
+        if ($user instanceof AppUser) {
+            return $this->artistProfileRepository->findWithServicesForUser($user)
+                ?? $this->artistProfileRepository->findOneBy(['user' => $user]);
         }
 
         return null;
