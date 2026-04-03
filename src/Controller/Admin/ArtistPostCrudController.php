@@ -6,12 +6,12 @@ use App\Entity\ArtistPost;
 use App\Entity\ArtistProfile;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Contracts\Provider\AdminContextProviderInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
@@ -30,6 +30,7 @@ class ArtistPostCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly ArtistProfileRepository $artistProfileRepository,
+        private readonly AdminContextProviderInterface $adminContextProvider,
     ) {
     }
 
@@ -168,36 +169,25 @@ class ArtistPostCrudController extends AbstractCrudController
         $servicesField = AssociationField::new('services', 'Services')
             ->setFormTypeOption('by_reference', false);
 
-        // EasyAdmin uses TomSelect + Ajax for associations; form EntityType query_builder alone
-        // does not limit autocomplete. setQueryBuilder() is applied to those requests too.
-        $profile = null;
-        if ($this->isGranted('ROLE_ARTIST')) {
-            $user = $this->getUser();
-            if ($user instanceof AppUser) {
-                $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
-            }
-        }
+        $profile = $this->resolveArtistProfileForServiceChoices($pageName);
 
         if ($profile instanceof ArtistProfile) {
-            $filterForArtist = static function (QueryBuilder $qb) use ($profile): QueryBuilder {
-                return $qb
-                    ->join('entity.artistProfiles', 'ap')
-                    ->andWhere('ap = :artist')
-                    ->setParameter('artist', $profile)
-                    ->orderBy('entity.category', 'ASC')
-                    ->addOrderBy('entity.name', 'ASC');
-            };
-
+            // EasyAdmin 4.27: if we set form query_builder ourselves, AssociationConfigurator's
+            // merge never runs and setQueryBuilder is skipped. Only setQueryBuilder here; the
+            // configurator wraps it with createQueryBuilder('entity') and invokes the callable
+            // (return value is ignored — mutate the passed QueryBuilder).
             $servicesField = $servicesField
-                ->setQueryBuilder($filterForArtist)
-                ->setFormTypeOption('query_builder', function (EntityRepository $er) use ($profile) {
-                    return $er->createQueryBuilder('entity')
+                ->setQueryBuilder(static function (QueryBuilder $qb) use ($profile): void {
+                    $qb
                         ->join('entity.artistProfiles', 'ap')
                         ->andWhere('ap = :artist')
                         ->setParameter('artist', $profile)
                         ->orderBy('entity.category', 'ASC')
                         ->addOrderBy('entity.name', 'ASC');
-                });
+                })
+                // TomSelect "autocomplete" widget can still show unfiltered remote results; native
+                // multi-select uses the EntityType query only (fine when the list is small).
+                ->renderAsNativeWidget();
         }
 
         yield $servicesField;
@@ -208,6 +198,32 @@ class ArtistPostCrudController extends AbstractCrudController
         yield DateTimeField::new('updatedAt', 'Updated')->hideOnForm();
 
         yield TextEditorField::new('content', 'Content');
+    }
+
+    /**
+     * Services on a post must be a subset of the artist's profile services.
+     *
+     * - Artist panel (no ROLE_ADMIN): logged-in artist's profile.
+     * - Admin editing a post: the post's artist (new post still shows all services until saved).
+     */
+    private function resolveArtistProfileForServiceChoices(string $pageName): ?ArtistProfile
+    {
+        $user = $this->getUser();
+
+        if (!$this->isGranted('ROLE_ADMIN') && $this->isGranted('ROLE_ARTIST') && $user instanceof AppUser) {
+            return $this->artistProfileRepository->findOneBy(['user' => $user]);
+        }
+
+        if ($this->isGranted('ROLE_ADMIN') && Crud::PAGE_EDIT === $pageName) {
+            $instance = $this->adminContextProvider->getContext()?->getEntity()?->getInstance();
+            if ($instance instanceof ArtistPost) {
+                $artist = $instance->getArtist();
+
+                return $artist instanceof ArtistProfile ? $artist : null;
+            }
+        }
+
+        return null;
     }
 }
 
