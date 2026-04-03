@@ -8,13 +8,10 @@ use App\Entity\Service;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
-use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Provider\AdminContextProviderInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
@@ -28,10 +25,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Validator\Constraints\Image;
 
 class ArtistPostCrudController extends AbstractCrudController
@@ -117,92 +110,6 @@ class ArtistPostCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
-    public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
-    {
-        $builder = parent::createNewFormBuilder($entityDto, $formOptions, $context);
-        $this->addServicesFilterListener($builder);
-
-        return $builder;
-    }
-
-    public function createEditFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface
-    {
-        $builder = parent::createEditFormBuilder($entityDto, $formOptions, $context);
-        $this->addServicesFilterListener($builder);
-
-        return $builder;
-    }
-
-    /**
-     * Replace the "services" field at runtime so only the artist's own services appear.
-     * EasyAdmin's setQueryBuilder doesn't work with Autocomplete, so we use PRE_SET_DATA.
-     */
-    private function addServicesFilterListener(FormBuilderInterface $builder): void
-    {
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
-            $form = $event->getForm();
-            if (!$form->has('services')) {
-                return;
-            }
-
-            // Determine which artist profile to filter by
-            $artistProfile = $this->resolveArtistProfile($event->getData());
-            if (!$artistProfile) {
-                return;
-            }
-
-            $profileId = $artistProfile->getId();
-            if (!$profileId) {
-                return;
-            }
-
-            $existing = $form->get('services');
-            $label = $existing->getOption('label');
-            $required = $existing->getOption('required');
-
-            $form->remove('services');
-
-            $form->add('services', EntityType::class, [
-                'class' => Service::class,
-                'label' => $label,
-                'required' => $required,
-                'multiple' => true,
-                'expanded' => false,
-                'by_reference' => false,
-                'query_builder' => static function (EntityRepository $er) use ($profileId): QueryBuilder {
-                    return $er->createQueryBuilder('s')
-                        ->innerJoin('s.artistProfiles', 'ap')
-                        ->andWhere('ap.id = :profileId')
-                        ->setParameter('profileId', $profileId)
-                        ->orderBy('s.category', 'ASC')
-                        ->addOrderBy('s.name', 'ASC');
-                },
-                'attr' => [
-                    'class' => 'form-select',
-                ],
-            ]);
-        });
-    }
-
-    /**
-     * Find the artist profile to use for filtering services.
-     */
-    private function resolveArtistProfile(mixed $data): ?ArtistProfile
-    {
-        // If editing an existing post that has an artist, use that artist
-        if ($data instanceof ArtistPost && $data->getArtist() instanceof ArtistProfile) {
-            return $data->getArtist();
-        }
-
-        // Otherwise use the currently logged-in user's artist profile
-        $user = $this->getUser();
-        if ($user instanceof AppUser) {
-            return $this->artistProfileRepository->findOneBy(['user' => $user]);
-        }
-
-        return null;
-    }
-
     public function configureFields(string $pageName): iterable
     {
         yield IdField::new('id')->hideOnForm();
@@ -264,9 +171,44 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
-        // Services field - filtering is done in addServicesFilterListener()
+        // Use autocomplete() so EasyAdmin uses AJAX + setQueryBuilder callback
         yield AssociationField::new('services', 'Services')
-            ->setFormTypeOption('by_reference', false);
+            ->setFormTypeOption('by_reference', false)
+            ->autocomplete()
+            ->setQueryBuilder(function (QueryBuilder $qb) {
+                $user = $this->getUser();
+                if (!$user instanceof AppUser) {
+                    return $qb->andWhere('1 = 0');
+                }
+
+                // For editing existing post, use post's artist
+                $context = $this->adminContextProvider->getContext();
+                $instance = $context?->getEntity()?->getInstance();
+
+                if ($instance instanceof ArtistPost && $instance->getArtist() instanceof ArtistProfile) {
+                    $profileId = $instance->getArtist()->getId();
+                } else {
+                    // For new posts or fallback, use logged-in user's artist profile
+                    $profile = $this->artistProfileRepository->findOneBy(['user' => $user]);
+                    $profileId = $profile?->getId();
+                }
+
+                if ($profileId) {
+                    return $qb
+                        ->innerJoin('entity.artistProfiles', 'ap')
+                        ->andWhere('ap.id = :profileId')
+                        ->setParameter('profileId', $profileId)
+                        ->orderBy('entity.category', 'ASC')
+                        ->addOrderBy('entity.name', 'ASC');
+                }
+
+                // No profile found: admin sees all, artist sees nothing
+                if ($this->isGranted('ROLE_ADMIN')) {
+                    return $qb;
+                }
+
+                return $qb->andWhere('1 = 0');
+            });
 
         yield BooleanField::new('isPublished', 'Published');
         yield DateTimeField::new('publishedAt', 'Published at')->hideOnForm();
