@@ -181,8 +181,12 @@ class ArtistPostCrudController extends AbstractCrudController
             // Fetch the artist's services directly
             $services = $this->getArtistServices($pageName);
 
+            // DEBUG: This help text verifies the new code is deployed
+            $debugInfo = sprintf('DEBUG: Found %d services for dropdown', count($services));
+
             yield Field::new('services', 'Services')
                 ->setFormType(EntityType::class)
+                ->setHelp($debugInfo)
                 ->setFormTypeOptions([
                     'class' => Service::class,
                     'multiple' => true,
