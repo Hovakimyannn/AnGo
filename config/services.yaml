@@ -25,5 +25,9 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
+    # EasyAdmin: interface is not autowired by default in some releases (prod 500 otherwise).
+    EasyCorp\Bundle\EasyAdminBundle\Contracts\Provider\AdminContextProviderInterface:
+        alias: EasyCorp\Bundle\EasyAdminBundle\Provider\AdminContextProvider
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
