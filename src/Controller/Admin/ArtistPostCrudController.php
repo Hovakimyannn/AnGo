@@ -4,9 +4,11 @@ namespace App\Controller\Admin;
 
 use App\Entity\ArtistPost;
 use App\Entity\ArtistProfile;
+use App\Entity\Service;
 use App\Entity\User as AppUser;
 use App\Repository\ArtistProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
@@ -166,28 +168,49 @@ class ArtistPostCrudController extends AbstractCrudController
             ->setFormTypeOption('attr', ['accept' => 'image/jpeg,image/png,image/webp'])
             ->setRequired(false);
 
-        $servicesField = AssociationField::new('services', 'Services')
-            ->setFormTypeOption('by_reference', false);
+        $servicesField = AssociationField::new('services', 'Services');
 
         $profile = $this->resolveArtistProfileForServiceChoices($pageName);
 
         if ($profile instanceof ArtistProfile) {
-            // EasyAdmin 4.27: if we set form query_builder ourselves, AssociationConfigurator's
-            // merge never runs and setQueryBuilder is skipped. Only setQueryBuilder here; the
-            // configurator wraps it with createQueryBuilder('entity') and invokes the callable
-            // (return value is ignored — mutate the passed QueryBuilder).
+            // Load options from the profile relation. We must also set query_builder: otherwise
+            // EasyAdmin's AssociationConfigurator adds a default query_builder that loads every Service.
+            $choices = $profile->getServices()->toArray();
+            usort($choices, static function (Service $a, Service $b): int {
+                $byCat = ((string) ($a->getCategory() ?? '')) <=> ((string) ($b->getCategory() ?? ''));
+                if (0 !== $byCat) {
+                    return $byCat;
+                }
+
+                return strnatcasecmp((string) ($a->getName() ?? ''), (string) ($b->getName() ?? ''));
+            });
+
+            $ids = array_values(array_filter(array_map(static fn (Service $s) => $s->getId(), $choices)));
+
             $servicesField = $servicesField
-                ->setQueryBuilder(static function (QueryBuilder $qb) use ($profile): void {
-                    $qb
-                        ->join('entity.artistProfiles', 'ap')
-                        ->andWhere('ap = :artist')
-                        ->setParameter('artist', $profile)
-                        ->orderBy('entity.category', 'ASC')
-                        ->addOrderBy('entity.name', 'ASC');
-                })
-                // TomSelect "autocomplete" widget can still show unfiltered remote results; native
-                // multi-select uses the EntityType query only (fine when the list is small).
+                ->setFormTypeOptions([
+                    'by_reference' => false,
+                    'choices' => $choices,
+                    'query_builder' => static function (EntityRepository $er) use ($ids): QueryBuilder {
+                        $qb = $er->createQueryBuilder('entity');
+                        if ($ids === []) {
+                            return $qb->where('1 = 0');
+                        }
+
+                        return $qb
+                            ->where('entity.id IN (:ids)')
+                            ->setParameter('ids', $ids)
+                            ->orderBy('entity.category', 'ASC')
+                            ->addOrderBy('entity.name', 'ASC');
+                    },
+                ])
                 ->renderAsNativeWidget();
+
+            if ($choices === []) {
+                $servicesField = $servicesField->setHelp('Ձեր պրոֆիլում ծառայություն չկա։ Ավելացրեք «Իմ պրոֆիլը» → Ծառայություններ։');
+            }
+        } else {
+            $servicesField = $servicesField->setFormTypeOption('by_reference', false);
         }
 
         yield $servicesField;
